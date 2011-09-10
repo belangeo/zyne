@@ -109,7 +109,7 @@ class LFOButtons(GenStaticText):
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.font, psize = self.GetFont(), self.GetFont().GetPointSize()
         self.font.SetWeight(wx.BOLD)
-        if vars.constants["PLATFORM"] == "linux2":
+        if vars.constants["PLATFORM"] != "darwin":
             self.font.SetPointSize(psize-2)
         else:
             self.font.SetPointSize(psize-4)
