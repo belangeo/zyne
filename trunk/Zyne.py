@@ -111,7 +111,6 @@ class SamplingDialog(wx.Dialog):
 class ZyneFrame(wx.Frame):
     def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(920,522)):
         wx.Frame.__init__(self, parent, id=-1, title=title, size=size)
-        self.checkForPreferencesFile()
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(vars.constants["ID"]["New"], 'New...\tCtrl+N', kind=wx.ITEM_NORMAL)
@@ -248,28 +247,6 @@ class ZyneFrame(wx.Frame):
         dlg = PreferencesDialog()
         dlg.ShowModal()
         dlg.Destroy()
-    
-    def checkForPreferencesFile(self):
-        preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
-        if os.path.isfile(preffile):
-            with open(preffile, "r") as f:
-                lines = f.readlines()
-                if not lines[0].startswith("### Zyne") or not vars.constants["VERSION"] in lines[0]:
-                    print "Zyne preferences out-of-date, using default values."
-                    lines = vars.constants["DEFAULT_PREFS"].splitlines()
-            prefs = dict()
-            for line in lines[1:]:
-                line = line.strip()
-                if line:
-                    sline = line.split("=")
-                    prefs[sline[0].strip()] = sline[1].strip()
-            for key in prefs.keys():
-                if key in ["SR", "POLY", "BITS"]:
-                    vars.vars[key] = int(prefs[key])
-                elif key in ["SLIDERPORT"]:
-                    vars.vars[key] = float(prefs[key])
-                else:
-                    vars.vars[key] = prefs[key]
     
     def updateLastSavedInPreferencesFile(self, path):
         preffile = os.path.join(os.path.expanduser("~"), ".zynerc")

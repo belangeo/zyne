@@ -3,6 +3,7 @@ import os, sys
 constants = dict()
 constants["VERSION"] = "0.1.0"
 constants["PLATFORM"] = sys.platform
+constants["OSX_BUILD_WITH_JACK_SUPPORT"] = False
 
 if '/Zyne.app' in os.getcwd():
     constants["RESOURCES_PATH"] = os.getcwd()
@@ -69,3 +70,27 @@ vars["EXTERNAL_MODULES"] = {}
 vars["MIDIPITCH"] = None
 vars["NOTEONDUR"] = 1.0
 vars["VIRTUAL"] = False
+
+def checkForPreferencesFile():
+    preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
+    if os.path.isfile(preffile):
+        with open(preffile, "r") as f:
+            lines = f.readlines()
+            if not lines[0].startswith("### Zyne") or not constants["VERSION"] in lines[0]:
+                print "Zyne preferences out-of-date, using default values."
+                lines = constants["DEFAULT_PREFS"].splitlines()
+        prefs = dict()
+        for line in lines[1:]:
+            line = line.strip()
+            if line:
+                sline = line.split("=")
+                prefs[sline[0].strip()] = sline[1].strip()
+        for key in prefs.keys():
+            if key in ["SR", "POLY", "BITS"]:
+                vars[key] = int(prefs[key])
+            elif key in ["SLIDERPORT"]:
+                vars[key] = float(prefs[key])
+            else:
+                vars[key] = prefs[key]
+
+checkForPreferencesFile()
