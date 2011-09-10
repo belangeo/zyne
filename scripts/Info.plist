@@ -14,7 +14,7 @@
 				<string>zy</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>zyneicon.icns</string>
+			<string>zyneiconDoc.icns</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>TEXT</string>
