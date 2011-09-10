@@ -191,7 +191,6 @@ class FSServer:
         self.server.shutdown()
     
     def boot(self):
-        print "boot"
         self.server.boot()
         self._outSig = Sig([0,0]).out()
         self._outSigMix = self._outSig.mix(1)
