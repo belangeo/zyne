@@ -306,7 +306,6 @@ class FSServer:
 
 class LFOSynth:
     def __init__(self, rng, trigger, lfo_config=None):
-        #print lfo_config
         self.trigger = trigger
         self.rawamp = SigTo(.1, vars.vars["SLIDERPORT"], .1, mul=rng)
         self.amp = MidiAdsr(self.trigger, attack=5, decay=.1, sustain=.5, release=1, mul=self.rawamp)
