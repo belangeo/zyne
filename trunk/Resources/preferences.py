@@ -38,7 +38,7 @@ class PreferencesDialog(wx.Dialog):
         if vars.constants["PLATFORM"] == "linux2":
             host_choices = ["Portaudio", "Jack"]
         elif vars.constants["PLATFORM"] == "darwin":
-            if constants["OSX_BUILD_WITH_JACK_SUPPORT"]:
+            if vars.constants["OSX_BUILD_WITH_JACK_SUPPORT"]:
                 host_choices = ["Portaudio", "Coreaudio", "Jack"]
             else:
                 host_choices = ["Portaudio", "Coreaudio"]
