@@ -185,7 +185,6 @@ class ServerPanel(wx.Panel):
                 self.fsserver.shutdown()
                 self.fsserver.setOutputDevice(driverIndex)
                 self.fsserver.boot()
-                #self.popupDriver.SetSelection(self.driverIndexes[self.driverList.index(preferedDriver)])
                 self.popupDriver.SetStringSelection(preferedDriver)
             elif self.defaultDriver:
                 self.popupDriver.SetSelection(self.driverIndexes.index(self.defaultDriver))
@@ -202,8 +201,15 @@ class ServerPanel(wx.Panel):
             self.defaultInterface = get_midi_default_input()
             self.popupInterface = wx.Choice(self, id=-1, pos=(118,40), size=(95, 20), choices=self.interfaceList)
             if preferedInterface and preferedInterface in self.interfaceList:
-                self.popupInterface.SetSelection(self.interfaceIndexes[self.interfaceList.index(preferedInterface)])
+                interfaceIndex = self.interfaceIndexes[self.interfaceList.index(preferedInterface)]
+                self.fsserver.shutdown()
+                self.fsserver.setMidiInputDevice(interfaceIndex)
+                self.fsserver.boot()
+                self.popupInterface.SetStringSelection(preferedInterface)
             elif self.defaultInterface:
+                self.fsserver.shutdown()
+                self.fsserver.setMidiInputDevice(self.defaultInterface)
+                self.fsserver.boot()
                 self.popupInterface.SetSelection(self.interfaceIndexes.index(self.defaultInterface))
         else:    
             self.popupInterface = wx.Choice(self, id=-1, pos=(118,40), size=(95, -1), choices=["No interface", "Virtual Keyboard"])

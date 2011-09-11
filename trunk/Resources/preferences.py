@@ -29,7 +29,7 @@ class PreferencesDialog(wx.Dialog):
         font, entryfont, pointsize = message.GetFont(), message.GetFont(), message.GetFont().GetPointSize()
         
         font.SetWeight(wx.BOLD)
-        if vars.constants["PLATFORM"] == "linux2":
+        if vars.constants["PLATFORM"] in ["win32", "linux2"]:
             entryfont.SetPointSize(pointsize-1)
         else:
             font.SetPointSize(pointsize-1)
