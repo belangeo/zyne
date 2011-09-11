@@ -181,7 +181,12 @@ class ServerPanel(wx.Panel):
             self.defaultDriver = get_default_output()
             self.popupDriver = wx.Choice(self, id=-1, pos=(13,40), size=(95, 20), choices=self.driverList)
             if preferedDriver and preferedDriver in self.driverList:
-                self.popupDriver.SetSelection(self.driverIndexes[self.driverList.index(preferedDriver)])
+                driverIndex = self.driverIndexes[self.driverList.index(preferedDriver)]
+                self.fsserver.shutdown()
+                self.fsserver.setOutputDevice(driverIndex)
+                self.fsserver.boot()
+                #self.popupDriver.SetSelection(self.driverIndexes[self.driverList.index(preferedDriver)])
+                self.popupDriver.SetStringSelection(preferedDriver)
             elif self.defaultDriver:
                 self.popupDriver.SetSelection(self.driverIndexes.index(self.defaultDriver))
             self.popupDriver.Bind(wx.EVT_CHOICE, self.changeDriver)

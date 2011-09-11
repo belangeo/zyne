@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import wx, os
+import wx, os, sys
 import Resources.variables as vars
 from Resources.panels import *
 from Resources.preferences import PreferencesDialog
@@ -140,6 +140,8 @@ class ZyneFrame(wx.Frame):
         tuturialCreateModuleItem = helpMenu.Append(vars.constants["ID"]["Tutorial"], "How to create a custom module")
         self.Bind(wx.EVT_MENU, self.openTutorialCreateModule, tuturialCreateModuleItem)
     
+        self.Bind(wx.EVT_CLOSE, self.onQuit)
+        
         self.menubar.Append(self.fileMenu, "&File")
         self.menubar.Append(self.addMenu, "&Modules")
         self.menubar.Append(helpMenu, "&Help")
@@ -269,8 +271,10 @@ class ZyneFrame(wx.Frame):
             pass
         for win in wx.GetTopLevelWindows():
             win.Destroy()
+        self.serverPanel.shutdown()
         self.Destroy()
-    
+        sys.exit()
+
     def onNew(self, evt):
         self.deleteAllModules()
         self.openedFile = ""
