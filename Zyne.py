@@ -468,7 +468,7 @@ class ZyneFrame(wx.Frame):
         info = wx.AboutDialogInfo()
     
         description = "Zyne is a simple soft synthesizer allowing the " \
-        "user to create original sounds and export samples bank.\n\n" \
+        "user to create original sounds and export bank of samples.\n\n" \
         "Zyne is written with Python and " \
         "WxPython and uses pyo as its audio engine."
     
