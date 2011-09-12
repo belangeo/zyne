@@ -321,6 +321,7 @@ class ZyneFrame(wx.Frame):
             first = int(dlg.first.GetValue())
             last = int(dlg.last.GetValue())
             step = int(dlg.step.GetValue())
+            num_iter = len(range(first,last,step))
             vars.vars["NOTEONDUR"] = float(dlg.noteon.GetValue())
             duration = float(dlg.release.GetValue()) + vars.vars["NOTEONDUR"]
             ext = self.serverPanel.getExtensionFromFileFormat()
@@ -329,15 +330,23 @@ class ZyneFrame(wx.Frame):
             postProcSettings = self.serverPanel.getPostProcSettings()
             self.deleteAllModules()
             self.serverPanel.reinitServer(0.001, "offline", serverSettings, postProcSettings)
+            dlg2 = wx.ProgressDialog("Exporting samples...", "", maximum = num_iter, parent=self,
+                                   style = wx.PD_APP_MODAL)
+            dlg2.SetSize((500,100))
+            count = 0
             for i in range(first,last,step):
                 vars.vars["MIDIPITCH"] = i
                 self.setModulesAndParams(modules, params, lfo_params)
-                path = os.path.join(rootpath, "%03d-%s.%s" % (i,filename, ext))
+                name = "%03d-%s.%s" % (i, filename, ext)
+                path = os.path.join(rootpath, name)
+                count += 1
+                (keepGoing, skip) = dlg2.Update(count, "Exporting %s" % name)
                 self.serverPanel.setRecordOptions(dur=duration, filename=path)
                 self.serverPanel.start()
                 self.deleteAllModules()
                 self.serverPanel.shutdown()
                 self.serverPanel.boot()
+            dlg2.Destroy()
             self.serverPanel.reinitServer(0.05, vars.vars["AUDIO_HOST"], serverSettings, postProcSettings)
             vars.vars["MIDIPITCH"] = None
             self.serverPanel.setAmpCallable()
@@ -351,7 +360,6 @@ class ZyneFrame(wx.Frame):
         return modules, params, lfo_params
     
     def setModulesAndParams(self, modules, params, lfo_params):
-        ### Need to plug lfo_params ###
         for name in modules:
             dic = MODULES[name]
             self.modules.append(GenericPanel(self.panel, name, dic["title"], dic["synth"], dic["p1"], dic["p2"], dic["p3"]))
