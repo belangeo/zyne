@@ -77,16 +77,15 @@ class MyFileDropTarget(wx.FileDropTarget):
     def OnDropFiles(self, x, y, filename):
         self.window.GetTopLevelParent().openfile(filename[0])
 
-class LFOFrame(wx.MiniFrame):
+class LFOFrame(wx.Frame):
     def __init__(self, parent, synth, which):
-        wx.MiniFrame.__init__(self, parent, -1, style=wx.NO_BORDER)
-        self.SetMaxSize((230,250))
+        wx.Frame.__init__(self, parent, -1, style=wx.STAY_ON_TOP | wx.CAPTION)
+        self.SetMaxSize((230,275))
+        self.SetSize((230,275))
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.which = which
         self.panel = LFOPanel(self, "LFO", "--- LFO controls ---", synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
         self.panel.SetPosition((0,0))
-        pos = wx.GetMousePosition()
-        self.SetPosition((pos[0]+10, pos[1]+10))
     
     def get(self):
         params = [slider.GetValue() for slider in self.panel.sliders]
@@ -145,6 +144,8 @@ class LFOButtons(GenStaticText):
     def MouseDown(self, evt):
         if evt.ShiftDown():
             self.parent.lfo_frames[self.which].panel.synth = self.synth
+            pos = wx.GetMousePosition()
+            self.parent.lfo_frames[self.which].SetPosition((pos[0]+5, pos[1]+5))
             self.parent.lfo_frames[self.which].Show()
             return
         if self.state:
