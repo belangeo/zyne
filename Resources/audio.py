@@ -385,8 +385,8 @@ class BaseSynth:
         if vars.vars["MIDIPITCH"] != None:
             if mode == 0:
                 self._note = Sig(vars.vars["MIDIPITCH"])
-                self.transpo = Sig(value=0)
-                self.pitch = Snap(self._note+self.transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
+                self._transpo = Sig(value=0)
+                self.pitch = Snap(self._note+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
             elif mode == 1:
                 self.pitch = Sig(midiToHz(vars.vars["MIDIPITCH"]))
             elif mode == 2:
@@ -403,8 +403,8 @@ class BaseSynth:
             self._virtualpit = Sig([0.0]*vars.vars["POLY"])
             self._trigamp = Sig([0.0]*vars.vars["POLY"])
             if mode == 0:
-                self.transpo = Sig(value=0)
-                self.pitch = Snap(self._virtualpit+self.transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
+                self._transpo = Sig(value=0)
+                self.pitch = Snap(self._virtualpit+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
             else:
                 scaling = {1: 1, 2: 2, 3: 0}[mode]
                 self.pitch = Snap(self._virtualpit, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
@@ -414,8 +414,8 @@ class BaseSynth:
         else:
             if mode == 0:
                 self._note = Notein(poly=vars.vars["POLY"], scale=0)
-                self.transpo = Sig(value=0)
-                self.pitch = Snap(self._note["pitch"]+self.transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
+                self._transpo = Sig(value=0)
+                self.pitch = Snap(self._note["pitch"]+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
             else:
                 scaling = {1: 1, 2: 2, 3: 0}[mode]
                 self._note = Notein(poly=vars.vars["POLY"], scale=scaling)
@@ -425,15 +425,15 @@ class BaseSynth:
             self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, add=self._lfo_amp.sig())
             self.trig = Thresh(self._trigamp)
     
-        self.params = [None, None, None, self._lfo_amp]
+        self._params = [None, None, None, self._lfo_amp]
         for i, conf in enumerate(config):
             init = conf[1]
             is_int = conf[4]
             if conf[0] != "Transposition":
-                self.params[i] = Param(self, i, conf, self._trigamp)
+                self._params[i] = Param(self, i, conf, self._trigamp)
     
     def set(self, which, x):
-        self.params[which].set(x)
+        self._params[which].set(x)
     
     def __del__(self):
         for key in self.__dict__.keys():

@@ -700,7 +700,7 @@ class BasePanel(wx.Panel):
             else:
                 self.synth._lfo_amp.play()
         else:
-            self.synth.params[which].start_lfo(x)
+            self.synth._params[which].start_lfo(x)
     
     def reinitLFOS(self, lfo_param):
         self.lfo_sliders = lfo_param
@@ -739,7 +739,7 @@ class GenericPanel(BasePanel):
         self.synth.set(2, x)
     
     def changeTranspo(self, x):
-        self.synth.transpo.value = x
+        self.synth._transpo.value = x
 
 class LFOPanel(BasePanel):
     def __init__(self, parent, name, title, synth, p1, p2, p3, which):
@@ -752,49 +752,49 @@ class LFOPanel(BasePanel):
     
     def changeP1(self, x):
         if self.which == 3:
-            self.synth.params[self.which].setSpeed(x)
+            self.synth._params[self.which].setSpeed(x)
         else:
-            self.synth.params[self.which].lfo.setSpeed(x)
+            self.synth._params[self.which].lfo.setSpeed(x)
     
     def changeP2(self, x):
         if self.which == 3:
-            self.synth.params[self.which].setType(x)
+            self.synth._params[self.which].setType(x)
         else:
-            self.synth.params[self.which].lfo.setType(x)
+            self.synth._params[self.which].lfo.setType(x)
     
     def changeP3(self, x):
         if self.which == 3:
-            self.synth.params[self.which].setJitter(x)
+            self.synth._params[self.which].setJitter(x)
         else:
-            self.synth.params[self.which].lfo.setJitter(x)
+            self.synth._params[self.which].lfo.setJitter(x)
     
     def changeAttack(self, x):
         if self.which == 3:
             self.synth.amp.attack = x
         else:
-            self.synth.params[self.which].lfo.amp.attack = x
+            self.synth._params[self.which].lfo.amp.attack = x
     
     def changeDecay(self, x):
         if self.which == 3:
             self.synth.amp.decay = x
         else:
-            self.synth.params[self.which].lfo.amp.decay = x
+            self.synth._params[self.which].lfo.amp.decay = x
     
     def changeSustain(self, x):
         if self.which == 3:
             self.synth.amp.sustain = x
         else:
-            self.synth.params[self.which].lfo.amp.sustain = x
+            self.synth._params[self.which].lfo.amp.sustain = x
     
     def changeRelease(self, x):
         if self.which == 3:
             self.synth.amp.release = x
         else:
-            self.synth.params[self.which].lfo.amp.release = x
+            self.synth._params[self.which].lfo.amp.release = x
     
     def changeAmp(self, x):
         if self.which == 3:
-            self.synth.params[self.which].setAmp(x)
+            self.synth._params[self.which].setAmp(x)
         else:
-            self.synth.params[self.which].lfo.setAmp(x)
+            self.synth._params[self.which].lfo.setAmp(x)
 
