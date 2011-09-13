@@ -77,21 +77,33 @@ class MyFileDropTarget(wx.FileDropTarget):
     def OnDropFiles(self, x, y, filename):
         self.window.GetTopLevelParent().openfile(filename[0])
 
-class LFOFrame(wx.Frame):
+class LFOFrame(wx.MiniFrame):
     def __init__(self, parent, synth, which):
-        wx.Frame.__init__(self, parent, -1, title="LFO Controls", style=wx.STAY_ON_TOP | wx.CAPTION)
-        self.SetMaxSize((230,275))
-        self.SetSize((230,275))
+        wx.MiniFrame.__init__(self, parent, -1, style=wx.STAY_ON_TOP | wx.NO_BORDER)
+        self.SetMaxSize((230,250))
+        self.SetSize((230,250))
         self.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.mouseOffset = (0,0)
         self.which = which
         self.panel = LFOPanel(self, "LFO", "--- LFO controls ---", synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
         self.panel.SetPosition((0,0))
-        self.Bind(wx.EVT_CLOSE, self.onClose)
+        self.panel.Bind(wx.EVT_LEFT_DOWN, self.onMouseDown)
+        self.panel.Bind(wx.EVT_LEFT_UP, self.onMouseUp)
+        self.panel.Bind(wx.EVT_MOTION, self.onMotion)
 
-    def onClose(self, evt):
-        self.Hide()
-        evt.StopPropagation()
-    
+    def onMouseDown(self, evt):
+        self.mouseOffset = evt.GetPosition()
+        self.panel.CaptureMouse()
+
+    def onMouseUp(self, evt):
+        self.panel.mouseOffset = (0,0)
+        self.ReleaseMouse()
+
+    def onMotion(self, evt):
+        if self.panel.HasCapture():
+            pos =  wx.GetMousePosition()
+            self.SetPosition((pos[0]-self.mouseOffset[0], pos[1]-self.mouseOffset[1]))
+
     def get(self):
         params = [slider.GetValue() for slider in self.panel.sliders]
         return params
