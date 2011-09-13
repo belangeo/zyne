@@ -354,7 +354,7 @@ class ServerPanel(wx.Panel):
     def setRecordOptions(self, dur, filename):
         self.fsserver.recordOptions(dur=dur, filename=filename,
                                    fileformat=self.fileformat,
-                                   sampletype=self.sampletype)
+                                   sampletype={16: 0, 24: 1, 32: 3}[self.sampletype])
     
     def reinitServer(self, sliderport, audio, serverSettings, postProcSettings):
         vars.vars["SLIDERPORT"] = sliderport
@@ -423,7 +423,7 @@ class ServerPanel(wx.Panel):
     def handleRec(self, evt):
         if evt.GetInt() == 1:
             ext = self.getExtensionFromFileFormat()
-            path = os.path.join(os.path.expanduser("~"), "Desktop", "funnysynth.%s" % ext)
+            path = os.path.join(os.path.expanduser("~"), "Desktop", "zyne_live_rec.%s" % ext)
             self.setRecordOptions(dur=-1, filename=path)
             self.fsserver.recstart()
         else:
