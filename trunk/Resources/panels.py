@@ -352,9 +352,17 @@ class ServerPanel(wx.Panel):
         self.fsserver.setAmpCallable(self.meter)
     
     def setRecordOptions(self, dur, filename):
-        self.fsserver.recordOptions(dur=dur, filename=filename,
-                                   fileformat=self.fileformat,
-                                   sampletype={16: 0, 24: 1, 32: 3}[self.sampletype])
+        fileformats = {"wav": 0, "aif": 1}
+        if fileformats.has_key(self.fileformat):
+            fileformat = fileformats[self.fileformat]
+        else:
+            fileformat = self.fileformat
+        sampletypes = {16: 0, 24: 1, 32: 3}
+        if sampletypes.has_key(self.sampletype):
+            sampletype = sampletypes[self.sampletype]
+        else:
+            sampletype = self.sampletype
+        self.fsserver.recordOptions(dur, filename, fileformat, sampletype)
     
     def reinitServer(self, sliderport, audio, serverSettings, postProcSettings):
         vars.vars["SLIDERPORT"] = sliderport
@@ -427,7 +435,7 @@ class ServerPanel(wx.Panel):
             self.setRecordOptions(dur=-1, filename=path)
             self.fsserver.recstart()
         else:
-            self.fsserver.recstop()    
+            self.fsserver.recstop()
     
     def changeAmp(self, value):
         self.fsserver.setAmp(math.pow(10.0, float(value) * 0.05))
@@ -535,9 +543,8 @@ class ServerPanel(wx.Panel):
         self.setDriverSetting()
     
     def changeBit(self, evt):
-        bit = evt.GetInt()
-        if bit == 2: bit = 3
-        self.sampletype = bit
+        if evt.GetString():
+            self.sampletype = int(evt.GetString())
     
     def changeFormat(self, evt):
         self.fileformat = evt.GetInt()
