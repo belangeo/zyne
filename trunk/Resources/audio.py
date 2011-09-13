@@ -30,13 +30,14 @@ Parameters :
         This is the user-defined configuration dictionnary automatically sent by the application
         to the module in order to properly initialize the module. It must be pass directly from
         the module's __init__ method to the BaseSynth's __init__ method.
-    mode : int {1, 2, 3}
-        mode=1 means that the pitch from the keyboard is directly converted in Hertz.
+    mode : int {1, 2, 3}, optional
+        mode=1 (default) means that the pitch from the keyboard is directly converted in Hertz.
         mode=2 means that the pitch from the keyboard is converted into transposition factor 
         with the Midi key 60 is 1.0, eg. no transposition.
         mode=3 means that the pitch from the keyboard keeps its Midi note value.
-        The keyboard can be transposed in semitones before the conversion in Hertz. This is 
-        automatically done when a slider is defined with the param_name "Transposition".
+        The keyboard can be transposed in semitones before the midi-to-hertz or the
+        midi-to-transpo conversion. This is automatically done when a slider is 
+        defined with the param_name "Transposition".
 
 Attributes :
     self.pitch : this variable contains frequencies, in Hertz, Midi notes or transposition factors, 
@@ -69,7 +70,8 @@ Syntax:
     param_name : str
         Label of the slider for the parameter. If a slider is defined with the param_name 
         "Transposition", this slider will be automatically used to transpose the note before
-        the conversion in Hertz. The slider's properties (init, min, max, is_int) must be integer.
+        the the midi-to-hertz or the midi-to-transpo conversion. The slider's properties 
+        (init, min, max, is_int) must be integer.
     init : int or float
         Initial value of the slider.
     min : int or float
@@ -376,16 +378,17 @@ class Param:
 
 class BaseSynth:
     def __init__(self, config,  mode=1):
-        if mode == 1:
-            for conf in config:
-                if conf[0] == "Transposition":
-                    mode = 0
-                    break
+        scaling = {1: 1, 2: 2, 3: 0}[mode]
+        with_transpo = False
+        for conf in config:
+            if conf[0] == "Transposition":
+                with_transpo = True
+                break
         if vars.vars["MIDIPITCH"] != None:
-            if mode == 0:
+            if with_transpo:
                 self._note = Sig(vars.vars["MIDIPITCH"])
                 self._transpo = Sig(value=0)
-                self.pitch = Snap(self._note+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
+                self.pitch = Snap(self._note+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
             elif mode == 1:
                 self.pitch = Sig(midiToHz(vars.vars["MIDIPITCH"]))
             elif mode == 2:
@@ -401,22 +404,20 @@ class BaseSynth:
         elif vars.vars["VIRTUAL"]:
             self._virtualpit = Sig([0.0]*vars.vars["POLY"])
             self._trigamp = Sig([0.0]*vars.vars["POLY"])
-            if mode == 0:
+            if with_transpo:
                 self._transpo = Sig(value=0)
-                self.pitch = Snap(self._virtualpit+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
+                self.pitch = Snap(self._virtualpit+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
             else:
-                scaling = {1: 1, 2: 2, 3: 0}[mode]
                 self.pitch = Snap(self._virtualpit, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
             self._lfo_amp = LFOSynth(.5, self._trigamp)
             self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, add=self._lfo_amp.sig())
             self.trig = Thresh(self._trigamp)
         else:
-            if mode == 0:
+            if with_transpo:
                 self._note = Notein(poly=vars.vars["POLY"], scale=0)
                 self._transpo = Sig(value=0)
-                self.pitch = Snap(self._note["pitch"]+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=1)
+                self.pitch = Snap(self._note["pitch"]+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
             else:
-                scaling = {1: 1, 2: 2, 3: 0}[mode]
                 self._note = Notein(poly=vars.vars["POLY"], scale=scaling)
                 self.pitch = self._note["pitch"]
             self._trigamp = self._note["velocity"]
@@ -599,6 +600,5 @@ def checkForCustomModules():
         if os.path.isfile(path):
             execfile(path, globals())
             vars.vars["EXTERNAL_MODULES"] = MODULES
-
 
 checkForCustomModules()
