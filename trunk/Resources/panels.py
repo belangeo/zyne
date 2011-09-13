@@ -79,13 +79,18 @@ class MyFileDropTarget(wx.FileDropTarget):
 
 class LFOFrame(wx.Frame):
     def __init__(self, parent, synth, which):
-        wx.Frame.__init__(self, parent, -1, style=wx.STAY_ON_TOP | wx.CAPTION)
+        wx.Frame.__init__(self, parent, -1, title="LFO Controls", style=wx.STAY_ON_TOP | wx.CAPTION)
         self.SetMaxSize((230,275))
         self.SetSize((230,275))
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.which = which
         self.panel = LFOPanel(self, "LFO", "--- LFO controls ---", synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
         self.panel.SetPosition((0,0))
+        self.Bind(wx.EVT_CLOSE, self.onClose)
+
+    def onClose(self, evt):
+        self.Hide()
+        evt.StopPropagation()
     
     def get(self):
         params = [slider.GetValue() for slider in self.panel.sliders]

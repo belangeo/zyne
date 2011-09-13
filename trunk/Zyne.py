@@ -331,7 +331,7 @@ class ZyneFrame(wx.Frame):
             self.deleteAllModules()
             self.serverPanel.reinitServer(0.001, "offline", serverSettings, postProcSettings)
             dlg2 = wx.ProgressDialog("Exporting samples...", "", maximum = num_iter, parent=self,
-                                   style = wx.PD_APP_MODAL)
+                                   style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
             dlg2.SetSize((500,100))
             count = 0
             for i in range(first,last,step):
