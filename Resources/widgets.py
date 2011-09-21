@@ -1,7 +1,7 @@
 # encoding: utf-8
 import wx, math, sys
 from wx.lib.embeddedimage import PyEmbeddedImage
-from pyolib._wxwidgets import BACKGROUND_COLOUR
+from pyolib._wxwidgets import ControlSlider, BACKGROUND_COLOUR
 import Resources.variables as vars
 
 KNOB = PyEmbeddedImage(
@@ -620,6 +620,26 @@ def toLog(t, v1, v2):
 def toExp(t, v1, v2):
     return math.pow(10, t * (math.log10(v2) - math.log10(v1)) + math.log10(v1))
 
+class ZyneControlSlider(ControlSlider):
+    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False, outFunction=None, integer=False, powoftwo=False, backColour=None):
+        ControlSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size, log, outFunction, integer, powoftwo, backColour)
+
+    def setValue(self, x):
+        wx.CallAfter(self.SetValue, x)
+
+    def MouseDown(self, evt):
+        if vars.vars["MIDILEARN"]:
+            if vars.vars["LEARNINGSLIDER"] == None:
+                vars.vars["LEARNINGSLIDER"] = self
+                self.Disable()
+            else:
+                vars.vars["LEARNINGSLIDER"].setMidiCtl(None)
+                vars.vars["LEARNINGSLIDER"] = None
+                self.Enable()
+            evt.StopPropagation()
+        else:
+            ControlSlider.MouseDown(self, evt)
+
 class ControlKnob(wx.Panel):
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(50,70), log=False, outFunction=None, integer=False, backColour=None, label=''):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS)
@@ -636,6 +656,7 @@ class ControlKnob(wx.Panel):
         self.borderWidth = 1
         self.selected = False
         self._enable = True
+        self.midictl = None
         self.new = ''
         self.floatPrecision = '%.3f'
         if backColour: self.backColour = backColour
@@ -653,7 +674,14 @@ class ControlKnob(wx.Panel):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_KEY_DOWN, self.keyDown)
         self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
-    
+   
+    def setMidiCtl(self, x):
+        self.midictl = x
+        self.Refresh()
+
+    def getMidiCtl(self):
+        return self.midictl
+
     def setFloatPrecision(self, x):
         self.floatPrecision = '%.' + '%df' % x
         self.Refresh()
@@ -663,15 +691,15 @@ class ControlKnob(wx.Panel):
     
     def getMaxValue(self):
         return self.maxvalue
-    
-    # def setEnable(self, enable):
-    #     self._enable = enable
-    #     if self._enable:
-    #         self.knobBitmap = wx.Image(ICON_PLUGINS_KNOB, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-    #     else:
-    #         self.knobBitmap = wx.Image(ICON_PLUGINS_KNOB_DISABLE, wx.BITMAP_TYPE_PNG).ConvertToBitmap()    
-    #     self.Refresh()
-    
+
+    def Enable(self):
+        self._enable = True
+        self.Refresh()
+
+    def Disable(self):
+        self._enable = False
+        self.Refresh()
+   
     def getInit(self):
         return self.init
     
@@ -743,7 +771,8 @@ class ControlKnob(wx.Panel):
                     self.new = ''
                 self.selected = False
             self.Refresh()
-    
+        event.Skip()
+
     def MouseDown(self, evt):
         if evt.ShiftDown():
             self.DoubleClick(evt)
@@ -826,7 +855,7 @@ class ControlKnob(wx.Panel):
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
         self.knobPointPos = (X+22, Y+33)
         dc.DrawCircle(X+22, Y+33, 2)
-    
+
         # Draw text value
         if self.selected and self.new:
             val = self.new

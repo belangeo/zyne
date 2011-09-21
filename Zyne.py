@@ -123,6 +123,8 @@ class ZyneFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onSaveAs, id=vars.constants["ID"]["SaveAs"])
         self.fileMenu.Append(vars.constants["ID"]["Export"], 'Export as samples...\tCtrl+E', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onExport, id=vars.constants["ID"]["Export"])
+        self.fileMenu.Append(vars.constants["ID"]["MidiLearn"], 'Midi learn mode\tCtrl+M', kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.onMidiLearnMode, id=vars.constants["ID"]["MidiLearn"])
         pref_item = self.fileMenu.Append(vars.constants["ID"]["Prefs"], 'Preferences...\tCtrl+,', 'Open Cecilia preferences pane', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=vars.constants["ID"]["Prefs"])
         self.fileMenu.AppendSeparator()
@@ -196,9 +198,9 @@ class ZyneFrame(wx.Frame):
             self.addMenu.DeleteItem(item)
         audio.checkForCustomModules()
         self.buildAddModuleMenu()
-        modules, params, lfo_params = self.getModulesAndParams()
+        modules, params, lfo_params, ctl_params = self.getModulesAndParams()
         self.deleteAllModules()
-        self.setModulesAndParams(modules, params, lfo_params)
+        self.setModulesAndParams(modules, params, lfo_params, ctl_params)
     
     def buildAddModuleMenu(self):
         self.moduleNames = sorted(MODULES.keys())
@@ -244,7 +246,26 @@ class ZyneFrame(wx.Frame):
         self.splitWindow.SetSashPosition(-80)
         self.setModulePostions()
         evt.Skip()
-    
+   
+    def onMidiLearnModeFromLfoFrame(self):
+        item = self.fileMenu.FindItemById(vars.constants["ID"]["MidiLearn"])
+        if item.IsChecked():
+            self.serverPanel.midiLearn(False)
+            vars.vars["MIDILEARN"] = False
+            item.Check(False)
+        else:
+            self.serverPanel.midiLearn(True)
+            vars.vars["MIDILEARN"] = True
+            item.Check(True)
+
+    def onMidiLearnMode(self, evt):
+        if evt.GetInt():
+            self.serverPanel.midiLearn(True)
+            vars.vars["MIDILEARN"] = True
+        else:
+            self.serverPanel.midiLearn(False)
+            vars.vars["MIDILEARN"] = False
+
     def onPreferences(self, evt):
         dlg = PreferencesDialog()
         dlg.ShowModal()
@@ -325,7 +346,7 @@ class ZyneFrame(wx.Frame):
             vars.vars["NOTEONDUR"] = float(dlg.noteon.GetValue())
             duration = float(dlg.release.GetValue()) + vars.vars["NOTEONDUR"]
             ext = self.serverPanel.getExtensionFromFileFormat()
-            modules, params, lfo_params = self.getModulesAndParams()
+            modules, params, lfo_params, ctl_params = self.getModulesAndParams()
             serverSettings = self.serverPanel.getServerSettings()
             postProcSettings = self.serverPanel.getPostProcSettings()
             self.deleteAllModules()
@@ -336,7 +357,7 @@ class ZyneFrame(wx.Frame):
             count = 0
             for i in range(first,last,step):
                 vars.vars["MIDIPITCH"] = i
-                self.setModulesAndParams(modules, params, lfo_params)
+                self.setModulesAndParams(modules, params, lfo_params, ctl_params)
                 name = "%03d-%s.%s" % (i, filename, ext)
                 path = os.path.join(rootpath, name)
                 count += 1
@@ -350,16 +371,17 @@ class ZyneFrame(wx.Frame):
             self.serverPanel.reinitServer(0.05, vars.vars["AUDIO_HOST"], serverSettings, postProcSettings)
             vars.vars["MIDIPITCH"] = None
             self.serverPanel.setAmpCallable()
-            self.setModulesAndParams(modules, params, lfo_params)
+            self.setModulesAndParams(modules, params, lfo_params, ctl_params)
         dlg.Destroy()
     
     def getModulesAndParams(self):
         modules = [module.name for module in self.modules]
         params = [[slider.GetValue() for slider in module.sliders] for module in self.modules]
-        lfo_params = [module.lfo_sliders for module in self.modules]
-        return modules, params, lfo_params
+        lfo_params = [module.getLFOParams() for module in self.modules]
+        ctl_params = [[slider.midictl for slider in module.sliders] for module in self.modules]
+        return modules, params, lfo_params, ctl_params
     
-    def setModulesAndParams(self, modules, params, lfo_params):
+    def setModulesAndParams(self, modules, params, lfo_params, ctl_params):
         for name in modules:
             dic = MODULES[name]
             self.modules.append(GenericPanel(self.panel, name, dic["title"], dic["synth"], dic["p1"], dic["p2"], dic["p3"]))
@@ -369,15 +391,23 @@ class ZyneFrame(wx.Frame):
                 slider = self.modules[i].sliders[j]
                 slider.SetValue(param)
                 slider.outFunction(param)
+        for i, ctl_paramset in enumerate(ctl_params):
+            for j, ctl_param in enumerate(ctl_paramset):
+                slider = self.modules[i].sliders[j]
+                slider.setMidiCtl(ctl_param)
+                if j in [4,5,6,7] and ctl_param != None:
+                    j4 = j - 4
+                    if self.modules[i].synth._params[j4] != None:
+                        self.modules[i].synth._params[j4].assignMidiCtl(ctl_param, slider)
         for i, lfo_param in enumerate(lfo_params):
             self.modules[i].reinitLFOS(lfo_param)
         self.refresh()
     
     def savefile(self, filename):
-        modules, params, lfo_params = self.getModulesAndParams()
+        modules, params, lfo_params, ctl_params = self.getModulesAndParams()
         serverSettings = self.serverPanel.getServerSettings()
         postProcSettings = self.serverPanel.getPostProcSettings()
-        dic = {"server": serverSettings, "postproc": postProcSettings, "modules": modules, "params": params, "lfo_params": lfo_params}
+        dic = {"server": serverSettings, "postproc": postProcSettings, "modules": modules, "params": params, "lfo_params": lfo_params, "ctl_params": ctl_params}
         with open(filename, "w") as f:
             f.write(str(dic))
         self.openedFile = filename
@@ -388,10 +418,12 @@ class ZyneFrame(wx.Frame):
         with open(filename, "r") as f: text = f.read()
         dic = eval(text)
         self.deleteAllModules()
+        self.serverPanel.shutdown()
+        self.serverPanel.boot()
         self.serverPanel.setServerSettings(dic["server"])
         if "postproc" in dic:
             self.serverPanel.setPostProcSettings(dic["postproc"])            
-        self.setModulesAndParams(dic["modules"], dic["params"], dic["lfo_params"])
+        self.setModulesAndParams(dic["modules"], dic["params"], dic["lfo_params"], dic["ctl_params"])
         if filename.endswith("default.zy"):
             self.openedFile = ""
         else:
@@ -442,6 +474,9 @@ class ZyneFrame(wx.Frame):
     
     def deleteAllModules(self):
         for module in self.modules:
+            for frame in module.lfo_frames:
+                if frame != None:
+                    frame.Destroy()
             self.sizer.Remove(module)
             module.Destroy()
         self.modules = []
@@ -487,7 +522,6 @@ class ZyneApp(wx.App):
     
     def MacOpenFile(self, filename):
         self.frame.openfile(filename)
-
 
 if __name__ == '__main__':
     file = None
