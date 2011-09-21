@@ -156,7 +156,7 @@ MODULES = {
           }
 
 """
-import random, os
+import random, os, time, math
 import Resources.variables as vars
 
 if vars.vars["PYO_PRECISION"] == "single":
@@ -182,6 +182,23 @@ class FSServer:
         self.server = Server(audio=vars.vars["AUDIO_HOST"].lower())
         self.boot()
     
+    def scanning(self, x):
+        if vars.vars["LEARNINGSLIDER"] != None:
+            vars.vars["LEARNINGSLIDER"].setMidiCtl(x)
+            vars.vars["LEARNINGSLIDER"].Enable()
+            vars.vars["LEARNINGSLIDER"] = None
+
+    def startMidiLearn(self):
+        self.server.shutdown()
+        self.server.boot()
+        self.scan = CtlScan(self.scanning, False)
+        self.server.start()
+
+    def stopMidiLearn(self):
+        del self.scan
+        self.server.stop()
+        time.sleep(.25)
+
     def start(self):
         self.server.start()
     
@@ -305,16 +322,132 @@ class FSServer:
         elif param == "falltime":
             self._compLevel.falltime = value
 
-class LFOSynth:
-    def __init__(self, rng, trigger, lfo_config=None):
+class CtlBind:
+    def __init__(self):
+        self.last_midi_val = 0.0
+        self.lfo_last_midi_vals = [0.0, 0.0, 0.0, 0.0]
+
+    def valToWidget(self):
+        val = self.midictl.get()
+        if val != self.last_midi_val:
+            self.last_midi_val = val
+            if self.widget.log:
+                val **= 10.0
+                val *= (self.widget.getMaxValue() - self.widget.getMinValue()) 
+                val += self.widget.getMinValue()
+            self.widget.setValue(val)
+
+    def valToWidget0(self):
+        val = self.lfo_midictl_0.get()
+        is_log = self.lfo_widget_0.log
+        if val != self.lfo_last_midi_vals[0]:
+            self.lfo_last_midi_vals[0] = val
+            if is_log:
+                val **= 10.0
+                val *= (self.lfo_widget_0.getMaxValue() - self.lfo_widget_0.getMinValue())
+                val += self.lfo_widget_0.getMinValue()
+            self.lfo_widget_0.setValue(val)
+            self.lfo_widget_0.outFunction(val)
+
+    def valToWidget1(self):
+        val = self.lfo_midictl_1.get()
+        is_log = self.lfo_widget_1.log
+        if val != self.lfo_last_midi_vals[1]:
+            self.lfo_last_midi_vals[1] = val
+            if is_log:
+                val **= 10.0
+                val *= (self.lfo_widget_1.getMaxValue() - self.lfo_widget_1.getMinValue())
+                val += self.lfo_widget_1.getMinValue()
+            self.lfo_widget_1.setValue(val)
+            self.lfo_widget_1.outFunction(val)
+
+    def valToWidget2(self):
+        val = self.lfo_midictl_2.get()
+        is_log = self.lfo_widget_2.log
+        if val != self.lfo_last_midi_vals[2]:
+            self.lfo_last_midi_vals[2] = val
+            if is_log:
+                val **= 10.0
+                val *= (self.lfo_widget_2.getMaxValue() - self.lfo_widget_2.getMinValue())
+                val += self.lfo_widget_2.getMinValue()
+            self.lfo_widget_2.setValue(val)
+            self.lfo_widget_2.outFunction(val)
+
+    def valToWidget3(self):
+        val = self.lfo_midictl_3.get()
+        is_log = self.lfo_widget_3.log
+        if val != self.lfo_last_midi_vals[3]:
+            self.lfo_last_midi_vals[3] = val
+            if is_log:
+                val **= 10.0
+                val *= (self.lfo_widget_3.getMaxValue() - self.lfo_widget_3.getMinValue())
+                val += self.lfo_widget_3.getMinValue()
+            self.lfo_widget_3.setValue(val)
+            self.lfo_widget_3.outFunction(val)
+
+    def assignMidiCtl(self, ctl, widget):
+        mini = widget.getMinValue()
+        maxi = widget.getMaxValue()
+        value = widget.GetValue()
+        is_log = widget.log
+        self.widget = widget
+        if is_log:
+            norm_init = pow(float(value - mini) / (maxi - mini), .1)
+            self.midictl = Midictl(ctl, 0, 1.01, norm_init)
+        else:
+            self.midictl = Midictl(ctl, mini, maxi+.1, value)
+        self.trigFunc = TrigFunc(self._midi_metro, self.valToWidget)
+
+    def assignLfoMidiCtl(self, ctl, widget, i):
+        mini = widget.getMinValue()
+        maxi = widget.getMaxValue()
+        value = widget.GetValue()
+        is_log = widget.log
+        if i == 0:
+            self.lfo_widget_0 = widget
+            if is_log:
+                norm_init = pow(float(value - mini) / (maxi - mini), .1)
+                self.lfo_midictl_0 = Midictl(ctl, 0, 1.01, norm_init)
+            else:
+                self.lfo_midictl_0 = Midictl(ctl, mini, maxi+.1, value)
+            self.lfo_trigFunc_0 = TrigFunc(self._midi_metro, self.valToWidget0)
+        elif i == 1:
+            self.lfo_widget_1 = widget
+            if is_log:
+                norm_init = pow(float(value - mini) / (maxi - mini), .1)
+                self.lfo_midictl_1 = Midictl(ctl, 0, 1.01, norm_init)
+            else:
+                self.lfo_midictl_1 = Midictl(ctl, mini, maxi+.1, value)
+            self.lfo_trigFunc_1 = TrigFunc(self._midi_metro, self.valToWidget1)
+        elif i == 2:
+            self.lfo_widget_2 = widget
+            if is_log:
+                norm_init = pow(float(value - mini) / (maxi - mini), .1)
+                self.lfo_midictl_2 = Midictl(ctl, 0, 1.01, norm_init)
+            else:
+                self.lfo_midictl_2 = Midictl(ctl, mini, maxi+.1, value)
+            self.lfo_trigFunc_2 = TrigFunc(self._midi_metro, self.valToWidget2)
+        elif i == 3:
+            self.lfo_widget_3 = widget
+            if is_log:
+                norm_init = pow(float(value - mini) / (maxi - mini), .1)
+                self.lfo_midictl_3 = Midictl(ctl, 0, 1.01, norm_init)
+            else:
+                self.lfo_midictl_3 = Midictl(ctl, mini, maxi+.1, value)
+            self.lfo_trigFunc_3 = TrigFunc(self._midi_metro, self.valToWidget3)
+
+class LFOSynth(CtlBind):
+    def __init__(self, rng, trigger, midi_metro, lfo_config=None):
+        CtlBind.__init__(self)
         self.trigger = trigger
+        self._midi_metro = midi_metro
         self.rawamp = SigTo(.1, vars.vars["SLIDERPORT"], .1, mul=rng)
         self.amp = MidiAdsr(self.trigger, attack=5, decay=.1, sustain=.5, release=1, mul=self.rawamp)
         self.speed = SigTo(4, vars.vars["SLIDERPORT"], 4)
         self.jitter = SigTo(0, vars.vars["SLIDERPORT"], 0)
         self.freq = Randi(min=1-self.jitter, max=1+self.jitter, freq=1, mul=self.speed)
         self.lfo = LFO(freq=self.freq, sharp=.9, type=3, mul=self.amp).stop()
-    
+
     def play(self):
         self.rawamp.play()
         self.amp.play()
@@ -333,7 +466,7 @@ class LFOSynth:
     
     def sig(self):
         return self.lfo
-    
+ 
     def setSpeed(self, x):
         self.speed.value = x
     
@@ -350,23 +483,22 @@ class LFOSynth:
         for key in self.__dict__.keys():
             del self.__dict__[key]
 
-class Param:
-    def __init__(self, parent, i, conf, lfo_trigger):
+class Param(CtlBind):
+    def __init__(self, parent, i, conf, lfo_trigger, midi_metro):
+        CtlBind.__init__(self)
         self.parent = parent
-        init = conf[1]
-        mini = conf[2]
-        maxi = conf[3]
-        is_int = conf[4]
-        rng = (maxi - mini)
-        if is_int:
-            self.slider = Sig(init)
-            setattr(self.parent, "p%d" % (i+1), self.slider)
+        self._midi_metro = midi_metro
+        self.init, self.mini, self.maxi, self.is_int, self.is_log = conf[1], conf[2], conf[3], conf[4], conf[5]
+        rng = (self.maxi - self.mini)
+        if self.is_int:
+            self.slider = Sig(self.init)
+            setattr(self.parent, "p%d" % i, self.slider)
         else:
-            self.lfo = LFOSynth(rng, lfo_trigger)
-            self.slider = SigTo(init, vars.vars["SLIDERPORT"], init, add=self.lfo.sig())
-            self.out = Clip(self.slider, mini, maxi)
-            setattr(self.parent, "p%d" % (i+1), self.out)
-    
+            self.lfo = LFOSynth(rng, lfo_trigger, midi_metro)
+            self.slider = SigTo(self.init, vars.vars["SLIDERPORT"], self.init, add=self.lfo.sig())
+            self.out = Clip(self.slider, self.mini, self.maxi)
+            setattr(self.parent, "p%d" % i, self.out)
+
     def set(self, x):
         self.slider.value = x
     
@@ -376,6 +508,31 @@ class Param:
         else:
             self.lfo.play()
 
+    def __del__(self):
+        for key in self.__dict__.keys():
+            del self.__dict__[key]
+
+class ParamTranspo:
+    def __init__(self, parent, midi_metro):
+        self.parent = parent
+        self._midi_metro = midi_metro
+        self.last_midi_val = 0.0
+
+    def valToWidget(self):
+        val = self.midictl.get()
+        if val != self.last_midi_val:
+            self.last_midi_val = val
+            self.widget.setValue(val)
+
+    def assignMidiCtl(self, ctl, widget):
+        self.widget = widget
+        self.midictl = Midictl(ctl, -36.5, 36.5, widget.GetValue())
+        self.trigFunc = TrigFunc(self._midi_metro, self.valToWidget)
+    
+    def __del__(self):
+        for key in self.__dict__.keys():
+            del self.__dict__[key]
+
 class BaseSynth:
     def __init__(self, config,  mode=1):
         scaling = {1: 1, 2: 2, 3: 0}[mode]
@@ -384,6 +541,8 @@ class BaseSynth:
             if conf[0] == "Transposition":
                 with_transpo = True
                 break
+        self._midi_metro = Metro(.1).play()
+        self._rawamp = SigTo(1, vars.vars["SLIDERPORT"], 1)
         if vars.vars["MIDIPITCH"] != None:
             if with_transpo:
                 self._note = Sig(vars.vars["MIDIPITCH"])
@@ -398,8 +557,8 @@ class BaseSynth:
             self._firsttrig = Trig().play()
             self._secondtrig = Trig().play(delay=vars.vars["NOTEONDUR"])
             self._trigamp = Counter(Mix([self._firsttrig,self._secondtrig]), min=0, max=2, dir=1)
-            self._lfo_amp = LFOSynth(.5, self._trigamp)
-            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, add=self._lfo_amp.sig())
+            self._lfo_amp = LFOSynth(.5, self._trigamp, self._midi_metro)
+            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, mul=self._rawamp, add=self._lfo_amp.sig())
             self.trig = Trig().play()
         elif vars.vars["VIRTUAL"]:
             self._virtualpit = Sig([0.0]*vars.vars["POLY"])
@@ -409,8 +568,8 @@ class BaseSynth:
                 self.pitch = Snap(self._virtualpit+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
             else:
                 self.pitch = Snap(self._virtualpit, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
-            self._lfo_amp = LFOSynth(.5, self._trigamp)
-            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, add=self._lfo_amp.sig())
+            self._lfo_amp = LFOSynth(.5, self._trigamp, self._midi_metro)
+            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, mul=self._rawamp, add=self._lfo_amp.sig())
             self.trig = Thresh(self._trigamp)
         else:
             if with_transpo:
@@ -421,21 +580,25 @@ class BaseSynth:
                 self._note = Notein(poly=vars.vars["POLY"], scale=scaling)
                 self.pitch = self._note["pitch"]
             self._trigamp = self._note["velocity"]
-            self._lfo_amp = LFOSynth(.5, self._trigamp)
-            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, add=self._lfo_amp.sig())
+            self._lfo_amp = LFOSynth(.5, self._trigamp, self._midi_metro)
+            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, mul=self._rawamp, add=self._lfo_amp.sig())
             self.trig = Thresh(self._trigamp)
     
-        self._params = [None, None, None, self._lfo_amp]
+        self._params = [self._lfo_amp, None, None, None]
         for i, conf in enumerate(config):
-            init = conf[1]
-            is_int = conf[4]
+            i1 = i + 1
             if conf[0] != "Transposition":
-                self._params[i] = Param(self, i, conf, self._trigamp)
-    
+                self._params[i1] = Param(self, i1, conf, self._trigamp, self._midi_metro)
+            else:
+                self._params[i1] = ParamTranspo(self, self._midi_metro)
+
     def set(self, which, x):
         self._params[which].set(x)
     
     def __del__(self):
+        for param in self._params:
+            if param != None:
+                del param
         for key in self.__dict__.keys():
             del self.__dict__[key]
 

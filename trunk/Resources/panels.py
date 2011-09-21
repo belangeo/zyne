@@ -3,7 +3,7 @@ import wx, os, math, copy
 from wx.lib.stattext import GenStaticText
 import Resources.variables as vars
 from Resources.widgets import *
-from pyolib._wxwidgets import VuMeter, ControlSlider, BACKGROUND_COLOUR
+from pyolib._wxwidgets import VuMeter, BACKGROUND_COLOUR
 from Resources.audio import *
 
 MODULES =   {
@@ -35,7 +35,7 @@ MODULES =   {
             "Pulsar": { "title": "--- Pulsar Synthesis ---", "synth": PulsarSynth, 
                     "p1": ["Harmonics", 10, 1, 20, True, False],
                     "p2": ["Transposition", 0, -36, 36, True, False],
-                    "p3": ["LFO Frequency", 1, .02, 20, False, True],
+                    "p3": ["LFO Frequency", 1, .02, 200, False, True],
                     },
             "Ross": { "title": "--- Rossler Attractors ---", "synth": Ross, 
                     "p1": ["Chaos", 0.5, 0., 1., False, False],
@@ -60,12 +60,13 @@ MODULES =   {
             }
 
 LFO_CONFIG =    {
-                "p1": ["Speed", 4, .01, 100, False, True],
+                "p1": ["Speed", 4, .01, 200, False, True],
                 "p2": ["Waveform", 3, 0, 7, True, False],
                 "p3": ["Jitter", 0, 0, 1, False, False]
                 }
 
-LFO_INIT = {"state": False, "params": [.001, .1, .7, 1, .1, 4, 3, 0]}
+LFO_INIT = {"state": False, "params": [.001, .1, .7, 1, .1, 4, 3, 0], 
+            "ctl_params": [None, None, None, None, None, None, None, None], "shown": False}
 def get_lfo_init():
     return copy.deepcopy(LFO_INIT)
 
@@ -78,18 +79,41 @@ class MyFileDropTarget(wx.FileDropTarget):
         self.window.GetTopLevelParent().openfile(filename[0])
 
 class LFOFrame(wx.MiniFrame):
-    def __init__(self, parent, synth, which):
-        wx.MiniFrame.__init__(self, parent, -1, style=wx.STAY_ON_TOP | wx.NO_BORDER)
+    def __init__(self, parent, synth, label, which):
+        wx.MiniFrame.__init__(self, parent, -1, style=wx.FRAME_TOOL_WINDOW | wx.FRAME_FLOAT_ON_PARENT | wx.NO_BORDER)
+        self.parent = parent
         self.SetMaxSize((230,250))
         self.SetSize((230,250))
         self.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.SetAcceleratorTable(wx.AcceleratorTable([
+                                                        (wx.ACCEL_CTRL, ord("N"), vars.constants["ID"]["New"]), 
+                                                        (wx.ACCEL_CTRL, ord("O"), vars.constants["ID"]["Open"]), 
+                                                        (wx.ACCEL_CTRL, ord("S"), vars.constants["ID"]["Save"]), 
+                                                        (wx.ACCEL_CTRL|wx.ACCEL_SHIFT, ord("S"), vars.constants["ID"]["SaveAs"]), 
+                                                        (wx.ACCEL_CTRL, ord("E"), vars.constants["ID"]["Export"]), 
+                                                        (wx.ACCEL_CTRL, ord("M"), vars.constants["ID"]["MidiLearn"]),
+                                                        (wx.ACCEL_CTRL, ord(","), vars.constants["ID"]["Prefs"]), 
+                                                        (wx.ACCEL_CTRL, ord("Q"), vars.constants["ID"]["Quit"]), 
+                                                     ]))
+        self.Bind(wx.EVT_MENU, self.parent.onNew, id=vars.constants["ID"]["New"])
+        self.Bind(wx.EVT_MENU, self.parent.onOpen, id=vars.constants["ID"]["Open"])
+        self.Bind(wx.EVT_MENU, self.parent.onSave, id=vars.constants["ID"]["Save"])
+        self.Bind(wx.EVT_MENU, self.parent.onSaveAs, id=vars.constants["ID"]["SaveAs"])
+        self.Bind(wx.EVT_MENU, self.parent.onExport, id=vars.constants["ID"]["Export"])
+        self.Bind(wx.EVT_MENU, self.onMidiLearnMode, id=vars.constants["ID"]["MidiLearn"])
+        self.Bind(wx.EVT_MENU, self.parent.onPreferences, id=vars.constants["ID"]["Prefs"])
+        self.Bind(wx.EVT_MENU, self.parent.onQuit, id=vars.constants["ID"]["Quit"])
         self.mouseOffset = (0,0)
         self.which = which
-        self.panel = LFOPanel(self, "LFO", "--- LFO controls ---", synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
+        self.panel = LFOPanel(self, "LFO", "--- %s LFO controls ---" % label, synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
         self.panel.SetPosition((0,0))
         self.panel.Bind(wx.EVT_LEFT_DOWN, self.onMouseDown)
         self.panel.Bind(wx.EVT_LEFT_UP, self.onMouseUp)
         self.panel.Bind(wx.EVT_MOTION, self.onMotion)
+        self.SetFocus()
+
+    def onMidiLearnMode(self, evt):
+        self.parent.onMidiLearnModeFromLfoFrame()
 
     def onMouseDown(self, evt):
         self.mouseOffset = evt.GetPosition()
@@ -106,13 +130,21 @@ class LFOFrame(wx.MiniFrame):
 
     def get(self):
         params = [slider.GetValue() for slider in self.panel.sliders]
-        return params
+        ctl_params = [slider.midictl for slider in self.panel.sliders]
+        return params, ctl_params
     
-    def set(self, params):
+    def set(self, params, ctl_params):
         for i, p in enumerate(params):
             slider = self.panel.sliders[i]
             slider.SetValue(p)
             slider.outFunction(p)
+        for i, p in enumerate(ctl_params):
+            if i in [4,5,6,7] and p != None:
+                slider = self.panel.sliders[i]
+                slider.setMidiCtl(p)
+                i4 = i - 4
+                if self.panel.synth._params[self.which] != None:
+                    self.panel.synth._params[self.which].assignLfoMidiCtl(p, slider, i4)
 
 class LFOButtons(GenStaticText):
     def __init__(self, parent, label="LFO", synth=None, which=0, callback=None):
@@ -176,6 +208,7 @@ class LFOButtons(GenStaticText):
 class ServerPanel(wx.Panel):
     def __init__(self, parent, colour="#DDDDE7"):
         wx.Panel.__init__(self, parent, style=wx.SUNKEN_BORDER)
+        self.colour = colour
         self.SetBackgroundColour(colour)
         self.SetMinSize((230,500))
         self.fileformat = vars.vars["FORMAT"]
@@ -265,7 +298,7 @@ class ServerPanel(wx.Panel):
         self.rec.Bind(wx.EVT_TOGGLEBUTTON, self.handleRec)
     
         self.textAmp = wx.StaticText(self, id=-1, label="Global Amplitude (dB)", pos=(15, 185), size=(200,20))
-        self.sliderAmp = ControlSlider(self, -60, 18, 0, pos=(15,200), outFunction=self.changeAmp, backColour=colour)
+        self.sliderAmp = ZyneControlSlider(self, -60, 18, 0, pos=(15,200), outFunction=self.changeAmp, backColour=colour)
         self.serverSettings.append(1.0)
         self.meter = VuMeter(self)
         self.meter.SetPosition((15, 225))
@@ -412,7 +445,7 @@ class ServerPanel(wx.Panel):
     
     def handleAudio(self, evt):
         popups = [self.popupDriver, self.popupInterface, self.popupSr, self.popupPoly, self.popupBit, self.popupFormat]
-        menuIds = [vars.constants["ID"]["New"], vars.constants["ID"]["Open"], 
+        menuIds = [vars.constants["ID"]["New"], vars.constants["ID"]["Open"], vars.constants["ID"]["MidiLearn"], 
                    vars.constants["ID"]["Export"], vars.constants["ID"]["Quit"]]
         if evt.GetInt() == 1:
             for popup in popups:
@@ -496,12 +529,12 @@ class ServerPanel(wx.Panel):
     def setDriverSetting(self, func=None, val=0):
         if vars.vars["VIRTUAL"]:
             self.resetVirtualKeyboard()
-        modules, params, lfo_params = self.GetTopLevelParent().getModulesAndParams()
+        modules, params, lfo_params, ctl_params = self.GetTopLevelParent().getModulesAndParams()
         self.GetTopLevelParent().deleteAllModules()
         self.fsserver.shutdown()
         if func != None: func(val)
         self.fsserver.boot()
-        self.GetTopLevelParent().setModulesAndParams(modules, params, lfo_params)
+        self.GetTopLevelParent().setModulesAndParams(modules, params, lfo_params, ctl_params)
     
     def changeDriver(self, evt):
         if vars.vars["AUDIO_HOST"] != "Jack":
@@ -599,6 +632,31 @@ class ServerPanel(wx.Panel):
     
     def changeComp4(self, x):
         self.fsserver.setCompParam("falltime", x)
+    
+    def midiLearn(self, state):
+        learnColour = "#EAC1C1"
+        popups = [self.popupDriver, self.popupInterface, self.popupSr, self.popupPoly, self.popupBit, self.popupFormat, self.onOff, self.rec]
+        widgets = [self.knobEqF1, self.knobEqF2, self.knobEqF3, self.knobEqA1, self.knobEqA2, 
+                   self.knobEqA3, self.knobEqA4, self.knobComp1, self.knobComp2, self.knobComp3, self.knobComp4]
+        if state:
+            self.SetBackgroundColour(learnColour)
+            self.sliderAmp.setBackgroundColour(learnColour)
+            for widget in widgets:
+                widget.setbackColour(learnColour)
+                widget.Refresh()
+            for widget in popups:
+                widget.Disable()
+            self.fsserver.startMidiLearn()
+        else:
+            self.SetBackgroundColour(self.colour)
+            self.sliderAmp.setBackgroundColour(self.colour)
+            for widget in widgets:
+                widget.setbackColour(self.colour)
+                widget.Refresh()
+            for widget in popups:
+                widget.Enable()
+            self.fsserver.stopMidiLearn()
+            self.setDriverSetting()
 
 class BasePanel(wx.Panel):
     def __init__(self, parent, name, title, synth, p1, p2, p3, from_lfo=False):
@@ -634,7 +692,7 @@ class BasePanel(wx.Panel):
         if from_lfo:
             self.sliderAmp = self.createSlider("Amplitude", .1, 0, 1, False, False, self.changeAmp, -1)
         else:
-            self.sliderAmp = self.createSlider("Amplitude", 1, 0, 2, False, False, self.changeAmp, 3)
+            self.sliderAmp = self.createSlider("Amplitude", 1, 0, 2, False, False, self.changeAmp, 0)
     
     def createAdsrKnobs(self):
         self.knobSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -659,13 +717,13 @@ class BasePanel(wx.Panel):
             text.SetFont(font)
         self.sizer.Add(text, 0, wx.LEFT, 5)
         if integer or self.from_lfo:
-            slider = ControlSlider(self, minValue, maxValue, value, size=(216,16), log=log, integer=integer, outFunction=callback)
+            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(216,16), log=log, integer=integer, outFunction=callback)
             self.sizer.Add(slider, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
         else:
             hsizer = wx.BoxSizer(wx.HORIZONTAL)
-            slider = ControlSlider(self, minValue, maxValue, value, size=(195,16), log=log, integer=integer, outFunction=callback)
+            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(195,16), log=log, integer=integer, outFunction=callback)
             button = LFOButtons(self, synth=self.synth, which=i, callback=self.startLFO)
-            lfo_frame = LFOFrame(None, self.synth, i)
+            lfo_frame = LFOFrame(self.GetTopLevelParent(), self.synth, label, i)
             self.buttons[i] = button
             self.lfo_frames[i] = lfo_frame
             hsizer.Add(slider, 0)
@@ -706,7 +764,7 @@ class BasePanel(wx.Panel):
         self.synth.amp.release = x
     
     def changeAmp(self, x):
-        self.synth.amp.mul = x
+        self.synth._rawamp.value = x
     
     def getLFOParams(self):
         lfo_params = []
@@ -714,12 +772,14 @@ class BasePanel(wx.Panel):
             if self.buttons[i] == None:
                 lfo_params.append(get_lfo_init())
             else:
-                lfo_params.append({"state": self.buttons[i].state, "params": self.lfo_frames[i].get()})
+                params, ctl_params = self.lfo_frames[i].get()
+                lfo_params.append({"state": self.buttons[i].state, "params": params, 
+                                   "ctl_params": ctl_params, "shown": self.lfo_frames[i].IsShown()})
         return lfo_params
     
     def startLFO(self, which, x):
         self.lfo_sliders[which]["state"] = x
-        if which == 3:
+        if which == 0:
             if not x:
                 self.synth._lfo_amp.stop()
             else:
@@ -735,33 +795,36 @@ class BasePanel(wx.Panel):
                 self.startLFO(i, state)
                 self.buttons[i].setState(state)
                 params = lfo_conf["params"]
-                self.lfo_frames[i].set(params)
+                ctl_params = lfo_conf["ctl_params"]
+                self.lfo_frames[i].set(params, ctl_params)
+                if lfo_conf["shown"]:
+                    self.lfo_frames[i].Show()
 
 class GenericPanel(BasePanel):
     def __init__(self, parent, name, title, synth, p1, p2, p3):
         BasePanel.__init__(self, parent, name, title, synth, p1, p2, p3)
         if p1[0] == "Transposition":
-            self.sliderTranspo = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeTranspo, 0)
+            self.sliderTranspo = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeTranspo, 1)
         else:
-            self.sliderP1 = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeP1, 0)
+            self.sliderP1 = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeP1, 1)
         if p2[0] == "Transposition":
-            self.sliderTranspo = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeTranspo, 1)
+            self.sliderTranspo = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeTranspo, 2)
         else:
-            self.sliderP2 = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeP2, 1)
+            self.sliderP2 = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeP2, 2)
         if p3[0] == "Transposition":
-            self.sliderTranspo = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeTranspo, 2)
+            self.sliderTranspo = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeTranspo, 3)
         else:
-            self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3, 2)
+            self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3, 3)
         self.SetSizerAndFit(self.sizer)    
     
     def changeP1(self, x):
-        self.synth.set(0, x)
-    
-    def changeP2(self, x):
         self.synth.set(1, x)
     
-    def changeP3(self, x):
+    def changeP2(self, x):
         self.synth.set(2, x)
+    
+    def changeP3(self, x):
+        self.synth.set(3, x)
     
     def changeTranspo(self, x):
         self.synth._transpo.value = x
@@ -776,49 +839,49 @@ class LFOPanel(BasePanel):
         self.SetSizerAndFit(self.sizer) 
     
     def changeP1(self, x):
-        if self.which == 3:
+        if self.which == 0:
             self.synth._params[self.which].setSpeed(x)
         else:
             self.synth._params[self.which].lfo.setSpeed(x)
     
     def changeP2(self, x):
-        if self.which == 3:
+        if self.which == 0:
             self.synth._params[self.which].setType(x)
         else:
             self.synth._params[self.which].lfo.setType(x)
     
     def changeP3(self, x):
-        if self.which == 3:
+        if self.which == 0:
             self.synth._params[self.which].setJitter(x)
         else:
             self.synth._params[self.which].lfo.setJitter(x)
     
     def changeAttack(self, x):
-        if self.which == 3:
+        if self.which == 0:
             self.synth.amp.attack = x
         else:
             self.synth._params[self.which].lfo.amp.attack = x
     
     def changeDecay(self, x):
-        if self.which == 3:
+        if self.which == 0:
             self.synth.amp.decay = x
         else:
             self.synth._params[self.which].lfo.amp.decay = x
     
     def changeSustain(self, x):
-        if self.which == 3:
+        if self.which == 0:
             self.synth.amp.sustain = x
         else:
             self.synth._params[self.which].lfo.amp.sustain = x
     
     def changeRelease(self, x):
-        if self.which == 3:
+        if self.which == 0:
             self.synth.amp.release = x
         else:
             self.synth._params[self.which].lfo.amp.release = x
     
     def changeAmp(self, x):
-        if self.which == 3:
+        if self.which == 0:
             self.synth._params[self.which].setAmp(x)
         else:
             self.synth._params[self.which].lfo.setAmp(x)
