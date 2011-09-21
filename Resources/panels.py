@@ -105,7 +105,7 @@ class LFOFrame(wx.MiniFrame):
         self.Bind(wx.EVT_MENU, self.parent.onQuit, id=vars.constants["ID"]["Quit"])
         self.mouseOffset = (0,0)
         self.which = which
-        self.panel = LFOPanel(self, "LFO", "--- %s LFO controls ---" % label, synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
+        self.panel = LFOPanel(self, "LFO", "--- %s LFO ---" % label, synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
         self.panel.SetPosition((0,0))
         self.panel.Bind(wx.EVT_LEFT_DOWN, self.onMouseDown)
         self.panel.Bind(wx.EVT_LEFT_UP, self.onMouseUp)
@@ -121,7 +121,8 @@ class LFOFrame(wx.MiniFrame):
 
     def onMouseUp(self, evt):
         self.panel.mouseOffset = (0,0)
-        self.ReleaseMouse()
+        if self.panel.HasCapture():
+            self.panel.ReleaseMouse()
 
     def onMotion(self, evt):
         if self.panel.HasCapture():
