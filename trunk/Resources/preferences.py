@@ -51,7 +51,7 @@ class PreferencesDialog(wx.Dialog):
         cbo = wx.ComboBox(self, value=host ,size=(100,-1), choices=host_choices,
                                   style=wx.CB_DROPDOWN|wx.CB_READONLY, name="AUDIO_HOST")
         driverSizer.AddSpacer((-1,5))
-        driverSizer.Add(cbo, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 10)
+        driverSizer.Add(cbo, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 8)
  
         for key in self.drivers:
             lbl = wx.StaticText(self, label=vars.constants["VAR_PREF_LABELS"][key])
