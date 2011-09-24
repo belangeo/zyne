@@ -21,7 +21,7 @@ AUDIO_HOST = Portaudio
 OUTPUT_DRIVER = ""
 MIDI_INTERFACE = ""
 SR = 48000
-PYO_PRECISION = single
+PYO_PRECISION = double
 FORMAT = wav
 BITS = 24
 POLY = 10
@@ -34,7 +34,8 @@ LAST_SAVED = ""
 """
 
 constants["ID"] = {"New": 1000, "Open": 1001, "Save": 1002, "SaveAs": 1003, "Export": 1004, "Quit": 1005,
-                   "Prefs": 1006, "MidiLearn": 1007, "Modules": 1100, "About": 5999, "Tutorial": 6000, "CloseTut": 7000}
+                   "Prefs": 1006, "MidiLearn": 1007, "Modules": 1100, "About": 5999, "Tutorial": 6000, "CloseTut": 7000,
+                   "Uniform": 10000}
 constants["VARIABLE_NAMES"] = ["AUDIO_HOST", "OUTPUT_DRIVER", "MIDI_INTERFACE", "SR", "PYO_PRECISION", "FORMAT", "BITS", 
                                "POLY", "AUTO_OPEN", "SLIDERPORT", "CUSTOM_MODULES_PATH", "EXPORT_PATH"]
 constants["VAR_PREF_LABELS"] = {"FORMAT": 'Exported soundfile format', "SR": 'Sampling rate', 
@@ -72,6 +73,7 @@ vars["EXTERNAL_MODULES"] = {}
 vars["MIDIPITCH"] = None
 vars["NOTEONDUR"] = 1.0
 vars["VIRTUAL"] = False
+vars["MIDI_ACTIVE"] = 0
 
 def checkForPreferencesFile():
     preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
