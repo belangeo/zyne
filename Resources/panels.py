@@ -169,6 +169,7 @@ class LFOButtons(GenStaticText):
     
     def setState(self, state):
         self.state = state
+        self.parent.lfo_frames[self.which].panel.synth = self.synth
         if self.state:
             self.SetForegroundColour("#0000EE")
         else:
@@ -841,6 +842,41 @@ class BasePanel(wx.Panel):
                                 val += mini
                             else:
                                 val = random.uniform(mini, maxi)
+                        slider.SetValue(val)
+                        slider.outFunction(val)
+
+    def jitterize(self):
+        for i, slider in enumerate(self.sliders):
+            mini = slider.getMinValue()
+            maxi = slider.getMaxValue()
+            if slider.integer:
+                off = random.randint(-1, 1)
+                val = slider.GetValue() + off
+                if val < mini: val = mini
+                elif val > maxi: val = maxi 
+            else:
+                off = random.uniform(.95, 1.05)
+                val = slider.GetValue() * off
+                if val < mini: val = mini
+                elif val > maxi: val = maxi 
+            slider.SetValue(val)
+            slider.outFunction(val)
+        for i, button in enumerate(self.buttons):
+            if button != None:
+                if button.state:
+                    for slider in self.lfo_frames[i].panel.sliders:
+                        mini = slider.getMinValue()
+                        maxi = slider.getMaxValue()
+                        if slider.integer:
+                            off = random.randint(-1, 1)
+                            val = slider.GetValue() + off
+                            if val < mini: val = mini
+                            elif val > maxi: val = maxi 
+                        else:
+                            off = random.uniform(.95, 1.05)
+                            val = slider.GetValue() * off
+                            if val < mini: val = mini
+                            elif val > maxi: val = maxi 
                         slider.SetValue(val)
                         slider.outFunction(val)
 

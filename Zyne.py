@@ -146,7 +146,8 @@ class ZyneFrame(wx.Frame):
         self.buildAddModuleMenu()
         self.genMenu = wx.Menu()
         self.genMenu.Append(vars.constants["ID"]["Uniform"], 'Generates random values\tCtrl+G', kind=wx.ITEM_NORMAL)
-        self.Bind(wx.EVT_MENU, self.onGenerateValues, id=vars.constants["ID"]["Uniform"])
+        self.genMenu.Append(vars.constants["ID"]["Jitter"], 'Jitterizes current values\tCtrl+J', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onGenerateValues, id=vars.constants["ID"]["Uniform"], id2=vars.constants["ID"]["Jitter"])
         helpMenu = wx.Menu()        
         helpItem = helpMenu.Append(vars.constants["ID"]["About"], '&About Zyne %s' % vars.constants["VERSION"], 'wxPython RULES!!!')
         wx.App.SetMacAboutMenuItemId(helpItem.GetId())
@@ -207,6 +208,8 @@ class ZyneFrame(wx.Frame):
         for module in self.modules:
             if id == 0:
                 module.generateUniform()
+            elif id == 1:
+                module.jitterize()
 
     def updateAddModuleMenu(self, evt):
         for mod in MODULES.keys():
