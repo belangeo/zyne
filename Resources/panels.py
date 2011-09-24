@@ -773,9 +773,15 @@ class BasePanel(wx.Panel):
             if self.buttons[i] == None:
                 lfo_params.append(get_lfo_init())
             else:
+                if self.lfo_frames[i].IsShown():
+                    offset = self.GetTopLevelParent().GetPosition()
+                    pos = self.lfo_frames[i].GetPosition()
+                    shown = (pos[0] - offset[0], pos[1] - offset[1])
+                else:
+                    shown = False
                 params, ctl_params = self.lfo_frames[i].get()
                 lfo_params.append({"state": self.buttons[i].state, "params": params, 
-                                   "ctl_params": ctl_params, "shown": self.lfo_frames[i].IsShown()})
+                                   "ctl_params": ctl_params, "shown": shown})
         return lfo_params
     
     def startLFO(self, which, x):
@@ -799,6 +805,9 @@ class BasePanel(wx.Panel):
                 ctl_params = lfo_conf["ctl_params"]
                 self.lfo_frames[i].set(params, ctl_params)
                 if lfo_conf["shown"]:
+                    offset = self.GetTopLevelParent().GetPosition()
+                    pos = (lfo_conf["shown"][0] + offset[0], lfo_conf["shown"][1] + offset[1])
+                    self.lfo_frames[i].SetPosition(pos)
                     self.lfo_frames[i].Show()
 
     def generateUniform(self):
