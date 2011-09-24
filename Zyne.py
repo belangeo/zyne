@@ -27,7 +27,10 @@ class TutorialFrame(wx.Frame):
         self.rtc.BeginSuppressUndo()
         self.rtc.BeginParagraphSpacing(0, 20)
         self.rtc.BeginBold()
-        self.rtc.BeginFontSize(16)
+        if vars.constants["PLATFORM"] == "linux2":
+            self.rtc.BeginFontSize(12)
+        else:
+            self.rtc.BeginFontSize(16)
         self.rtc.WriteText("Welcome to the tutorial on how to create a custom zyne module.")
         self.rtc.EndFontSize()
         self.rtc.EndBold()
@@ -37,14 +40,20 @@ class TutorialFrame(wx.Frame):
         for line in lines:
             if line.count("----") == 2:
                 self.rtc.BeginBold()
-                self.rtc.BeginFontSize(16)
+                if vars.constants["PLATFORM"] == "linux2":
+                    self.rtc.BeginFontSize(12)
+                else:
+                    self.rtc.BeginFontSize(16)
                 self.rtc.WriteText("%i.%s" % (section_count, line.replace("----", "")))
                 self.rtc.EndFontSize()
                 self.rtc.EndBold()
                 section_count += 1
             elif not self.code and line.startswith("class") or line.startswith("MODULES"):
                 self.code = True
-                self.rtc.BeginFontSize(12)
+                if vars.constants["PLATFORM"] == "linux2":
+                    self.rtc.BeginFontSize(8)
+                else:
+                    self.rtc.BeginFontSize(12)
                 self.rtc.BeginItalic()
                 self.rtc.WriteText(line)                
             elif self.code and not line.startswith(" ") and not line.startswith("class") and not line.startswith("MODULES"):
@@ -135,6 +144,9 @@ class ZyneFrame(wx.Frame):
             wx.App.SetMacPreferencesMenuItemId(pref_item.GetId())
         self.addMenu = wx.Menu()
         self.buildAddModuleMenu()
+        self.genMenu = wx.Menu()
+        self.genMenu.Append(vars.constants["ID"]["Uniform"], 'Generates random values\tCtrl+G', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onGenerateValues, id=vars.constants["ID"]["Uniform"])
         helpMenu = wx.Menu()        
         helpItem = helpMenu.Append(vars.constants["ID"]["About"], '&About Zyne %s' % vars.constants["VERSION"], 'wxPython RULES!!!')
         wx.App.SetMacAboutMenuItemId(helpItem.GetId())
@@ -146,6 +158,7 @@ class ZyneFrame(wx.Frame):
         
         self.menubar.Append(self.fileMenu, "&File")
         self.menubar.Append(self.addMenu, "&Modules")
+        self.menubar.Append(self.genMenu, "&Generates")
         self.menubar.Append(helpMenu, "&Help")
         self.SetMenuBar(self.menubar)
     
@@ -188,7 +201,13 @@ class ZyneFrame(wx.Frame):
             except:
                 pass
         self.Show()
-    
+   
+    def onGenerateValues(self, evt):
+        id = evt.GetId() - 10000
+        for module in self.modules:
+            if id == 0:
+                module.generateUniform()
+
     def updateAddModuleMenu(self, evt):
         for mod in MODULES.keys():
              if mod in vars.vars["EXTERNAL_MODULES"]:

@@ -1,5 +1,5 @@
 # encoding: utf-8
-import wx, os, math, copy
+import wx, os, math, copy, random
 from wx.lib.stattext import GenStaticText
 import Resources.variables as vars
 from Resources.widgets import *
@@ -800,6 +800,40 @@ class BasePanel(wx.Panel):
                 self.lfo_frames[i].set(params, ctl_params)
                 if lfo_conf["shown"]:
                     self.lfo_frames[i].Show()
+
+    def generateUniform(self):
+        for i, slider in enumerate(self.sliders):
+            mini = slider.getMinValue()
+            maxi = slider.getMaxValue()
+            if slider.integer:
+                val = random.randint(mini, maxi)
+            else:
+                if i == 0:
+                    val = random.uniform(.25, 1.5)
+                else:
+                    val = random.uniform(mini, maxi)
+            slider.SetValue(val)
+            slider.outFunction(val)
+        for i, button in enumerate(self.buttons):
+            if button != None:
+                state = random.choice([0,0,0,1])
+                button.setState(state)
+                if state == 1:
+                    for slider in self.lfo_frames[i].panel.sliders:
+                        mini = slider.getMinValue()
+                        maxi = slider.getMaxValue()
+                        if slider.integer:
+                            val = random.randint(mini, maxi)
+                        else:
+                            if i == 1:
+                                val = random.uniform(0, 1)
+                                val **= 10.0
+                                val *= (maxi - mini)
+                                val += mini
+                            else:
+                                val = random.uniform(mini, maxi)
+                        slider.SetValue(val)
+                        slider.outFunction(val)
 
 class GenericPanel(BasePanel):
     def __init__(self, parent, name, title, synth, p1, p2, p3):

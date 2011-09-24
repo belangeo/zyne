@@ -987,7 +987,6 @@ class Keyboard(wx.Panel):
         dc = wx.AutoBufferedPaintDC(self)
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
         dc.Clear()
-        # Draw background
         dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
     

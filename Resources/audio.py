@@ -211,6 +211,8 @@ class FSServer:
     def boot(self):
         self.server.boot()
         self._outSig = Sig([0,0]).out()
+        vars.vars["MIDI_ACTIVE"] = self.server.getMidiActive()
+        #print "midi is active :", vars.vars["MIDI_ACTIVE"]
         self._outSigMix = self._outSig.mix(1)
         
         self._fbEqAmps = SigTo(self.eqGain, time=.1, init=self.eqGain)
@@ -386,6 +388,8 @@ class CtlBind:
             self.lfo_widget_3.outFunction(val)
 
     def assignMidiCtl(self, ctl, widget):
+        if not vars.vars["MIDI_ACTIVE"]:
+            return
         mini = widget.getMinValue()
         maxi = widget.getMaxValue()
         value = widget.GetValue()
@@ -399,6 +403,8 @@ class CtlBind:
         self.trigFunc = TrigFunc(self._midi_metro, self.valToWidget)
 
     def assignLfoMidiCtl(self, ctl, widget, i):
+        if not vars.vars["MIDI_ACTIVE"]:
+            return
         mini = widget.getMinValue()
         maxi = widget.getMaxValue()
         value = widget.GetValue()
