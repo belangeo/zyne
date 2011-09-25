@@ -93,6 +93,10 @@ class LFOFrame(wx.MiniFrame):
                                                         (wx.ACCEL_CTRL, ord("E"), vars.constants["ID"]["Export"]), 
                                                         (wx.ACCEL_CTRL, ord("M"), vars.constants["ID"]["MidiLearn"]),
                                                         (wx.ACCEL_CTRL, ord(","), vars.constants["ID"]["Prefs"]), 
+                                                        (wx.ACCEL_CTRL, ord("G"), vars.constants["ID"]["Uniform"]), 
+                                                        (wx.ACCEL_CTRL, ord("K"), vars.constants["ID"]["Triangular"]), 
+                                                        (wx.ACCEL_CTRL, ord("L"), vars.constants["ID"]["Minimum"]), 
+                                                        (wx.ACCEL_CTRL, ord("J"), vars.constants["ID"]["Jitter"]), 
                                                         (wx.ACCEL_CTRL, ord("Q"), vars.constants["ID"]["Quit"]), 
                                                      ]))
         self.Bind(wx.EVT_MENU, self.parent.onNew, id=vars.constants["ID"]["New"])
@@ -102,6 +106,7 @@ class LFOFrame(wx.MiniFrame):
         self.Bind(wx.EVT_MENU, self.parent.onExport, id=vars.constants["ID"]["Export"])
         self.Bind(wx.EVT_MENU, self.onMidiLearnMode, id=vars.constants["ID"]["MidiLearn"])
         self.Bind(wx.EVT_MENU, self.parent.onPreferences, id=vars.constants["ID"]["Prefs"])
+        self.Bind(wx.EVT_MENU, self.parent.onGenerateValues, id=vars.constants["ID"]["Uniform"], id2=vars.constants["ID"]["Jitter"])
         self.Bind(wx.EVT_MENU, self.parent.onQuit, id=vars.constants["ID"]["Quit"])
         self.mouseOffset = (0,0)
         self.which = which
@@ -818,7 +823,7 @@ class BasePanel(wx.Panel):
             if slider.integer:
                 val = random.randint(mini, maxi)
             else:
-                if i == 0:
+                if i == 4:
                     val = random.uniform(.25, 1.5)
                 else:
                     val = random.uniform(mini, maxi)
@@ -835,7 +840,7 @@ class BasePanel(wx.Panel):
                         if slider.integer:
                             val = random.randint(mini, maxi)
                         else:
-                            if i == 1:
+                            if i == 5:
                                 val = random.uniform(0, 1)
                                 val **= 10.0
                                 val *= (maxi - mini)
@@ -845,17 +850,84 @@ class BasePanel(wx.Panel):
                         slider.SetValue(val)
                         slider.outFunction(val)
 
-    def jitterize(self):
+    def generateTriangular(self):
         for i, slider in enumerate(self.sliders):
             mini = slider.getMinValue()
             maxi = slider.getMaxValue()
             if slider.integer:
-                off = random.randint(-1, 1)
-                val = slider.GetValue() + off
-                if val < mini: val = mini
-                elif val > maxi: val = maxi 
+                v1 = random.randint(mini, maxi)
+                v2 = random.randint(mini, maxi)
+                val = (v1 + v2) / 2
             else:
-                off = random.uniform(.95, 1.05)
+                if i == 4:
+                    val = random.triangular(.25, 1.5)
+                else:
+                    val = random.triangular(mini, maxi)
+            slider.SetValue(val)
+            slider.outFunction(val)
+        for i, button in enumerate(self.buttons):
+            if button != None:
+                state = random.choice([0,0,0,1])
+                button.setState(state)
+                if state == 1:
+                    for slider in self.lfo_frames[i].panel.sliders:
+                        mini = slider.getMinValue()
+                        maxi = slider.getMaxValue()
+                        if slider.integer:
+                            v1 = random.randint(mini, maxi)
+                            v2 = random.randint(mini, maxi)
+                            val = (v1 + v2) / 2
+                        else:
+                            if i == 5:
+                                val = random.triangular(0, 1)
+                                val **= 10.0
+                                val *= (maxi - mini)
+                                val += mini
+                            else:
+                                val = random.triangular(mini, maxi)
+                        slider.SetValue(val)
+                        slider.outFunction(val)
+
+    def generateMinimum(self):
+        for i, slider in enumerate(self.sliders):
+            mini = slider.getMinValue()
+            maxi = slider.getMaxValue()
+            if slider.integer:
+                val = min([random.randint(mini, maxi) for i in range(4)])
+            else:
+                if i == 4:
+                    val = random.uniform(.25, 1.25)
+                else:
+                    val = min([random.uniform(mini, maxi) for i in range(4)])
+            slider.SetValue(val)
+            slider.outFunction(val)
+        for i, button in enumerate(self.buttons):
+            if button != None:
+                state = random.choice([0,0,0,1])
+                button.setState(state)
+                if state == 1:
+                    for slider in self.lfo_frames[i].panel.sliders:
+                        mini = slider.getMinValue()
+                        maxi = slider.getMaxValue()
+                        if slider.integer:
+                            val = min([random.randint(mini, maxi) for i in range(4)])
+                        else:
+                            if i == 5:
+                                val = min([random.uniform(0, 1) for i in range(8)])
+                                val **= 10.0
+                                val *= (maxi - mini)
+                                val += mini
+                            else:
+                                val = min([random.uniform(mini, maxi) for i in range(4)])
+                        slider.SetValue(val)
+                        slider.outFunction(val)
+
+    def jitterize(self):
+        for i, slider in enumerate(self.sliders):
+            mini = slider.getMinValue()
+            maxi = slider.getMaxValue()
+            if not slider.integer:
+                off = random.uniform(.96, 1.04)
                 val = slider.GetValue() * off
                 if val < mini: val = mini
                 elif val > maxi: val = maxi 

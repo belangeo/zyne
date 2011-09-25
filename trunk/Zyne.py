@@ -145,7 +145,9 @@ class ZyneFrame(wx.Frame):
         self.addMenu = wx.Menu()
         self.buildAddModuleMenu()
         self.genMenu = wx.Menu()
-        self.genMenu.Append(vars.constants["ID"]["Uniform"], 'Generates random values\tCtrl+G', kind=wx.ITEM_NORMAL)
+        self.genMenu.Append(vars.constants["ID"]["Uniform"], 'Generates uniform random values\tCtrl+G', kind=wx.ITEM_NORMAL)
+        self.genMenu.Append(vars.constants["ID"]["Triangular"], 'Generates triangular random values\tCtrl+K', kind=wx.ITEM_NORMAL)
+        self.genMenu.Append(vars.constants["ID"]["Minimum"], 'Generates minimum random values\tCtrl+L', kind=wx.ITEM_NORMAL)
         self.genMenu.Append(vars.constants["ID"]["Jitter"], 'Jitterizes current values\tCtrl+J', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onGenerateValues, id=vars.constants["ID"]["Uniform"], id2=vars.constants["ID"]["Jitter"])
         helpMenu = wx.Menu()        
@@ -209,6 +211,10 @@ class ZyneFrame(wx.Frame):
             if id == 0:
                 module.generateUniform()
             elif id == 1:
+                module.generateTriangular()
+            elif id == 2:
+                module.generateMinimum()
+            elif id == 3:
                 module.jitterize()
 
     def updateAddModuleMenu(self, evt):
