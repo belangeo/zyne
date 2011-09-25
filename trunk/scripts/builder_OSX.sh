@@ -15,11 +15,11 @@ else
 fi
 
 echo "Remove Windows .ico files"
-#rm Cecilia.app/Contents/Resources/Cecilia.ico
-#rm Cecilia.app/Contents/Resources/CeciliaFileIcon.ico
+rm Zyne.app/Contents/Resources/zyneicon.ico
+rm Zyne.app/Contents/Resources/zyneiconDoc.ico
 
 cd ..
 cp -R zyne_0.1.0/Zyne.app .
-#tar -cjvf SoundGrain_v4.0.tar.bz2 SoundGrain.app
+tar -cjvf Zyne_0.1.0.tar.bz2 Zyne.app
 rm -rf zyne_0.1.0
-#rm -rf SoundGrain.app
+rm -rf Zyne.app
