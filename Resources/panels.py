@@ -931,8 +931,8 @@ class BasePanel(wx.Panel):
                 val = slider.GetValue() * off
                 if val < mini: val = mini
                 elif val > maxi: val = maxi 
-            slider.SetValue(val)
-            slider.outFunction(val)
+                slider.SetValue(val)
+                slider.outFunction(val)
         for i, button in enumerate(self.buttons):
             if button != None:
                 if button.state:
