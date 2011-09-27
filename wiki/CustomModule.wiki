@@ -4,13 +4,13 @@
  
 ==1. Sections==
 
-#  Sections
-#  Introduction
-#  API
-#  Basics
-#  Reserved variables
-#  Examples
-#  Generic class to use as a startup
+  # Sections
+  # Introduction
+  # API
+  # Basics
+  # Reserved variables
+  # Examples
+  #  Generic class to use as a startup
 
 ==2. Introduction== 
 
