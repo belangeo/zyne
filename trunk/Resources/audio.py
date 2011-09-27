@@ -198,7 +198,7 @@ MODULES = {
           }
 
 """
-import random, os, time, math
+import random, os, time, math, codecs
 import Resources.variables as vars
 
 if vars.vars["PYO_PRECISION"] == "single":
@@ -795,7 +795,7 @@ def checkForCustomModules():
     path = ""
     preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
     if os.path.isfile(preffile):
-        with open(preffile, "r") as f:
+        with codecs.open(preffile, "r", encoding="utf-8") as f:
             lines = f.readlines()
             if not lines[0].startswith("### Zyne") or not vars.constants["VERSION"] in lines[0]:
                 pass
@@ -805,11 +805,11 @@ def checkForCustomModules():
                         line = line.strip()
                         if line:
                             sline = line.split("=")
-                            path = sline[1].strip()
+                            path = vars.vars["ensureNFD"](sline[1].strip())
     
     if path != "":
         if os.path.isfile(path):
-            execfile(path, globals())
+            execfile(vars.vars["toSysEncoding"](path), globals())
             vars.vars["EXTERNAL_MODULES"] = MODULES
 
 checkForCustomModules()

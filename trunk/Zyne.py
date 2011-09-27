@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import wx, os, sys
+import wx, os, sys, stat
 import Resources.variables as vars
 from Resources.panels import *
 from Resources.preferences import PreferencesDialog
@@ -241,7 +241,7 @@ class ZyneFrame(wx.Frame):
             self.addMenu.AppendSeparator()
             moduleNames = sorted(vars.vars["EXTERNAL_MODULES"].keys())
             for i, name in enumerate(moduleNames):
-                self.addMenu.Append(id, 'Add %s module' % name, kind=wx.ITEM_NORMAL)
+                self.addMenu.Append(id, 'Add %s module' % vars.vars["toSysEncoding"](name), kind=wx.ITEM_NORMAL)
                 self.Bind(wx.EVT_MENU, self.onAddModule, id=id)
                 self.moduleNames.append(name)
                 MODULES.update(vars.vars["EXTERNAL_MODULES"].items())
@@ -381,13 +381,16 @@ class ZyneFrame(wx.Frame):
             self.serverPanel.reinitServer(0.001, "offline", serverSettings, postProcSettings)
             dlg2 = wx.ProgressDialog("Exporting samples...", "", maximum = num_iter, parent=self,
                                    style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
-            dlg2.SetSize((500,100))
+            if vars.constants["PLATFORM"] == "win32":
+                dlg2.SetSize((500, 125))
+            else:
+                dlg2.SetSize((500,100))
             count = 0
             for i in range(first,last,step):
                 vars.vars["MIDIPITCH"] = i
                 self.setModulesAndParams(modules, params, lfo_params, ctl_params)
                 name = "%03d-%s.%s" % (i, filename, ext)
-                path = os.path.join(rootpath, name)
+                path = vars.vars["toSysEncoding"](os.path.join(rootpath, name))
                 count += 1
                 (keepGoing, skip) = dlg2.Update(count, "Exporting %s" % name)
                 self.serverPanel.setRecordOptions(dur=duration, filename=path)
