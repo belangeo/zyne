@@ -7,6 +7,45 @@ from Resources.preferences import PreferencesDialog
 import wx.richtext as rt
 import Resources.audio as audio
 
+class MidiLearnHelpFrame(wx.Frame):
+    def __init__(self, *args, **kw):
+        wx.Frame.__init__(self, *args, **kw)
+        self.menubar = wx.MenuBar()
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(vars.constants["ID"]["CloseLearnHelp"], 'Close...\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onClose, id=vars.constants["ID"]["CloseLearnHelp"])
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
+    
+        self.rtc = rt.RichTextCtrl(self, style=wx.VSCROLL|wx.HSCROLL|wx.NO_BORDER)
+        self.rtc.SetEditable(False)
+        wx.CallAfter(self.rtc.SetFocus)
+    
+        self.rtc.Freeze()
+        self.rtc.BeginSuppressUndo()
+        self.rtc.BeginParagraphSpacing(0, 20)
+        self.rtc.BeginBold()
+        if vars.constants["PLATFORM"] == "linux2":
+            self.rtc.BeginFontSize(12)
+        else:
+            self.rtc.BeginFontSize(16)
+        self.rtc.WriteText("How to use the midi learn mode.")
+        self.rtc.EndFontSize()
+        self.rtc.EndBold()
+        self.rtc.Newline()
+        self.rtc.WriteText("To assign midi controllers to module's sliders, user can use the midi learn mode.\n\n")
+        self.rtc.WriteText("First, hit Ctrl+M (Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
+        self.rtc.WriteText("When in midi learn mode, click on a slider and play with the midi controller you want to assign, the controller number will appear at both end of the slider.\n")
+        self.rtc.WriteText("Finally, hit Ctrl+M (Cmd+M on Mac) again to leave midi learn mode. Next time you start the server, you will be able to control the sliders with your midi controller.\n\n")
+        self.rtc.WriteText("Midi assignations are saved within the .zy file and will be automatically assigned on further launchs of the synth.\n")
+        self.rtc.Newline()
+        self.rtc.EndParagraphSpacing()
+        self.rtc.EndSuppressUndo()
+        self.rtc.Thaw()
+    
+    def onClose(self, evt):
+        self.Destroy()
+
 class TutorialFrame(wx.Frame):
     def __init__(self, *args, **kw):
         wx.Frame.__init__(self, *args, **kw)
@@ -156,6 +195,8 @@ class ZyneFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.showAbout, helpItem)
         tuturialCreateModuleItem = helpMenu.Append(vars.constants["ID"]["Tutorial"], "How to create a custom module")
         self.Bind(wx.EVT_MENU, self.openTutorialCreateModule, tuturialCreateModuleItem)
+        midiLearnHelpItem = helpMenu.Append(vars.constants["ID"]["MidiLearnHelp"], "How to use the midi learn mode")
+        self.Bind(wx.EVT_MENU, self.openMidiLearnHelp, midiLearnHelpItem)
     
         self.Bind(wx.EVT_CLOSE, self.onQuit)
         
@@ -250,10 +291,16 @@ class ZyneFrame(wx.Frame):
             self.addMenu.Append(id, "Update Modules", kind=wx.ITEM_NORMAL)
             self.Bind(wx.EVT_MENU, self.updateAddModuleMenu, id=id)
     
+    def openMidiLearnHelp(self, evt):
+        win = MidiLearnHelpFrame(self, -1, "Midi Learn Help", size=(400, 300), style=wx.DEFAULT_FRAME_STYLE)
+        win.CenterOnParent()
+        win.Show(True)
+
     def openTutorialCreateModule(self, evt):
         win = TutorialFrame(self, -1, "Zyne tutorial", size=(700, 500), style=wx.DEFAULT_FRAME_STYLE)
+        win.CenterOnParent()
         win.Show(True)
-    
+
     def showKeyboard(self, state=True):
         if state:
             self.splitWindow.SplitHorizontally(self.panel, self.keyboard, -80)

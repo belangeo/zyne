@@ -40,8 +40,8 @@ LAST_SAVED = ""
 """
 
 constants["ID"] = {"New": 1000, "Open": 1001, "Save": 1002, "SaveAs": 1003, "Export": 1004, "Quit": 1005,
-                   "Prefs": 1006, "MidiLearn": 1007, "Modules": 1100, "About": 5999, "Tutorial": 6000, "CloseTut": 7000,
-                   "Uniform": 10000, "Triangular": 10001, "Minimum": 10002, "Jitter": 10003}
+                   "Prefs": 1006, "MidiLearn": 1007, "Modules": 1100, "About": 5999, "Tutorial": 6000, "MidiLearnHelp": 6001, "CloseTut": 7000,
+                   "CloseLearnHelp": 7001, "Uniform": 10000, "Triangular": 10001, "Minimum": 10002, "Jitter": 10003}
 constants["VARIABLE_NAMES"] = ["AUDIO_HOST", "OUTPUT_DRIVER", "MIDI_INTERFACE", "SR", "PYO_PRECISION", "FORMAT", "BITS", 
                                "POLY", "AUTO_OPEN", "SLIDERPORT", "CUSTOM_MODULES_PATH", "EXPORT_PATH"]
 constants["VAR_PREF_LABELS"] = {"FORMAT": 'Exported soundfile format', "SR": 'Sampling rate', 
