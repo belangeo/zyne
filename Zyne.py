@@ -339,7 +339,7 @@ class ZyneFrame(wx.Frame):
         if self.openedFile != "":
             filename = os.path.split(self.openedFile)[1]
         else:
-            filename = "zynesynth"    
+            filename = "zynesynth.zy"    
         dlg = wx.FileDialog(self, "Save file as...", defaultFile=filename, style=wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
