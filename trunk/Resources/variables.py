@@ -82,7 +82,7 @@ vars["VIRTUAL"] = False
 vars["MIDI_ACTIVE"] = 0
 
 def ensureNFD(unistr):
-    if constants["PLATFORM"]  == 'win32':
+    if constants["PLATFORM"] in ['linux2', 'win32']:
         encodings = [constants["DEFAULT_ENCODING"], constants["SYSTEM_ENCODING"],
                      'cp1252', 'iso-8859-1', 'utf-16']
         format = 'NFC'
