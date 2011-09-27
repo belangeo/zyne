@@ -30,7 +30,7 @@ class BaseSynth(self, config, mode=1)
 }}}
 
 Parameters :
-    _config_ : dict
+    _*config*_ : dict
         This is the user-defined configuration dictionnary automatically sent by the application
         to the module in order to properly initialize the module. It must be passed directly from
         the module's __init__ method to the BaseSynth's __init__ method.
