@@ -105,8 +105,10 @@ def ensureNFD(unistr):
 
 def toSysEncoding(unistr):
     try:
-        unistr = unicode(unistr)
-        #unistr = unistr.encode(constants["SYSTEM_ENCODING"])
+        if constants["PLATFORM"] == "win32":
+            unistr = unistr.encode(constants["SYSTEM_ENCODING"])
+        else:
+            unistr = unicode(unistr)
     except:
         pass
     return unistr
