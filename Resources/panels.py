@@ -162,7 +162,9 @@ class LFOButtons(GenStaticText):
         self.callback = callback
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.font, psize = self.GetFont(), self.GetFont().GetPointSize()
-        self.font.SetWeight(wx.BOLD)
+        if vars.constants["PLATFORM"] != "win32":
+            self.font.SetWeight(wx.BOLD)
+            
         if vars.constants["PLATFORM"] != "darwin":
             self.font.SetPointSize(psize-2)
         else:
@@ -691,7 +693,7 @@ class BasePanel(wx.Panel):
         self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
         self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.titleSizer.Add(self.close, 0, wx.LEFT, 5)
-        self.title = wx.StaticText(self, id=-1, label=title)
+        self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
         off = (210 - self.title.GetSize()[0]) / 2
         self.titleSizer.Add(self.title, 0, wx.LEFT, off)
         self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 4)
@@ -717,7 +719,7 @@ class BasePanel(wx.Panel):
             self.sizer.AddSpacer(3)
     
     def createSlider(self, label, value, minValue, maxValue, integer, log, callback, i=-1):
-        text = wx.StaticText(self, id=-1, label=label, size=(200,16))
+        text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,16))
         if vars.constants["PLATFORM"] == "darwin":
             font, psize = text.GetFont(), text.GetFont().GetPointSize()
             font.SetPointSize(psize-2)
@@ -833,6 +835,7 @@ class BasePanel(wx.Panel):
             if button != None:
                 state = random.choice([0,0,0,1])
                 button.setState(state)
+                button.Refresh()
                 if state == 1:
                     for slider in self.lfo_frames[i].panel.sliders:
                         mini = slider.getMinValue()
@@ -869,6 +872,7 @@ class BasePanel(wx.Panel):
             if button != None:
                 state = random.choice([0,0,0,1])
                 button.setState(state)
+                button.Refresh()
                 if state == 1:
                     for slider in self.lfo_frames[i].panel.sliders:
                         mini = slider.getMinValue()
@@ -905,6 +909,7 @@ class BasePanel(wx.Panel):
             if button != None:
                 state = random.choice([0,0,0,1])
                 button.setState(state)
+                button.Refresh()
                 if state == 1:
                     for slider in self.lfo_frames[i].panel.sliders:
                         mini = slider.getMinValue()

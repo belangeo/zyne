@@ -1,9 +1,15 @@
-import os, sys
+import os, sys, unicodedata, codecs
+from types import UnicodeType
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 constants = dict()
 constants["VERSION"] = "0.1.0"
 constants["PLATFORM"] = sys.platform
 constants["OSX_BUILD_WITH_JACK_SUPPORT"] = False
+constants["DEFAULT_ENCODING"] = sys.getdefaultencoding()
+constants["SYSTEM_ENCODING"] = sys.getfilesystemencoding()
 
 if '/Zyne.app' in os.getcwd():
     constants["RESOURCES_PATH"] = os.getcwd()
@@ -24,7 +30,7 @@ SR = 48000
 PYO_PRECISION = double
 FORMAT = wav
 BITS = 24
-POLY = 10
+POLY = 5
 SLIDERPORT = 0.05
 AUTO_OPEN = Default
 CUSTOM_MODULES_PATH = ""
@@ -59,7 +65,7 @@ vars["MIDI_INTERFACE"] = ""
 vars["SR"] = 48000
 vars["FORMAT"] = 'wav'
 vars["BITS"] = 24
-vars["POLY"] = 10
+vars["POLY"] = 5
 vars["SLIDERPORT"] = 0.05
 vars["PYO_PRECISION"] = "double"
 vars["CUSTOM_MODULES_PATH"] = ""
@@ -75,10 +81,42 @@ vars["NOTEONDUR"] = 1.0
 vars["VIRTUAL"] = False
 vars["MIDI_ACTIVE"] = 0
 
+def ensureNFD(unistr):
+    if constants["PLATFORM"]  == 'win32':
+        encodings = [constants["DEFAULT_ENCODING"], constants["SYSTEM_ENCODING"],
+                     'cp1252', 'iso-8859-1', 'utf-16']
+        format = 'NFC'
+    else:
+        encodings = [constants["DEFAULT_ENCODING"], constants["SYSTEM_ENCODING"],
+                     'macroman', 'iso-8859-1', 'utf-16']
+        format = 'NFD'
+    if type(unistr) != UnicodeType:
+        for encoding in encodings:
+            try:
+                unistr = unistr.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+            except:
+                unistr = "UnableToDecodeString"
+                print "Unicode encoding not in a recognized format..."
+                break
+    return unicodedata.normalize(format, unistr)
+
+def toSysEncoding(unistr):
+    try:
+        unistr = unistr.encode(constants["SYSTEM_ENCODING"])
+    except:
+        pass
+    return unistr
+
+vars["ensureNFD"] = ensureNFD
+vars["toSysEncoding"] = toSysEncoding
+
 def checkForPreferencesFile():
     preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
     if os.path.isfile(preffile):
-        with open(preffile, "r") as f:
+        with codecs.open(preffile, "r", encoding="utf-8") as f:
             lines = f.readlines()
             if not lines[0].startswith("### Zyne") or not constants["VERSION"] in lines[0]:
                 print "Zyne preferences out-of-date, using default values."
@@ -88,7 +126,7 @@ def checkForPreferencesFile():
             line = line.strip()
             if line:
                 sline = line.split("=")
-                prefs[sline[0].strip()] = sline[1].strip()
+                prefs[sline[0].strip()] = ensureNFD(sline[1].strip())
         for key in prefs.keys():
             if key in ["SR", "POLY", "BITS"]:
                 vars[key] = int(prefs[key])
