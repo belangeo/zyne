@@ -173,7 +173,7 @@ class LFOButtons(GenStaticText):
         self.Bind(wx.EVT_ENTER_WINDOW, self.hover)
         self.Bind(wx.EVT_LEAVE_WINDOW, self.leave)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
-        self.SetToolTip(wx.ToolTip("Click to eanble, Shift+Click to open controls"))
+        self.SetToolTip(wx.ToolTip("Click to enable, Shift+Click to open controls"))
 
     def setState(self, state):
         self.state = state
