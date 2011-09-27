@@ -17,10 +17,10 @@
 What must be defined to include custom modules in the zyne application ?
 
 - In a python file:
-    1 - Classes implementing custom dsp chains.
-    2 - A dictionary, called `MODULES`, specifying the modules and their properties.
+  # Classes implementing custom dsp chains.
+  # A dictionary, called `MODULES`, specifying the modules and their properties.
 - In the preferences panel:
-    3 - The path to your python file. Several modules can be defined in the file.
+  # The path to your python file. Several modules can be defined in the file.
 
 
 ==3. API==
