@@ -105,7 +105,8 @@ def ensureNFD(unistr):
 
 def toSysEncoding(unistr):
     try:
-        unistr = unistr.encode(constants["SYSTEM_ENCODING"])
+        unistr = unicode(unistr)
+        #unistr = unistr.encode(constants["SYSTEM_ENCODING"])
     except:
         pass
     return unistr
