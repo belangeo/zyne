@@ -173,7 +173,8 @@ class LFOButtons(GenStaticText):
         self.Bind(wx.EVT_ENTER_WINDOW, self.hover)
         self.Bind(wx.EVT_LEAVE_WINDOW, self.leave)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
-    
+        self.SetToolTip(wx.ToolTip("Click to eanble, Shift+Click to open controls"))
+
     def setState(self, state):
         self.state = state
         self.parent.lfo_frames[self.which].panel.synth = self.synth
@@ -692,6 +693,7 @@ class BasePanel(wx.Panel):
         self.close.Bind(wx.EVT_ENTER_WINDOW, self.hoverX)
         self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
         self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.close.SetToolTip(wx.ToolTip("Delete module"))
         self.titleSizer.Add(self.close, 0, wx.LEFT, 5)
         self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
         off = (210 - self.title.GetSize()[0]) / 2
