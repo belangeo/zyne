@@ -239,6 +239,7 @@ class ServerPanel(wx.Panel):
         if vars.vars["AUDIO_HOST"] != "Jack":
             preferedDriver = vars.vars["OUTPUT_DRIVER"]
             self.driverList, self.driverIndexes = get_output_devices()
+            self.driverList = [vars.vars["ensureNFD"](driver) for driver in self.driverList]
             self.defaultDriver = get_default_output()
             self.popupDriver = wx.Choice(self, id=-1, pos=(13,40), size=(95, 20), choices=self.driverList)
             if preferedDriver and preferedDriver in self.driverList:
@@ -257,6 +258,7 @@ class ServerPanel(wx.Panel):
         preferedInterface = vars.vars["MIDI_INTERFACE"]
         self.interfaceText = wx.StaticText(self, id=-1, label="Midi interface", pos=(120,25))
         self.interfaceList, self.interfaceIndexes = get_midi_input_devices()
+        self.interfaceList = [vars.vars["ensureNFD"](interface) for interface in self.interfaceList]
         if self.interfaceList != []:
             self.interfaceList.append("Virtual Keyboard")
             self.defaultInterface = get_midi_default_input()

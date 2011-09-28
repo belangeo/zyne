@@ -129,6 +129,7 @@ class PreferencesDialog(wx.Dialog):
         elif name == "MIDI_INTERFACE":
             driverList, driverIndexes = get_midi_input_devices()
             msg = "Choose a Midi interface..."
+        driverList = [vars.vars["ensureNFD"](driver) for driver in driverList]
         widget = wx.FindWindowByName(name)
         dlg = wx.SingleChoiceDialog(self, message=msg, caption="Driver Selector", 
                                     choices=driverList, style=wx.CHOICEDLG_STYLE)
