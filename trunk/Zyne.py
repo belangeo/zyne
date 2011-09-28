@@ -169,12 +169,16 @@ class ZyneFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onSave, id=vars.constants["ID"]["Save"])
         self.fileMenu.Append(vars.constants["ID"]["SaveAs"], 'Save as...\tShift+Ctrl+S', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onSaveAs, id=vars.constants["ID"]["SaveAs"])
+        self.fileMenu.AppendSeparator()
         self.fileMenu.Append(vars.constants["ID"]["Export"], 'Export as samples...\tCtrl+E', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onExport, id=vars.constants["ID"]["Export"])
         self.fileMenu.Append(vars.constants["ID"]["MidiLearn"], 'Midi learn mode\tShift+Ctrl+M', kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.onMidiLearnMode, id=vars.constants["ID"]["MidiLearn"])
         pref_item = self.fileMenu.Append(vars.constants["ID"]["Prefs"], 'Preferences...\tCtrl+,', 'Open Cecilia preferences pane', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=vars.constants["ID"]["Prefs"])
+        self.fileMenu.AppendSeparator()
+        self.fileMenu.Append(vars.constants["ID"]["Run"], 'Run\tCtrl+R', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onRun, id=vars.constants["ID"]["Run"])
         self.fileMenu.AppendSeparator()
         quit_item = self.fileMenu.Append(vars.constants["ID"]["Quit"], 'Quit\tCtrl+Q', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onQuit, id=vars.constants["ID"]["Quit"])
@@ -246,6 +250,17 @@ class ZyneFrame(wx.Frame):
                 pass
         self.Show()
    
+    def onRun(self, evt):
+        state = self.serverPanel.onOff.GetValue()
+        evt = wx.CommandEvent(10127, self.serverPanel.onOff.GetId())
+        if state:
+            evt.SetInt(0)
+            self.serverPanel.onOff.SetValue(False)
+        else:
+            evt.SetInt(1)
+            self.serverPanel.onOff.SetValue(True)
+        self.serverPanel.onOff.ProcessEvent(evt)
+        
     def onGenerateValues(self, evt):
         id = evt.GetId() - 10000
         for module in self.modules:

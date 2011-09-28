@@ -183,7 +183,10 @@ class PreferencesDialog(wx.Dialog):
             line = line.strip()
             if line:
                 sline = line.split("=")
-                self.prefs[sline[0].strip()] = vars.vars["ensureNFD"](sline[1].strip())
+                if sline[0].strip() == "AUDIO_HOST" and not vars.constants["OSX_BUILD_WITH_JACK_SUPPORT"] and sline[1].strip() == "Jack":
+                    self.prefs[sline[0].strip()] = vars.vars["ensureNFD"]("Portaudio")
+                else:
+                    self.prefs[sline[0].strip()] = vars.vars["ensureNFD"](sline[1].strip())
 
     def onSave(self, event):
         preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
