@@ -37,7 +37,7 @@ class MidiLearnHelpFrame(wx.Frame):
         self.rtc.WriteText("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
         self.rtc.WriteText("When in midi learn mode, click on a slider and play with the midi controller you want to assign, the controller number will appear at both end of the slider.\n")
         self.rtc.WriteText("Finally, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) again to leave midi learn mode. Next time you start the server, you will be able to control the sliders with your midi controller.\n\n")
-        self.rtc.WriteText("Midi assignations are saved within the .zy file and will be automatically assigned on further launchs of the synth.\n")
+        self.rtc.WriteText("Midi assignations are saved within the .zy file and will be automatically assigned at future launches of the synth.\n")
         self.rtc.Newline()
         self.rtc.EndParagraphSpacing()
         self.rtc.EndSuppressUndo()
