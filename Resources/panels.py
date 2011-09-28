@@ -660,6 +660,7 @@ class ServerPanel(wx.Panel):
                 widget.Refresh()
             for widget in popups:
                 widget.Disable()
+            self.GetTopLevelParent().menubar.FindItemById(vars.constants["ID"]["Run"]).Enable(False)
             self.fsserver.startMidiLearn()
         else:
             self.SetBackgroundColour(self.colour)
@@ -671,6 +672,7 @@ class ServerPanel(wx.Panel):
                 widget.Refresh()
             for widget in popups:
                 widget.Enable()
+            self.GetTopLevelParent().menubar.FindItemById(vars.constants["ID"]["Run"]).Enable(True)
             self.fsserver.stopMidiLearn()
             self.setDriverSetting()
 
