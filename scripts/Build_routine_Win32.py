@@ -9,6 +9,7 @@ if build:
     os.system("svn export . Zyne_Win")
     os.system("copy dist\Zyne.exe Zyne_Win /Y")
     os.system("rmdir /Q /S Zyne_Win\scripts")
+    os.system("rmdir /Q /S Zyne_Win\synths")
     os.remove("Zyne_Win/Zyne.py")
     os.remove("Zyne_Win/Resources/zyneicon.icns")
     os.remove("Zyne_Win/Resources/zyneiconDoc.icns")
