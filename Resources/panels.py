@@ -652,7 +652,9 @@ class ServerPanel(wx.Panel):
                    self.knobEqA3, self.knobEqA4, self.knobComp1, self.knobComp2, self.knobComp3, self.knobComp4]
         if state:
             self.SetBackgroundColour(learnColour)
+            self.Refresh()
             self.sliderAmp.setBackgroundColour(learnColour)
+            self.sliderAmp.Refresh()
             for widget in widgets:
                 widget.setbackColour(learnColour)
                 widget.Refresh()
@@ -661,7 +663,9 @@ class ServerPanel(wx.Panel):
             self.fsserver.startMidiLearn()
         else:
             self.SetBackgroundColour(self.colour)
+            self.Refresh()
             self.sliderAmp.setBackgroundColour(self.colour)
+            self.sliderAmp.Refresh()
             for widget in widgets:
                 widget.setbackColour(self.colour)
                 widget.Refresh()

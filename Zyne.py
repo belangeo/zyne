@@ -66,7 +66,7 @@ class TutorialFrame(wx.Frame):
         self.rtc.BeginSuppressUndo()
         self.rtc.BeginParagraphSpacing(0, 20)
         self.rtc.BeginBold()
-        if vars.constants["PLATFORM"] == "linux2":
+        if vars.constants["PLATFORM"] in ["win32", "linux2"]:
             self.rtc.BeginFontSize(12)
         else:
             self.rtc.BeginFontSize(16)
@@ -79,7 +79,7 @@ class TutorialFrame(wx.Frame):
         for line in lines:
             if line.count("----") == 2:
                 self.rtc.BeginBold()
-                if vars.constants["PLATFORM"] == "linux2":
+                if vars.constants["PLATFORM"] in ["win32", "linux2"]:
                     self.rtc.BeginFontSize(12)
                 else:
                     self.rtc.BeginFontSize(16)
@@ -89,7 +89,7 @@ class TutorialFrame(wx.Frame):
                 section_count += 1
             elif not self.code and line.startswith("class") or line.startswith("MODULES"):
                 self.code = True
-                if vars.constants["PLATFORM"] == "linux2":
+                if vars.constants["PLATFORM"] in ["win32", "linux2"]:
                     self.rtc.BeginFontSize(8)
                 else:
                     self.rtc.BeginFontSize(12)
