@@ -178,6 +178,8 @@ class ZyneFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onExport, id=vars.constants["ID"]["Export"])
         self.fileMenu.Append(vars.constants["ID"]["MidiLearn"], 'Midi learn mode\tShift+Ctrl+M', kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.onMidiLearnMode, id=vars.constants["ID"]["MidiLearn"])
+        self.fileMenu.Append(vars.constants["ID"]["ResetKeyboard"], 'Reset virtual keyboard\tCtrl+Y', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onResetKeyboard, id=vars.constants["ID"]["ResetKeyboard"])
         pref_item = self.fileMenu.Append(vars.constants["ID"]["Prefs"], 'Preferences...\tCtrl+,', 'Open Cecilia preferences pane', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=vars.constants["ID"]["Prefs"])
         self.fileMenu.AppendSeparator()
@@ -363,7 +365,10 @@ class ZyneFrame(wx.Frame):
             else:
                 self.SetMinSize((460, 520))
                 self.SetSize((-1, 520))
-    
+   
+    def onResetKeyboard(self, evt):
+        self.serverPanel.resetVirtualKeyboard()
+
     def OnSize(self, evt):
         self.splitWindow.SetSashPosition(-80)
         self.setModulePostions()
