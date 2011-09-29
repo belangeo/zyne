@@ -632,7 +632,7 @@ class ZyneControlSlider(ControlSlider):
             if vars.vars["LEARNINGSLIDER"] == None:
                 vars.vars["LEARNINGSLIDER"] = self
                 self.Disable()
-            else:
+            elif vars.vars["LEARNINGSLIDER"] == self:
                 vars.vars["LEARNINGSLIDER"].setMidiCtl(None)
                 vars.vars["LEARNINGSLIDER"] = None
                 self.Enable()
@@ -675,7 +675,8 @@ class ControlKnob(wx.Panel):
         self.Bind(wx.EVT_KEY_DOWN, self.keyDown)
         self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
    
-    def setMidiCtl(self, x):
+    def setMidiCtl(self, x, propagate=True):
+        self.propagate = propagate
         self.midictl = x
         self.Refresh()
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import wx, os, sys, stat
+import wx, os, sys
 import Resources.variables as vars
 from Resources.panels import *
 from Resources.preferences import PreferencesDialog
@@ -155,6 +155,7 @@ class SamplingDialog(wx.Dialog):
         btnsizer.Realize()
         sizer.Add(btnsizer, 0, wx.ALIGN_RIGHT|wx.ALL, 5)
         self.SetSizer(sizer)
+        self.filename.SetFocus()
 
 class ZyneFrame(wx.Frame):
     def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(920,522)):
@@ -428,7 +429,10 @@ class ZyneFrame(wx.Frame):
                 rootpath = os.path.join(os.path.expanduser("~"), "Desktop", "zyne_export")
                 if not os.path.isdir(rootpath):
                     os.mkdir(rootpath)
-            filename = dlg.filename.GetValue()
+            filename = vars.vars["ensureNFD"](dlg.filename.GetValue())
+            subrootpath = os.path.join(rootpath, filename)
+            if not os.path.isdir(subrootpath):
+                os.mkdir(subrootpath)
             first = int(dlg.first.GetValue())
             last = int(dlg.last.GetValue())
             step = int(dlg.step.GetValue())
@@ -450,9 +454,9 @@ class ZyneFrame(wx.Frame):
             count = 0
             for i in range(first,last,step):
                 vars.vars["MIDIPITCH"] = i
-                self.setModulesAndParams(modules, params, lfo_params, ctl_params)
+                self.setModulesAndParams(modules, params, lfo_params, ctl_params, True)
                 name = "%03d-%s.%s" % (i, filename, ext)
-                path = vars.vars["toSysEncoding"](os.path.join(rootpath, name))
+                path = vars.vars["toSysEncoding"](os.path.join(subrootpath, name))
                 count += 1
                 (keepGoing, skip) = dlg2.Update(count, "Exporting %s" % name)
                 self.serverPanel.setRecordOptions(dur=duration, filename=path)
@@ -468,17 +472,18 @@ class ZyneFrame(wx.Frame):
         dlg.Destroy()
     
     def getModulesAndParams(self):
-        modules = [module.name for module in self.modules]
+        modules = [(module.name, module.mute) for module in self.modules]
         params = [[slider.GetValue() for slider in module.sliders] for module in self.modules]
         lfo_params = [module.getLFOParams() for module in self.modules]
         ctl_params = [[slider.midictl for slider in module.sliders] for module in self.modules]
         return modules, params, lfo_params, ctl_params
     
-    def setModulesAndParams(self, modules, params, lfo_params, ctl_params):
-        for name in modules:
+    def setModulesAndParams(self, modules, params, lfo_params, ctl_params, from_export=False):
+        for name, mute in modules:
             dic = MODULES[name]
             self.modules.append(GenericPanel(self.panel, name, dic["title"], dic["synth"], dic["p1"], dic["p2"], dic["p3"]))
             self.addModule(self.modules[-1])
+            self.modules[-1].setMute(mute)
         for i, paramset in enumerate(params):
             for j, param in enumerate(paramset):
                 slider = self.modules[i].sliders[j]
@@ -487,15 +492,15 @@ class ZyneFrame(wx.Frame):
         for i, ctl_paramset in enumerate(ctl_params):
             for j, ctl_param in enumerate(ctl_paramset):
                 slider = self.modules[i].sliders[j]
-                slider.setMidiCtl(ctl_param)
-                if j in [4,5,6,7] and ctl_param != None:
+                slider.setMidiCtl(ctl_param, False)
+                if j in [4,5,6,7] and ctl_param != None and not from_export:
                     j4 = j - 4
                     if self.modules[i].synth._params[j4] != None:
                         self.modules[i].synth._params[j4].assignMidiCtl(ctl_param, slider)
         for i, lfo_param in enumerate(lfo_params):
             self.modules[i].reinitLFOS(lfo_param)
         self.refresh()
-    
+
     def savefile(self, filename):
         modules, params, lfo_params, ctl_params = self.getModulesAndParams()
         serverSettings = self.serverPanel.getServerSettings()
