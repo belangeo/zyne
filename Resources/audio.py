@@ -607,7 +607,7 @@ class BaseSynth:
             self._secondtrig = Trig().play(delay=vars.vars["NOTEONDUR"])
             self._trigamp = Counter(Mix([self._firsttrig,self._secondtrig]), min=0, max=2, dir=1)
             self._lfo_amp = LFOSynth(self._mute*.5, self._trigamp, self._midi_metro)
-            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, mul=self._rawamp, add=self._lfo_amp.sig())
+            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, mul=self._rawamp*0.707, add=self._lfo_amp.sig())
             self.trig = Trig().play()
         elif vars.vars["VIRTUAL"]:
             self._virtualpit = Sig([0.0]*vars.vars["POLY"])

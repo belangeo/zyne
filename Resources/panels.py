@@ -704,8 +704,6 @@ class BasePanel(wx.Panel):
         self.close = GenStaticText(self, -1, label="X")
         self.close.SetBackgroundColour(BACKGROUND_COLOUR)
         self.closeFont = self.close.GetFont()
-        self.closeFont.SetWeight(wx.BOLD)
-        self.close.SetFont(self.closeFont)
         self.close.Bind(wx.EVT_ENTER_WINDOW, self.hoverX)
         self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
         self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
@@ -717,7 +715,6 @@ class BasePanel(wx.Panel):
             self.corner = GenStaticText(self, -1, label="mute")
             self.corner.Bind(wx.EVT_LEFT_DOWN, self.MouseDownCorner)
         self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
-        self.corner.SetFont(self.closeFont)
         self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
         self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
         self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 5), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 5)])
@@ -768,15 +765,15 @@ class BasePanel(wx.Panel):
         return slider
     
     def hoverX(self, evt):
-        font, ptsize = self.close.GetFont(), self.close.GetFont().GetPointSize()
-        font.SetPointSize(ptsize+2)
+        font = self.close.GetFont()
+        font.SetWeight(wx.BOLD)
         self.close.SetFont(font)
         self.close.SetForegroundColour("#555555")
-    
+
     def leaveX(self, evt):
         self.close.SetFont(self.closeFont)
         self.close.SetForegroundColour("#000000")
-    
+
     def MouseDown(self, evt):
         del self.synth
         if not self.from_lfo:
@@ -794,8 +791,8 @@ class BasePanel(wx.Panel):
                 col = "#0000CC"
         else:
             col = "#555555"
-        font, ptsize = self.corner.GetFont(), self.corner.GetFont().GetPointSize()
-        font.SetPointSize(ptsize+1)
+        font = self.corner.GetFont()
+        font.SetWeight(wx.BOLD)
         self.corner.SetFont(font)
         self.corner.SetForegroundColour(col)
     
@@ -824,7 +821,21 @@ class BasePanel(wx.Panel):
     
     def changeAmp(self, x):
         self.synth._rawamp.value = x
-    
+   
+    def setBackgroundColour(self, col):
+        self.SetBackgroundColour(col)
+        self.close.SetBackgroundColour(col)
+        self.corner.SetBackgroundColour(col)
+        for slider in self.sliders:
+            try:
+                slider.setBackgroundColour(col)
+            except:
+                slider.setbackColour(col)
+        for but in self.buttons:
+            if but != None:
+                but.SetBackgroundColour(col)
+        self.Refresh()
+
     def getLFOParams(self):
         lfo_params = []
         for i in range(len(self.buttons)):
