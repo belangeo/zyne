@@ -7,9 +7,9 @@ from Resources.preferences import PreferencesDialog
 import wx.richtext as rt
 import Resources.audio as audio
 
-class MidiLearnHelpFrame(wx.Frame):
-    def __init__(self, *args, **kw):
-        wx.Frame.__init__(self, *args, **kw)
+class HelpFrame(wx.Frame):
+    def __init__(self, parent, id, title, size, subtitle, lines):
+        wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(vars.constants["ID"]["CloseLearnHelp"], 'Close...\tCtrl+W', kind=wx.ITEM_NORMAL)
@@ -29,16 +29,12 @@ class MidiLearnHelpFrame(wx.Frame):
             self.rtc.BeginFontSize(12)
         else:
             self.rtc.BeginFontSize(16)
-        self.rtc.WriteText("How to use the midi learn mode.")
+        self.rtc.WriteText(subtitle)
         self.rtc.EndFontSize()
         self.rtc.EndBold()
         self.rtc.Newline()
-        self.rtc.WriteText("To assign midi controllers to module's sliders, user can use the midi learn mode.\n\n")
-        self.rtc.WriteText("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
-        self.rtc.WriteText("When in midi learn mode, click on a slider and play with the midi controller you want to assign, the controller number will appear at both end of the slider.\n")
-        self.rtc.WriteText("To remove a midi assignation, click a second time on the selected slider without playing with a midi controller.\n")
-        self.rtc.WriteText("Finally, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) again to leave midi learn mode. Next time you start the server, you will be able to control the sliders with your midi controller.\n\n")
-        self.rtc.WriteText("Midi assignations are saved within the .zy file and will be automatically assigned at future launches of the synth.\n")
+        for line in lines:
+            self.rtc.WriteText(line)
         self.rtc.Newline()
         self.rtc.EndParagraphSpacing()
         self.rtc.EndSuppressUndo()
@@ -341,7 +337,14 @@ class ZyneFrame(wx.Frame):
             self.Bind(wx.EVT_MENU, self.updateAddModuleMenu, id=id)
     
     def openMidiLearnHelp(self, evt):
-        win = MidiLearnHelpFrame(self, -1, "Midi Learn Help", size=(400, 350), style=wx.DEFAULT_FRAME_STYLE)
+        lines = []
+        lines.append("To assign midi controllers to module's sliders, user can use the midi learn mode.\n\n")
+        lines.append("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
+        lines.append("When in midi learn mode, click on a slider and play with the midi controller you want to assign, the controller number will appear at both end of the slider.\n")
+        lines.append("To remove a midi assignation, click a second time on the selected slider without playing with a midi controller.\n")
+        lines.append("Finally, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) again to leave midi learn mode. Next time you start the server, you will be able to control the sliders with your midi controller.\n\n")
+        lines.append("Midi assignations are saved within the .zy file and will be automatically assigned at future launches of the synth.\n")
+        win = HelpFrame(self, -1, title="Midi Learn Help", size=(400, 350), subtitle="How to use the midi learn mode.", lines=lines)
         win.CenterOnParent()
         win.Show(True)
 
