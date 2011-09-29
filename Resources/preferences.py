@@ -25,8 +25,8 @@ class PreferencesDialog(wx.Dialog):
         rowSizer = wx.BoxSizer(wx.HORIZONTAL)
         mainSizer = wx.BoxSizer(wx.VERTICAL)
     
-        message = wx.StaticText(self, label="Changes will be applied on next launch.")
-        mainSizer.Add(message, 0, wx.TOP|wx.LEFT, 10)
+        message = wx.StaticText(self, label="* Changes will be applied on next launch *")
+        mainSizer.Add(message, 0, wx.TOP|wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL, 10)
         font, entryfont, pointsize = message.GetFont(), message.GetFont(), message.GetFont().GetPointSize()
         
         font.SetWeight(wx.BOLD)
@@ -78,10 +78,10 @@ class PreferencesDialog(wx.Dialog):
                     choices = vars.constants["VAR_CHOICES"][key]
                     cbo = wx.ComboBox(self, value=val,size=(100,-1), choices=choices,
                                   style=wx.CB_DROPDOWN|wx.CB_READONLY, name=key)
-                    itemSizer.Add(cbo, 0, wx.ALL, 5)
+                    itemSizer.Add(cbo, 0, wx.TOP|wx.LEFT|wx.RIGHT, 5)
                 else:
                     txt = wx.TextCtrl(self, size=(100,-1), value=val, name=key)
-                    itemSizer.Add(txt, 0, wx.ALL, 5)
+                    itemSizer.Add(txt, 0, wx.TOP|wx.LEFT|wx.RIGHT, 5)
  
         for key in self.paths:
             if key == "CUSTOM_MODULES_PATH": func = self.getFile
@@ -107,13 +107,12 @@ class PreferencesDialog(wx.Dialog):
         btnSizer.AddButton(cancelBtn)
         btnSizer.Realize()
  
-        mainSizer.AddSpacer((-1,10))
-        mainSizer.Add(driverSizer, 0, wx.EXPAND)
         mainSizer.AddSpacer((-1,5))
+        mainSizer.Add(driverSizer, 0, wx.EXPAND)
         mainSizer.Add(itemSizer, 0, wx.EXPAND)
-        mainSizer.AddSpacer((-1,10))
+        mainSizer.AddSpacer((-1,5))
         mainSizer.Add(pathSizer, 0, wx.EXPAND)
-        mainSizer.Add(wx.StaticLine(self, size=(480,1)), 0, wx.TOP|wx.BOTTOM, 10)
+        mainSizer.Add(wx.StaticLine(self, size=(480,1)), 0, wx.TOP|wx.BOTTOM, 2)
         mainSizer.Add(btnSizer, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
         self.SetSizer(mainSizer)
         self.SetClientSize(self.GetBestSize())
