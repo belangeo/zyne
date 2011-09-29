@@ -36,6 +36,7 @@ class MidiLearnHelpFrame(wx.Frame):
         self.rtc.WriteText("To assign midi controllers to module's sliders, user can use the midi learn mode.\n\n")
         self.rtc.WriteText("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
         self.rtc.WriteText("When in midi learn mode, click on a slider and play with the midi controller you want to assign, the controller number will appear at both end of the slider.\n")
+        self.rtc.WriteText("To remove a midi assignation, click a second time on the selected slider without playing with a midi controller.\n")
         self.rtc.WriteText("Finally, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) again to leave midi learn mode. Next time you start the server, you will be able to control the sliders with your midi controller.\n\n")
         self.rtc.WriteText("Midi assignations are saved within the .zy file and will be automatically assigned at future launches of the synth.\n")
         self.rtc.Newline()
@@ -160,6 +161,8 @@ class SamplingDialog(wx.Dialog):
 class ZyneFrame(wx.Frame):
     def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(920,522)):
         wx.Frame.__init__(self, parent, id=-1, title=title, size=size)
+        self.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, ord("\t"), vars.constants["ID"]["Select"]),
+                                                     (wx.ACCEL_CTRL, ord("\t"), vars.constants["ID"]["DeSelect"])]))
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(vars.constants["ID"]["New"], 'New...\tCtrl+N', kind=wx.ITEM_NORMAL)
@@ -194,6 +197,11 @@ class ZyneFrame(wx.Frame):
         self.genMenu.Append(vars.constants["ID"]["Minimum"], 'Generates minimum random values\tCtrl+L', kind=wx.ITEM_NORMAL)
         self.genMenu.Append(vars.constants["ID"]["Jitter"], 'Jitterizes current values\tCtrl+J', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onGenerateValues, id=vars.constants["ID"]["Uniform"], id2=vars.constants["ID"]["Jitter"])
+        self.genMenu.AppendSeparator()
+        self.genMenu.Append(vars.constants["ID"]["Select"], 'Tabulates selection\tTab', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.tabulate, id=vars.constants["ID"]["Select"])
+        self.genMenu.Append(vars.constants["ID"]["DeSelect"], 'Clear selection\tCtrl+Tab', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.clearSelection, id=vars.constants["ID"]["DeSelect"])
         helpMenu = wx.Menu()        
         helpItem = helpMenu.Append(vars.constants["ID"]["About"], '&About Zyne %s' % vars.constants["VERSION"], 'wxPython RULES!!!')
         wx.App.SetMacAboutMenuItemId(helpItem.GetId())
@@ -210,7 +218,7 @@ class ZyneFrame(wx.Frame):
         self.menubar.Append(self.genMenu, "&Generates")
         self.menubar.Append(helpMenu, "&Help")
         self.SetMenuBar(self.menubar)
-    
+
         if vars.constants["PLATFORM"] == "win32":
             self.SetMinSize((460, 554))
         elif vars.constants["PLATFORM"] == "darwin":
@@ -221,7 +229,8 @@ class ZyneFrame(wx.Frame):
     
         self.openedFile = ""
         self.modules = []
-    
+        self.selected = None
+
         self.splitWindow = wx.SplitterWindow(self, -1, style = wx.SP_LIVE_UPDATE|wx.SP_PERMIT_UNSPLIT)
         self.splitWindow.SetSashSize(0)
     
@@ -250,7 +259,25 @@ class ZyneFrame(wx.Frame):
             except:
                 pass
         self.Show()
-   
+  
+    def tabulate(self, evt):
+        num = len(self.modules)
+        old = self.selected
+        if num == 0:
+            return
+        if self.selected == None:
+            self.selected = 0
+        else:
+            self.selected = (self.selected + 1) % num
+        if old != None:
+            self.modules[old].setBackgroundColour(BACKGROUND_COLOUR)
+        self.modules[self.selected].setBackgroundColour("#DDDDE7")
+
+    def clearSelection(self, evt):
+        if self.selected != None:
+            self.modules[self.selected].setBackgroundColour(BACKGROUND_COLOUR)
+        self.selected = None
+
     def onRun(self, evt):
         state = self.serverPanel.onOff.GetValue()
         evt = wx.CommandEvent(10127, self.serverPanel.onOff.GetId())
@@ -264,7 +291,11 @@ class ZyneFrame(wx.Frame):
         
     def onGenerateValues(self, evt):
         id = evt.GetId() - 10000
-        for module in self.modules:
+        if self.selected == None:
+            modules = self.modules
+        else:
+            modules = [self.modules[self.selected]]
+        for module in modules:
             if id == 0:
                 module.generateUniform()
             elif id == 1:

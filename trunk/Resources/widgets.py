@@ -817,7 +817,8 @@ class ControlKnob(wx.Panel):
     
     def setbackColour(self, colour):
         self.backColour = colour
-    
+        self.Refresh()
+
     def OnPaint(self, evt):
         w,h = self.GetSize()
         dc = wx.AutoBufferedPaintDC(self)
