@@ -47,7 +47,7 @@ MODULES =   {
                     "p2": ["Transposition", 0, -36, 36, True, False],
                     "p3": ["Sharpness", 0.5, 0., 1., False, False],
                     },
-            "PluckedString": { "title": "--- Plucked String Synthesis ---", "synth": PluckedString, 
+            "PluckedString": { "title": "--- Plucked String Synth ---", "synth": PluckedString, 
                     "p1": ["Transposition", 0, -48, 0, True, False],
                     "p2": ["Duration", 30, .25, 60, False, False],
                     "p3": ["Chorus Depth", .001, .001, .125, False, True]
@@ -703,7 +703,6 @@ class BasePanel(wx.Panel):
         self.titleSizer.SetMinSize((220, -1))
         self.close = GenStaticText(self, -1, label="X")
         self.close.SetBackgroundColour(BACKGROUND_COLOUR)
-        self.closeFont = self.close.GetFont()
         self.close.Bind(wx.EVT_ENTER_WINDOW, self.hoverX)
         self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
         self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
@@ -724,6 +723,14 @@ class BasePanel(wx.Panel):
             self.sliderAmp = self.createSlider("Amplitude", .1, 0, 1, False, False, self.changeAmp, -1)
         else:
             self.sliderAmp = self.createSlider("Amplitude", 1, 0, 2, False, False, self.changeAmp, 0)
+        
+        self.font = self.close.GetFont()
+        if vars.constants["PLATFORM"] == "darwin":
+            ptsize = self.font.GetPointSize()
+            self.font.SetPointSize(ptsize - 2)
+        self.close.SetFont(self.font)
+        self.title.SetFont(self.font)
+        self.corner.SetFont(self.font)
     
     def createAdsrKnobs(self):
         self.knobSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -771,7 +778,7 @@ class BasePanel(wx.Panel):
         self.close.SetForegroundColour("#555555")
 
     def leaveX(self, evt):
-        self.close.SetFont(self.closeFont)
+        self.close.SetFont(self.font)
         self.close.SetForegroundColour("#000000")
 
     def MouseDown(self, evt):
@@ -804,7 +811,7 @@ class BasePanel(wx.Panel):
                 col = "#0000EE"
         else:
             col = "#000000"
-        self.corner.SetFont(self.closeFont)
+        self.corner.SetFont(self.font)
         self.corner.SetForegroundColour(col)
 
     def changeAttack(self, x):
