@@ -676,14 +676,27 @@ class AddSynth(BaseSynth):
         self.sine4 = SineLoop(freq=self.pitch*self.fac[3], feedback=self.p3*self.feedrnd[3], mul=self.norm_amp).mix()
         self.out = Mix([self.sine1+self.sine2+self.sine3+self.sine4], voices=2)
 
-class PhaserSynth(BaseSynth):
+# class PhaserSynth(BaseSynth):
+#     def __init__(self, config):
+#         BaseSynth.__init__(self, config, mode=1)
+#         self.pit = Sig(self.pitch, mul=.125)
+#         self.clpit = Clip(self.pit, min=1, max=18000)
+#         self.noise = Noise(mul=self.amp*.01)
+#         self.phaser = Phaser(self.noise, self.clpit, self.p1, self.p2, self.p3, num=4, mul=self.amp).mix()
+#         self.out = self.phaser.mix(2)
+
+class WindSynth(BaseSynth):
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
-        self.pit = Sig(self.pitch, mul=.125)
-        self.clpit = Clip(self.pit, min=1, max=18000)
-        self.noise = Noise(mul=self.amp*.01)
-        self.phaser = Phaser(self.noise, self.clpit, self.p1, self.p2, self.p3, num=4, mul=self.amp).mix()
-        self.out = self.phaser.mix(2)
+        self.clpit = Clip(self.pitch, min=40, max=15000)
+        self.norm_amp = self.p3 * .1
+        self.noise = Noise(mul=self.amp*self.norm_amp)
+        self.dev = Randi(min=0.-self.p2, max=self.p2, freq=self.p1*[random.uniform(.75,1.25) for i in range(4)], add=1)
+        self.filt1 = Biquadx(self.noise, freq=self.clpit*self.dev[0], q=self.p3, type=2, stages=2, mul=self.amp).mix()
+        self.filt2 = Biquadx(self.noise, freq=self.clpit*self.dev[1], q=self.p3, type=2, stages=2, mul=self.amp).mix()
+        self.filt3 = Biquadx(self.noise, freq=self.clpit*self.dev[2], q=self.p3, type=2, stages=2, mul=self.amp).mix()
+        self.filt4 = Biquadx(self.noise, freq=self.clpit*self.dev[3], q=self.p3, type=2, stages=2, mul=self.amp).mix()
+        self.out = Mix([self.filt1, self.filt2, self.filt3, self.filt4], voices=2)
 
 class SquareMod(BaseSynth):
     def __init__(self, config):
