@@ -590,8 +590,7 @@ class BaseSynth:
                 with_transpo = True
                 break
         self._midi_metro = Metro(.1).play()
-        self._mute = SigTo(1, vars.vars["SLIDERPORT"], 1)
-        self._rawamp = SigTo(1, vars.vars["SLIDERPORT"], 1, mul=self._mute)
+        self._rawamp = SigTo(1, vars.vars["SLIDERPORT"], 1)
         if vars.vars["MIDIPITCH"] != None:
             if with_transpo:
                 self._note = Sig(vars.vars["MIDIPITCH"])

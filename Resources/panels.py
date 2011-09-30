@@ -727,8 +727,9 @@ class BasePanel(wx.Panel):
         if from_lfo:
             self.sliderAmp = self.createSlider("Amplitude", .1, 0, 1, False, False, self.changeAmp, -1)
         else:
-            self.sliderAmp = self.createSlider("Amplitude", 1, 0, 2, False, False, self.changeAmp, 0)
-        
+            self.sliderAmp = self.createSlider("Amplitude", 1, 0.0001, 2, False, False, self.changeAmp, 0)
+            self.tmp_amplitude = 1
+
         self.font = self.close.GetFont()
         if vars.constants["PLATFORM"] == "darwin":
             ptsize = self.font.GetPointSize()
@@ -1064,18 +1065,22 @@ class GenericPanel(BasePanel):
         if self.mute:
             self.mute = 0
             self.corner.SetForegroundColour("#0000EE")
+            self.tmp_amplitude = self.sliderAmp.GetValue()
+            self.sliderAmp.SetValue(0.0001)
         else:
             self.mute = 1
             self.corner.SetForegroundColour("#000000")
-        self.synth._mute.value = self.mute
+            self.sliderAmp.SetValue(self.tmp_amplitude)
 
     def setMute(self, mute):
         self.mute = mute
         if self.mute:
             self.corner.SetForegroundColour("#000000")
+            self.sliderAmp.SetValue(self.tmp_amplitude)
         else:
+            self.tmp_amplitude = self.sliderAmp.GetValue()
             self.corner.SetForegroundColour("#0000EE")
-        self.synth._mute.value = self.mute
+            self.sliderAmp.SetValue(0.0001)
         
 class LFOPanel(BasePanel):
     def __init__(self, parent, name, title, synth, p1, p2, p3, which):
