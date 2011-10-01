@@ -40,7 +40,7 @@ LAST_SAVED = ""
 """
 
 constants["ID"] = {"New": 1000, "Open": 1001, "Save": 1002, "SaveAs": 1003, "Export": 1004, "Quit": 1005,
-                   "Prefs": 1006, "MidiLearn": 1007, "Run": 1008, "ResetKeyboard": 1009, 
+                   "Prefs": 1006, "MidiLearn": 1007, "Run": 1008, "ResetKeyboard": 1009, "ExportChord": 1010, 
                    "Modules": 1100, "About": 5999, "Tutorial": 6000, "MidiLearnHelp": 6001, "ExportHelp": 6002, "CloseTut": 7000,
                    "CloseHelp": 7001, "CloseLFO": 7002, "DeSelect": 9998, "Select": 9999, "Uniform": 10000, "Triangular": 10001, 
                    "Minimum": 10002, "Jitter": 10003}
@@ -79,6 +79,7 @@ vars["LEARNINGSLIDER"] = None
 
 vars["EXTERNAL_MODULES"] = {}
 vars["MIDIPITCH"] = None
+vars["MIDIVELOCITY"] = 0.707
 vars["NOTEONDUR"] = 1.0
 vars["VIRTUAL"] = False
 vars["MIDI_ACTIVE"] = 0
