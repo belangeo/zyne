@@ -921,7 +921,16 @@ class Keyboard(wx.Panel):
         self.whiteKeys = []
         self.blackKeys = []
         wx.CallAfter(self.setRects)
-    
+   
+    def getNotes(self):
+        notes = []
+        for key in self.whiteSelected:
+            notes.append((self.white[key%7] + key/7*12, 127-self.whiteVelocities[key]))
+        for key in self.blackSelected:
+            notes.append((self.black[key%5] + key/5*12, 127-self.blackVelocities[key]))
+        notes.sort()
+        return notes
+
     def reset(self):
         self.whiteSelected = []
         self.blackSelected = []
