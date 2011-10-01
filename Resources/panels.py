@@ -1,6 +1,7 @@
 # encoding: utf-8
 import wx, os, math, copy, random
 from wx.lib.stattext import GenStaticText
+from wx.lib.statbmp import GenStaticBitmap
 import Resources.variables as vars
 from Resources.widgets import *
 from pyolib._wxwidgets import VuMeter, BACKGROUND_COLOUR
@@ -726,8 +727,11 @@ class BasePanel(wx.Panel):
             self.close.SetToolTip(wx.ToolTip("Close window"))
         self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
         if from_lfo:
-            #self.corner = GenStaticText(self, -1, label="move")
-            self.corner = wx.BitmapButton(self, -1, bitmap=MOVE.GetBitmap(), size=(20,20), style=wx.BU_EXACTFIT|wx.NO_BORDER)
+            if vars.constants["PLATFORM"] == "darwin":
+                self.corner = GenStaticBitmap(self, -1, bitmap=MOVE.GetBitmap(), size=(20,20), style=wx.NO_BORDER)
+            else:
+                bmp = wx.BitmapFromImage(MOVE.GetImage().Rescale(15, 15))
+                self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(15,15), style=wx.NO_BORDER)
             self.corner.SetToolTip(wx.ToolTip("Move window"))
         else:
             self.corner = GenStaticText(self, -1, label="mute")
@@ -735,7 +739,7 @@ class BasePanel(wx.Panel):
         self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
         self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
         self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
-        self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 5), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.ALL, 0)])
+        self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 5), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 5)])
         self.sizer.Add(self.titleSizer, 1, wx.BOTTOM|wx.TOP, 4)
         self.createAdsrKnobs()
         if from_lfo:
