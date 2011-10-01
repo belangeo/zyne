@@ -727,11 +727,8 @@ class BasePanel(wx.Panel):
             self.close.SetToolTip(wx.ToolTip("Close window"))
         self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
         if from_lfo:
-            if vars.constants["PLATFORM"] == "darwin":
-                self.corner = GenStaticBitmap(self, -1, bitmap=MOVE.GetBitmap(), size=(20,20), style=wx.NO_BORDER)
-            else:
-                bmp = wx.BitmapFromImage(MOVE.GetImage().Rescale(15, 15))
-                self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(15,15), style=wx.NO_BORDER)
+            bmp = wx.BitmapFromImage(MOVE.GetImage().Rescale(16, 16))
+            self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(16,16), style=wx.NO_BORDER)
             self.corner.SetToolTip(wx.ToolTip("Move window"))
         else:
             self.corner = GenStaticText(self, -1, label="mute")
