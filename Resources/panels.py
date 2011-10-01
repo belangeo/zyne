@@ -231,6 +231,7 @@ class LFOButtons(GenStaticText):
         else:
             self.state = True
             self.SetForegroundColour("#0000EE")
+        self.Refresh()
         self.callback(self.which, self.state)
 
 class ServerPanel(wx.Panel):
@@ -1088,7 +1089,8 @@ class GenericPanel(BasePanel):
             self.corner.SetForegroundColour("#000000")
             self.synth._lfo_amp.play()
             self.sliderAmp.SetValue(self.tmp_amplitude)
-
+        self.Refresh()
+    
     def setMute(self, mute):
         self.mute = mute
         if self.mute:
