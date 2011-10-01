@@ -1084,11 +1084,13 @@ class GenericPanel(BasePanel):
             self.tmp_amplitude = self.sliderAmp.GetValue()
             self.synth._lfo_amp.stop()
             self.sliderAmp.SetValue(0.0001)
+            self.sliderAmp.Disable()
         else:
             self.mute = 1
             self.corner.SetForegroundColour("#000000")
             self.synth._lfo_amp.play()
             self.sliderAmp.SetValue(self.tmp_amplitude)
+            self.sliderAmp.Enable()
         self.Refresh()
     
     def setMute(self, mute):
