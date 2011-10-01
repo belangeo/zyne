@@ -90,6 +90,10 @@ class LFOFrame(wx.MiniFrame):
         self.SetMaxSize((230,250))
         self.SetSize((230,250))
         self.SetBackgroundColour(BACKGROUND_COLOUR)
+        if vars.constants["PLATFORM"] == "darwin":
+            close_accel = wx.ACCEL_CMD
+        else:
+            close_accel = wx.ACCEL_CTRL
         self.SetAcceleratorTable(wx.AcceleratorTable([
                                                         (wx.ACCEL_CTRL, ord("N"), vars.constants["ID"]["New"]), 
                                                         (wx.ACCEL_CTRL, ord("O"), vars.constants["ID"]["Open"]), 
@@ -103,6 +107,7 @@ class LFOFrame(wx.MiniFrame):
                                                         (wx.ACCEL_CTRL, ord("L"), vars.constants["ID"]["Minimum"]), 
                                                         (wx.ACCEL_CTRL, ord("J"), vars.constants["ID"]["Jitter"]), 
                                                         (wx.ACCEL_CTRL, ord("Q"), vars.constants["ID"]["Quit"]), 
+                                                        (close_accel, ord("W"), vars.constants["ID"]["CloseLFO"]), 
                                                      ]))
         self.Bind(wx.EVT_MENU, self.parent.onNew, id=vars.constants["ID"]["New"])
         self.Bind(wx.EVT_MENU, self.parent.onOpen, id=vars.constants["ID"]["Open"])
@@ -113,6 +118,7 @@ class LFOFrame(wx.MiniFrame):
         self.Bind(wx.EVT_MENU, self.parent.onPreferences, id=vars.constants["ID"]["Prefs"])
         self.Bind(wx.EVT_MENU, self.parent.onGenerateValues, id=vars.constants["ID"]["Uniform"], id2=vars.constants["ID"]["Jitter"])
         self.Bind(wx.EVT_MENU, self.parent.onQuit, id=vars.constants["ID"]["Quit"])
+        self.Bind(wx.EVT_MENU, self.onClose, id=vars.constants["ID"]["CloseLFO"])
         self.mouseOffset = (0,0)
         self.which = which
         self.panel = LFOPanel(self, "LFO", "--- %s LFO ---" % label, synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
@@ -121,6 +127,9 @@ class LFOFrame(wx.MiniFrame):
         self.panel.corner.Bind(wx.EVT_LEFT_UP, self.onMouseUp)
         self.panel.corner.Bind(wx.EVT_MOTION, self.onMotion)
         self.SetFocus()
+    
+    def onClose(self, evt):
+        self.Hide()
 
     def onMidiLearnMode(self, evt):
         self.parent.onMidiLearnModeFromLfoFrame()
@@ -711,17 +720,22 @@ class BasePanel(wx.Panel):
         self.close.Bind(wx.EVT_ENTER_WINDOW, self.hoverX)
         self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
         self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
-        self.close.SetToolTip(wx.ToolTip("Delete module"))
+        if not self.from_lfo:
+            self.close.SetToolTip(wx.ToolTip("Delete module"))
+        else:
+            self.close.SetToolTip(wx.ToolTip("Close window"))
         self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
         if from_lfo:
-            self.corner = GenStaticText(self, -1, label="move")
+            #self.corner = GenStaticText(self, -1, label="move")
+            self.corner = wx.BitmapButton(self, -1, bitmap=MOVE.GetBitmap(), size=(20,20), style=wx.BU_EXACTFIT|wx.NO_BORDER)
+            self.corner.SetToolTip(wx.ToolTip("Move window"))
         else:
             self.corner = GenStaticText(self, -1, label="mute")
             self.corner.Bind(wx.EVT_LEFT_DOWN, self.MouseDownCorner)
         self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
         self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
         self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
-        self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 5), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 5)])
+        self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 5), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.ALL, 0)])
         self.sizer.Add(self.titleSizer, 1, wx.BOTTOM|wx.TOP, 4)
         self.createAdsrKnobs()
         if from_lfo:

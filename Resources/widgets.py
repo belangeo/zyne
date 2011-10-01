@@ -599,6 +599,22 @@ KNOB = PyEmbeddedImage(
     "IdJQSRGuroF5BVDjCp6Eiy0NuZKvCHbVgAlIUqDp4+TvSbj4WLEUuPb7kpCm2tX/BV0HrAK/"
     "xpabAAAAAElFTkSuQmCC")
 
+MOVE = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAAAXNSR0IArs4c6QAAAr5JREFU"
+    "eJy0lDtP6mAYx8skoRE64SWQnMVE6CdAHJjP3lnDJaALO6CcURcTAqjgQCKDcg0rLH4ICkQ2"
+    "IAyAWjVNUJee52lOT1qoJ+0Bhn/K+9L3/fX/3AhBEAg9en19JRqNBqP3HEr3gfv7+wOn0zl4"
+    "f383rRT2+flJulwujoBjl5eX8ZXCqtXqMYJQu7u7PLizrQQGroi9vb2WBENdX1//WgmsUql4"
+    "DAaDIIc5HI7W29vbcmHgygS5YuUgSVdXVwdLhd3e3sbVQCibzcaNx2NqaTDoq5/pdJpBnZ2d"
+    "MV6v90Jap1IpZjAY/FgY1u12PdPpVLHH8zxRq9XmmhqBk8nknw5VN1mWpfx+f85utwuj0Ujx"
+    "H66hsedgyWSS2dnZ4SCHh98VjWLRarU8R0dHRYvFwmM+1tfXBfhaTTAMqZRHmDAsNj2MNtsc"
+    "rNls0oFA4AEvlyefoiiB4zjFpc/Pz0SpVJqDgSNmtnhomuYRCs1PirBQKJQzGo0fapVGkqRw"
+    "c3PDFAoFBt3gM5vNMuFw+KJYLIp7qHK5LBbNdxUL/Tio1+uMmJ9IJJLb2tqaewnCKXQ6HTF0"
+    "kiDURCaTYeR7UPoEVqkayO12c3d3d4cYkb9h6Pf7zpOTk/T29jYvDyO+JA8X5hBdzYYRwqWA"
+    "7e/vs+D4+Ovry6TI2UwJUwCNg1N+bW1NwK/WUiCJRIL544SFnHpwlmrus16vR5+fnz+8vLwo"
+    "9p+enlSdYePn8/k4OCEXmiAIxPCh2u02gUUjrdHpbOMvBEOHZrNZzCE+TSaT+BuFjf/4+OhZ"
+    "GgyLx2q18mrV5vP5clru0AxDxWKxuckPQ4CHsGqa+Lpgw+GQ2tzcVLgLBoNFred1wVCnp6dp"
+    "mSsBXGnK1X/BwB29sbEhwnCW6jmrG4aKRqM5mJkf4Mq5chgWBA5vvedQvwEAAP//AwAd2Wky"
+    "Dk2mEgAAAABJRU5ErkJggg==")
 
 def interpFloat(t, v1, v2):
     "interpolator for a single value; interprets t in [0-1] between v1 and v2"
