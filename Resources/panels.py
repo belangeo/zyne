@@ -756,13 +756,13 @@ class BasePanel(wx.Panel):
     
     def createAdsrKnobs(self):
         self.knobSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.knobAtt = ControlKnob(self, 0.001, 10.0, 0.001, label='Attack', outFunction=self.changeAttack)
+        self.knobAtt = ControlKnob(self, 0.001, 30.0, 0.001, log=True, label='Attack', outFunction=self.changeAttack)
         self.knobSizer.Add(self.knobAtt, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 3)
-        self.knobDec = ControlKnob(self, 0.001, 10.0, 0.1, label='Decay', outFunction=self.changeDecay)
+        self.knobDec = ControlKnob(self, 0.001, 30.0, 0.1, log=True, label='Decay', outFunction=self.changeDecay)
         self.knobSizer.Add(self.knobDec, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 3)
         self.knobSus = ControlKnob(self, 0.001, 1.0, 0.7, label='Sustain', outFunction=self.changeSustain)
         self.knobSizer.Add(self.knobSus, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 3)
-        self.knobRel = ControlKnob(self, 0.001, 10.0, 1.0, label='Release', outFunction=self.changeRelease)
+        self.knobRel = ControlKnob(self, 0.001, 30.0, 1.0, log=True, label='Release', outFunction=self.changeRelease)
         self.knobSizer.Add(self.knobRel, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 3)
         self.sizer.Add(self.knobSizer, 0, wx.BOTTOM|wx.LEFT, 1)
         self.sliders.extend([self.knobAtt, self.knobDec, self.knobSus, self.knobRel])
@@ -954,6 +954,11 @@ class BasePanel(wx.Panel):
             else:
                 if i == 4:
                     val = random.triangular(.25, 1.5)
+                elif i in [0, 1]:
+                    val = random.triangular(0, 1)
+                    val **= 10.0
+                    val *= (maxi - mini)
+                    val += mini
                 else:
                     val = random.triangular(mini, maxi)
             slider.SetValue(val)
@@ -991,6 +996,11 @@ class BasePanel(wx.Panel):
             else:
                 if i == 4:
                     val = random.uniform(.25, 1.25)
+                elif i in [0, 1]:
+                    val = min([random.uniform(0, 1) for i in range(2)])
+                    val **= 10.0
+                    val *= (maxi - mini)
+                    val += mini
                 else:
                     val = min([random.uniform(mini, maxi) for i in range(4)])
             slider.SetValue(val)
