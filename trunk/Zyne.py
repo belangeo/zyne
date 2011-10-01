@@ -356,7 +356,7 @@ class ZyneFrame(wx.Frame):
         lines.append("The path where the exported samples will be saved can be defined in the preferences panel. If not, a folder named 'zyne_export' will be created on the Desktop. Inside this folder, a subfolder will be created according to the string given in the field 'Common file name'. Samples will be saved inside this subfolder with automatic name incrementation.\n")
         lines.append("The fields 'First', 'Last' and 'Step' define which notes, in midi keys, will be sampled and exported. From 'First' to 'Last' in steps of 'Step'.\n")
         lines.append("The fields 'Noteon dur' and 'Release dur' define the duration, in seconds, of the note part and the release part, respectively. The value in 'Noteon dur' should be equal or higher than the addition of the attack and the decay of the longest module. The value in the 'Release part' should be equal or higher than the longest release.\n")
-        win = HelpFrame(self, -1, title="Export Samples Help", size=(370, 350), subtitle="How to use the export samples window.", lines=lines)
+        win = HelpFrame(self, -1, title="Export Samples Help", size=(400, 420), subtitle="How to use the export samples window.", lines=lines)
         win.CenterOnParent()
         win.Show(True)
 
