@@ -739,11 +739,11 @@ class BasePanel(wx.Panel):
         self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
         if from_lfo:
             self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 3), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 3), (self.corner, 0, wx.RIGHT, 5)])
-            self.sizer.Add(self.titleSizer, 1, wx.BOTTOM|wx.TOP, 1)
+            self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 1)
             self.sizer.Add(ZyneStaticLine(self, size=(226, 2)), 0, wx.BOTTOM, 3)
         else:
             self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 3), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 3)])
-            self.sizer.Add(self.titleSizer, 1, wx.BOTTOM|wx.TOP, 3)
+            self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 3)
             self.sizer.Add(ZyneStaticLine(self, size=(230, 2)), 0, wx.BOTTOM, 3)
         self.createAdsrKnobs()
         if from_lfo:
