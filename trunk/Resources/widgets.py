@@ -657,7 +657,7 @@ class ZyneControlSlider(ControlSlider):
             ControlSlider.MouseDown(self, evt)
 
 class ControlKnob(wx.Panel):
-    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(50,70), log=False, outFunction=None, integer=False, backColour=None, label=''):
+    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(44,70), log=False, outFunction=None, integer=False, backColour=None, label=''):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS)
         self.parent = parent
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
@@ -1053,4 +1053,25 @@ class Keyboard(wx.Panel):
         dc.DrawLine(0,1,w,1)
         dc.SetPen(wx.Pen("#CCCCCC", width=1, style=wx.SOLID))
         dc.DrawLine(0,0,w,0)
+
+class ZyneStaticLine(wx.Panel):
+    def __init__(self, parent, pos=wx.DefaultPosition, size=(230,2)):
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.SetSize(size)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
+        dc.Clear()
+        dc.SetPen(wx.Pen(BACKGROUND_COLOUR, width=1, style=wx.SOLID))
+        dc.DrawRectangle(0, 0, w, h)
+        dc.SetPen(wx.Pen("#CCCCCC", width=1, style=wx.SOLID))
+        dc.DrawLine(4, 0, w-8, 0)
+        dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
+        dc.DrawLine(4, 1, w-8, 1)
+
 
