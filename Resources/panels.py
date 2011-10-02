@@ -921,6 +921,8 @@ class BasePanel(wx.Panel):
 
     def generateUniform(self):
         for i, slider in enumerate(self.sliders):
+            if i == 0:
+                continue
             mini = slider.getMinValue()
             maxi = slider.getMaxValue()
             if slider.integer:
@@ -939,6 +941,8 @@ class BasePanel(wx.Panel):
                 button.Refresh()
                 if state == 1:
                     for j, slider in enumerate(self.lfo_frames[i].panel.sliders):
+                        if j == 0:
+                            continue
                         mini = slider.getMinValue()
                         maxi = slider.getMaxValue()
                         if slider.integer:
@@ -956,6 +960,8 @@ class BasePanel(wx.Panel):
 
     def generateTriangular(self):
         for i, slider in enumerate(self.sliders):
+            if i == 0:
+                continue
             mini = slider.getMinValue()
             maxi = slider.getMaxValue()
             if slider.integer:
@@ -981,6 +987,8 @@ class BasePanel(wx.Panel):
                 button.Refresh()
                 if state == 1:
                     for j, slider in enumerate(self.lfo_frames[i].panel.sliders):
+                        if j == 0:
+                            continue
                         mini = slider.getMinValue()
                         maxi = slider.getMaxValue()
                         if slider.integer:
@@ -1000,6 +1008,8 @@ class BasePanel(wx.Panel):
 
     def generateMinimum(self):
         for i, slider in enumerate(self.sliders):
+            if i == 0:
+                continue
             mini = slider.getMinValue()
             maxi = slider.getMaxValue()
             if slider.integer:
@@ -1023,6 +1033,8 @@ class BasePanel(wx.Panel):
                 button.Refresh()
                 if state == 1:
                     for j, slider in enumerate(self.lfo_frames[i].panel.sliders):
+                        if j == 0:
+                            continue
                         mini = slider.getMinValue()
                         maxi = slider.getMaxValue()
                         if slider.integer:
@@ -1040,6 +1052,8 @@ class BasePanel(wx.Panel):
 
     def jitterize(self):
         for i, slider in enumerate(self.sliders):
+            if i == 0:
+                continue
             mini = slider.getMinValue()
             maxi = slider.getMaxValue()
             if not slider.integer:
@@ -1053,6 +1067,8 @@ class BasePanel(wx.Panel):
             if button != None:
                 if button.state:
                     for slider in self.lfo_frames[i].panel.sliders:
+                        if j == 0:
+                            continue
                         mini = slider.getMinValue()
                         maxi = slider.getMaxValue()
                         if slider.integer:
