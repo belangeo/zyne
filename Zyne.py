@@ -569,8 +569,8 @@ class ZyneFrame(wx.Frame):
             for j, ctl_param in enumerate(ctl_paramset):
                 slider = self.modules[i].sliders[j]
                 slider.setMidiCtl(ctl_param, False)
-                if j in [4,5,6,7] and ctl_param != None and not from_export:
-                    j4 = j - 4
+                if j in [5,6,7,8] and ctl_param != None and not from_export:
+                    j4 = j - 5
                     if self.modules[i].synth._params[j4] != None:
                         self.modules[i].synth._params[j4].assignMidiCtl(ctl_param, slider)
         for i, lfo_param in enumerate(lfo_params):

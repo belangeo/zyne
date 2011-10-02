@@ -165,8 +165,8 @@ class LFOFrame(wx.MiniFrame):
         for i, p in enumerate(ctl_params):
             slider = self.panel.sliders[i]
             slider.setMidiCtl(p, False)
-            if i in [4,5,6,7] and p != None:
-                i4 = i - 4
+            if i in [5,6,7,8] and p != None:
+                i4 = i - 5
                 if self.panel.synth._params[self.which] != None:
                     self.panel.synth._params[self.which].assignLfoMidiCtl(p, slider, i4)
 
@@ -737,8 +737,14 @@ class BasePanel(wx.Panel):
         self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
         self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
         self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
-        self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 5), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 5)])
-        self.sizer.Add(self.titleSizer, 1, wx.BOTTOM|wx.TOP, 4)
+        if from_lfo:
+            self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 3), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 3), (self.corner, 0, wx.RIGHT, 5)])
+            self.sizer.Add(self.titleSizer, 1, wx.BOTTOM|wx.TOP, 1)
+            self.sizer.Add(ZyneStaticLine(self, size=(226, 2)), 0, wx.BOTTOM, 3)
+        else:
+            self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 3), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 3)])
+            self.sizer.Add(self.titleSizer, 1, wx.BOTTOM|wx.TOP, 3)
+            self.sizer.Add(ZyneStaticLine(self, size=(230, 2)), 0, wx.BOTTOM, 3)
         self.createAdsrKnobs()
         if from_lfo:
             self.sliderAmp = self.createSlider("Amplitude", .1, 0, 1, False, False, self.changeAmp, -1)
@@ -756,16 +762,18 @@ class BasePanel(wx.Panel):
     
     def createAdsrKnobs(self):
         self.knobSizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.knobDel = ControlKnob(self, 0, 30.0, 0, log=False, label='Delay', outFunction=self.changeDelay)
+        self.knobSizer.Add(self.knobDel, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
         self.knobAtt = ControlKnob(self, 0.001, 30.0, 0.001, log=True, label='Attack', outFunction=self.changeAttack)
-        self.knobSizer.Add(self.knobAtt, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 3)
+        self.knobSizer.Add(self.knobAtt, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
         self.knobDec = ControlKnob(self, 0.001, 30.0, 0.1, log=True, label='Decay', outFunction=self.changeDecay)
-        self.knobSizer.Add(self.knobDec, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 3)
+        self.knobSizer.Add(self.knobDec, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
         self.knobSus = ControlKnob(self, 0.001, 1.0, 0.7, label='Sustain', outFunction=self.changeSustain)
-        self.knobSizer.Add(self.knobSus, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 3)
+        self.knobSizer.Add(self.knobSus, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
         self.knobRel = ControlKnob(self, 0.001, 30.0, 1.0, log=True, label='Release', outFunction=self.changeRelease)
-        self.knobSizer.Add(self.knobRel, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 3)
+        self.knobSizer.Add(self.knobRel, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
         self.sizer.Add(self.knobSizer, 0, wx.BOTTOM|wx.LEFT, 1)
-        self.sliders.extend([self.knobAtt, self.knobDec, self.knobSus, self.knobRel])
+        self.sliders.extend([self.knobDel, self.knobAtt, self.knobDec, self.knobSus, self.knobRel])
         if vars.constants["PLATFORM"] != "darwin":
             self.sizer.AddSpacer(3)
     
@@ -778,11 +786,11 @@ class BasePanel(wx.Panel):
             text.SetFont(font)
         self.sizer.Add(text, 0, wx.LEFT, 5)
         if integer or self.from_lfo:
-            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(216,16), log=log, integer=integer, outFunction=callback)
+            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(212,14), log=log, integer=integer, outFunction=callback)
             self.sizer.Add(slider, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
         else:
             hsizer = wx.BoxSizer(wx.HORIZONTAL)
-            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(195,16), log=log, integer=integer, outFunction=callback)
+            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(195,14), log=log, integer=integer, outFunction=callback)
             button = LFOButtons(self, synth=self.synth, which=i, callback=self.startLFO)
             lfo_frame = LFOFrame(self.GetTopLevelParent(), self.synth, label, i)
             self.buttons[i] = button
@@ -836,6 +844,9 @@ class BasePanel(wx.Panel):
         self.corner.SetFont(self.font)
         self.corner.SetForegroundColour(col)
 
+    def changeDelay(self, x):
+        self.synth.amp.delay = x
+    
     def changeAttack(self, x):
         self.synth.amp.attack = x
     
@@ -915,7 +926,7 @@ class BasePanel(wx.Panel):
             if slider.integer:
                 val = random.randint(mini, maxi)
             else:
-                if i == 4:
+                if i == 5:
                     val = random.uniform(.25, 1.5)
                 else:
                     val = random.uniform(mini, maxi)
@@ -927,13 +938,13 @@ class BasePanel(wx.Panel):
                 button.setState(state)
                 button.Refresh()
                 if state == 1:
-                    for slider in self.lfo_frames[i].panel.sliders:
+                    for j, slider in enumerate(self.lfo_frames[i].panel.sliders):
                         mini = slider.getMinValue()
                         maxi = slider.getMaxValue()
                         if slider.integer:
                             val = random.randint(mini, maxi)
                         else:
-                            if i == 5:
+                            if j == 6:
                                 val = random.uniform(0, 1)
                                 val **= 10.0
                                 val *= (maxi - mini)
@@ -952,9 +963,9 @@ class BasePanel(wx.Panel):
                 v2 = random.randint(mini, maxi)
                 val = (v1 + v2) / 2
             else:
-                if i == 4:
+                if i == 5:
                     val = random.triangular(.25, 1.5)
-                elif i in [0, 1]:
+                elif i in [1, 2]:
                     val = random.triangular(0, 1)
                     val **= 10.0
                     val *= (maxi - mini)
@@ -969,7 +980,7 @@ class BasePanel(wx.Panel):
                 button.setState(state)
                 button.Refresh()
                 if state == 1:
-                    for slider in self.lfo_frames[i].panel.sliders:
+                    for j, slider in enumerate(self.lfo_frames[i].panel.sliders):
                         mini = slider.getMinValue()
                         maxi = slider.getMaxValue()
                         if slider.integer:
@@ -977,7 +988,7 @@ class BasePanel(wx.Panel):
                             v2 = random.randint(mini, maxi)
                             val = (v1 + v2) / 2
                         else:
-                            if i == 5:
+                            if j == 6:
                                 val = random.triangular(0, 1)
                                 val **= 10.0
                                 val *= (maxi - mini)
@@ -992,17 +1003,17 @@ class BasePanel(wx.Panel):
             mini = slider.getMinValue()
             maxi = slider.getMaxValue()
             if slider.integer:
-                val = min([random.randint(mini, maxi) for i in range(4)])
+                val = min([random.randint(mini, maxi) for k in range(4)])
             else:
-                if i == 4:
+                if i == 5:
                     val = random.uniform(.25, 1.25)
-                elif i in [0, 1]:
-                    val = min([random.uniform(0, 1) for i in range(2)])
+                elif i in [1, 2]:
+                    val = min([random.uniform(0, 1) for k in range(2)])
                     val **= 10.0
                     val *= (maxi - mini)
                     val += mini
                 else:
-                    val = min([random.uniform(mini, maxi) for i in range(4)])
+                    val = min([random.uniform(mini, maxi) for k in range(4)])
             slider.SetValue(val)
             slider.outFunction(val)
         for i, button in enumerate(self.buttons):
@@ -1011,19 +1022,19 @@ class BasePanel(wx.Panel):
                 button.setState(state)
                 button.Refresh()
                 if state == 1:
-                    for slider in self.lfo_frames[i].panel.sliders:
+                    for j, slider in enumerate(self.lfo_frames[i].panel.sliders):
                         mini = slider.getMinValue()
                         maxi = slider.getMaxValue()
                         if slider.integer:
-                            val = min([random.randint(mini, maxi) for i in range(4)])
+                            val = min([random.randint(mini, maxi) for k in range(4)])
                         else:
-                            if i == 5:
-                                val = min([random.uniform(0, 1) for i in range(8)])
+                            if j == 5:
+                                val = min([random.uniform(0, 1) for k in range(8)])
                                 val **= 10.0
                                 val *= (maxi - mini)
                                 val += mini
                             else:
-                                val = min([random.uniform(mini, maxi) for i in range(4)])
+                                val = min([random.uniform(mini, maxi) for k in range(4)])
                         slider.SetValue(val)
                         slider.outFunction(val)
 
@@ -1144,6 +1155,12 @@ class LFOPanel(BasePanel):
         else:
             self.synth._params[self.which].lfo.setJitter(x)
     
+    def changeDelay(self, x):
+        if self.which == 0:
+            self.synth.amp.delay = x
+        else:
+            self.synth._params[self.which].lfo.amp.delay = x
+
     def changeAttack(self, x):
         if self.which == 0:
             self.synth.amp.attack = x

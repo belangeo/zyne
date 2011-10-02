@@ -491,7 +491,7 @@ class LFOSynth(CtlBind):
         self.trigger = trigger
         self._midi_metro = midi_metro
         self.rawamp = SigTo(.1, vars.vars["SLIDERPORT"], .1, mul=rng)
-        self.amp = MidiAdsr(self.trigger, attack=5, decay=.1, sustain=.5, release=1, mul=self.rawamp)
+        self.amp = MidiDelAdsr(self.trigger, delay=0, attack=5, decay=.1, sustain=.5, release=1, mul=self.rawamp)
         self.speed = SigTo(4, vars.vars["SLIDERPORT"], 4)
         self.jitter = SigTo(0, vars.vars["SLIDERPORT"], 0)
         self.freq = Randi(min=1-self.jitter, max=1+self.jitter, freq=1, mul=self.speed)
@@ -615,7 +615,7 @@ class BaseSynth:
             self._secondtrig = Trig().play(delay=vars.vars["NOTEONDUR"])
             self._trigamp = Counter(Mix([self._firsttrig,self._secondtrig]), min=0, max=2, dir=1)
             self._lfo_amp = LFOSynth(.5, self._trigamp, self._midi_metro)
-            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, 
+            self.amp = MidiDelAdsr(self._trigamp, delay=0, attack=.001, decay=.1, sustain=.5, release=1, 
                                 mul=self._rawamp*vars.vars["MIDIVELOCITY"], add=self._lfo_amp.sig())
             self.trig = Trig().play()
         elif vars.vars["VIRTUAL"]:
@@ -627,7 +627,8 @@ class BaseSynth:
             else:
                 self.pitch = Snap(self._virtualpit, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
             self._lfo_amp = LFOSynth(.5, self._trigamp, self._midi_metro)
-            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, mul=self._rawamp, add=self._lfo_amp.sig())
+            self.amp = MidiDelAdsr(self._trigamp, delay=0, attack=.001, decay=.1, sustain=.5, release=1, 
+                                   mul=self._rawamp, add=self._lfo_amp.sig())
             self.trig = Thresh(self._trigamp)
         else:
             if with_transpo:
@@ -639,7 +640,8 @@ class BaseSynth:
                 self.pitch = self._note["pitch"]
             self._trigamp = self._note["velocity"]
             self._lfo_amp = LFOSynth(.5, self._trigamp, self._midi_metro)
-            self.amp = MidiAdsr(self._trigamp, attack=.001, decay=.1, sustain=.5, release=1, mul=self._rawamp, add=self._lfo_amp.sig())
+            self.amp = MidiDelAdsr(self._trigamp, delay=0, attack=.001, decay=.1, sustain=.5, release=1, 
+                                   mul=self._rawamp, add=self._lfo_amp.sig())
             self.trig = Thresh(self._trigamp)
     
         self._params = [self._lfo_amp, None, None, None]
