@@ -23,11 +23,6 @@ MODULES =   {
                     "p2": ["Rand Depth", .1, .001, .25, False, False],
                     "p3": ["Filter Q", 5, 1, 20, False, False]
                     },
-            # "Phaser": { "title": "--- Phasing Synthesis ---", "synth": PhaserSynth, 
-            #         "p1": ["Spread", 1.1, .25, 2, False, False],
-            #         "p2": ["Bandwidth", .1, .001, 1, False, True],
-            #         "p3": ["Feedback", .95, .9, 1, False, False]
-            #         },
             "SquareMod": { "title": "--- Square Modulation ---", "synth": SquareMod, 
                     "p1": ["Harmonics", 10, 1, 40, True, False],
                     "p2": ["LFO Frequency", 1, .001, 20, False, False],
@@ -706,9 +701,9 @@ class BasePanel(wx.Panel):
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.from_lfo = from_lfo
         if not self.from_lfo:
-            self.lfo_sliders = [get_lfo_init(), get_lfo_init(), get_lfo_init(), get_lfo_init()]
-            self.buttons = [None, None, None, None]
-            self.lfo_frames = [None, None, None, None]
+            self.lfo_sliders = [get_lfo_init(), get_lfo_init(), get_lfo_init(), get_lfo_init(), get_lfo_init()]
+            self.buttons = [None, None, None, None, None]
+            self.lfo_frames = [None, None, None, None, None]
         self.sliders = []
         self.labels = []
         self.sizer = wx.BoxSizer(wx.VERTICAL)
@@ -778,16 +773,23 @@ class BasePanel(wx.Panel):
             self.sizer.AddSpacer(3)
     
     def createSlider(self, label, value, minValue, maxValue, integer, log, callback, i=-1):
-        text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,16))
+        if self.from_lfo:
+            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,16))
+        else:
+            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,14))
         self.labels.append(text)
         if vars.constants["PLATFORM"] == "darwin":
             font, psize = text.GetFont(), text.GetFont().GetPointSize()
             font.SetPointSize(psize-2)
             text.SetFont(font)
         self.sizer.Add(text, 0, wx.LEFT, 5)
-        if integer or self.from_lfo:
-            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(212,14), log=log, integer=integer, outFunction=callback)
+        if self.from_lfo:
+            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(212,16), log=log, integer=integer, outFunction=callback)
             self.sizer.Add(slider, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+        elif integer:
+            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(212,14), log=log, integer=integer, outFunction=callback)
+            self.sizer.Add(slider, 0, wx.LEFT|wx.RIGHT, 5)
+            self.sizer.AddSpacer(2)            
         else:
             hsizer = wx.BoxSizer(wx.HORIZONTAL)
             slider = ZyneControlSlider(self, minValue, maxValue, value, size=(195,14), log=log, integer=integer, outFunction=callback)
@@ -797,7 +799,8 @@ class BasePanel(wx.Panel):
             self.lfo_frames[i] = lfo_frame
             hsizer.Add(slider, 0)
             hsizer.Add(button, 0, wx.LEFT|wx.TOP, 2)
-            self.sizer.Add(hsizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+            self.sizer.Add(hsizer, 0, wx.LEFT|wx.RIGHT, 5)
+            self.sizer.AddSpacer(2)
         self.sliders.append(slider)
         return slider
     
@@ -861,6 +864,9 @@ class BasePanel(wx.Panel):
     
     def changeAmp(self, x):
         self.synth._rawamp.value = x
+
+    def changePan(self, x):
+        self.synth._panner.set(x)
    
     def setBackgroundColour(self, col):
         self.SetBackgroundColour(col)
@@ -1066,7 +1072,7 @@ class BasePanel(wx.Panel):
         for i, button in enumerate(self.buttons):
             if button != None:
                 if button.state:
-                    for slider in self.lfo_frames[i].panel.sliders:
+                    for j, slider in enumerate(self.lfo_frames[i].panel.sliders):
                         if j == 0:
                             continue
                         mini = slider.getMinValue()
@@ -1100,6 +1106,9 @@ class GenericPanel(BasePanel):
             self.sliderTranspo = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeTranspo, 3)
         else:
             self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3, 3)
+        self.sliderPan = self.createSlider("Pan", .5, 0, 1, False, False, self.changePan, 4)
+        if vars.constants["PLATFORM"] != "darwin":
+            self.sizer.AddSpacer(2)
         self.SetSizerAndFit(self.sizer)    
     
     def changeP1(self, x):
