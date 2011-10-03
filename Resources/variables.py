@@ -43,7 +43,7 @@ constants["ID"] = {"New": 1000, "Open": 1001, "Save": 1002, "SaveAs": 1003, "Exp
                    "Prefs": 1006, "MidiLearn": 1007, "Run": 1008, "ResetKeyboard": 1009, "ExportChord": 1010, 
                    "Modules": 1100, "About": 5999, "Tutorial": 6000, "MidiLearnHelp": 6001, "ExportHelp": 6002, "CloseTut": 7000,
                    "CloseHelp": 7001, "CloseLFO": 7002, "DeSelect": 9998, "Select": 9999, "Uniform": 10000, "Triangular": 10001, 
-                   "Minimum": 10002, "Jitter": 10003}
+                   "Minimum": 10002, "Jitter": 10003, "Duplicate": 10100}
 constants["VARIABLE_NAMES"] = ["AUDIO_HOST", "OUTPUT_DRIVER", "MIDI_INTERFACE", "SR", "PYO_PRECISION", "FORMAT", "BITS", 
                                "POLY", "AUTO_OPEN", "SLIDERPORT", "CUSTOM_MODULES_PATH", "EXPORT_PATH"]
 constants["VAR_PREF_LABELS"] = {"FORMAT": 'Exported soundfile format', "SR": 'Sampling rate', 

@@ -909,10 +909,11 @@ class BasePanel(wx.Panel):
         else:
             self.synth._params[which].start_lfo(x)
     
-    def reinitLFOS(self, lfo_param):
+    def reinitLFOS(self, lfo_param, ctl_binding=True):
         self.lfo_sliders = lfo_param
         for i, lfo_conf in enumerate(self.lfo_sliders):
             if self.buttons[i] != None:
+                self.lfo_frames[i].panel.synth = self.buttons[i].synth
                 state = lfo_conf["state"]
                 self.startLFO(i, state)
                 self.buttons[i].setState(state)
@@ -922,7 +923,10 @@ class BasePanel(wx.Panel):
                     self.lfo_frames[i].SetPosition(pos)
                     self.lfo_frames[i].Show()
                 params = lfo_conf["params"]
-                ctl_params = lfo_conf["ctl_params"]
+                if ctl_binding:
+                    ctl_params = lfo_conf["ctl_params"]
+                else:
+                    ctl_params = [None] * len(self.lfo_frames[i].panel.sliders)
                 self.lfo_frames[i].set(params, ctl_params)
 
     def generateUniform(self):
