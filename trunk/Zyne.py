@@ -202,6 +202,12 @@ class ZyneFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.tabulate, id=vars.constants["ID"]["Select"])
         self.genMenu.Append(vars.constants["ID"]["DeSelect"], 'Clear selection\tCtrl+Tab', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.clearSelection, id=vars.constants["ID"]["DeSelect"])
+        self.genMenu.AppendSeparator()
+        self.genMenu.Append(vars.constants["ID"]["Duplicate"], 'Duplicates selected module\tCtrl+D', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.duplicateSelection, id=vars.constants["ID"]["Duplicate"])
+        item = self.genMenu.FindItemById(vars.constants["ID"]["Duplicate"])
+        item.Enable(False)
+
         helpMenu = wx.Menu()        
         helpItem = helpMenu.Append(vars.constants["ID"]["About"], '&About Zyne %s' % vars.constants["VERSION"], 'wxPython RULES!!!')
         wx.App.SetMacAboutMenuItemId(helpItem.GetId())
@@ -274,11 +280,33 @@ class ZyneFrame(wx.Frame):
         if old != None:
             self.modules[old].setBackgroundColour(BACKGROUND_COLOUR)
         self.modules[self.selected].setBackgroundColour("#DDDDE7")
+        item = self.genMenu.FindItemById(vars.constants["ID"]["Duplicate"])
+        item.Enable(True)
 
     def clearSelection(self, evt):
         if self.selected != None:
             self.modules[self.selected].setBackgroundColour(BACKGROUND_COLOUR)
         self.selected = None
+        item = self.genMenu.FindItemById(vars.constants["ID"]["Duplicate"])
+        item.Enable(False)
+
+    def duplicateSelection(self, evt):
+        if self.selected != None:
+            module = self.modules[self.selected]
+            name = module.name
+            mute = module.mute
+            params = [slider.GetValue() for slider in module.sliders]
+            lfo_params = module.getLFOParams()
+            dic = MODULES[name]
+            self.modules.append(GenericPanel(self.panel, name, dic["title"], dic["synth"], dic["p1"], dic["p2"], dic["p3"]))
+            self.addModule(self.modules[-1])
+            self.modules[-1].setMute(mute)
+            for j, param in enumerate(params):
+                slider = self.modules[-1].sliders[j]
+                slider.SetValue(param)
+                slider.outFunction(param)
+            self.modules[-1].reinitLFOS(lfo_params, ctl_binding=False)
+            self.refresh()
 
     def onRun(self, evt):
         state = self.serverPanel.onOff.GetValue()
@@ -640,6 +668,8 @@ class ZyneFrame(wx.Frame):
         self.refresh()
         
     def deleteModule(self, module):
+        if self.selected == self.modules.index(module):
+            self.selected = None
         self.sizer.Remove(module)
         self.modules.remove(module)
         self.refreshOutputSignal()
