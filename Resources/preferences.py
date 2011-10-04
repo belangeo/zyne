@@ -84,7 +84,7 @@ class PreferencesDialog(wx.Dialog):
                     itemSizer.Add(txt, 0, wx.TOP|wx.LEFT|wx.RIGHT, 5)
  
         for key in self.paths:
-            if key == "CUSTOM_MODULES_PATH": func = self.getFile
+            if key == "CUSTOM_MODULES_PATH": func = self.getPath
             elif key == "EXPORT_PATH": func = self.getPath
             lbl = wx.StaticText(self, label=vars.constants["VAR_PREF_LABELS"][key])
             lbl.SetFont(font)
@@ -94,7 +94,7 @@ class PreferencesDialog(wx.Dialog):
             txt.SetFont(entryfont)
             ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
             but = wx.Button(self, id=self.ids[key], label="Choose...")
-            but.Bind(wx.EVT_BUTTON, func, id=self.ids[key])
+            but.Bind(wx.EVT_BUTTON, self.getPath, id=self.ids[key])
             ctrlSizer.Add(but, 0, wx.ALL, 5)            
             pathSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
     
@@ -139,28 +139,17 @@ class PreferencesDialog(wx.Dialog):
             pass
         dlg.Destroy()
 
-    def getFile(self, evt):
-        id = evt.GetId()
-        for name in self.ids.keys():
-            if self.ids[name] == id:
-                break
-        widget = wx.FindWindowByName(name)
-        dlg = wx.FileDialog(self, message="Choose a file", defaultDir=os.path.expanduser("~"), 
-            defaultFile="", wildcard="Python source (*.py)|*.py", style=wx.OPEN)
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            widget.SetValue(path)
-        else:
-            pass
-        dlg.Destroy()
-
     def getPath(self, evt):
         id = evt.GetId()
         for name in self.ids.keys():
             if self.ids[name] == id:
                 break
+        if name == "EXPORT_PATH":
+            title = "Choose the directory where to save the exported samples"
+        else:
+            title = "Choose the directory where you saved your custom module files"
         widget = wx.FindWindowByName(name)
-        dlg = wx.DirDialog(self, "Choose the directory where to save the exported samples", os.path.expanduser("~"), style=wx.DD_DEFAULT_STYLE)
+        dlg = wx.DirDialog(self, title, os.path.expanduser("~"), style=wx.DD_DEFAULT_STYLE)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             widget.SetValue(path)

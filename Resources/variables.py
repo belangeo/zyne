@@ -40,7 +40,8 @@ LAST_SAVED = ""
 """
 
 constants["ID"] = {"New": 1000, "Open": 1001, "Save": 1002, "SaveAs": 1003, "Export": 1004, "Quit": 1005,
-                   "Prefs": 1006, "MidiLearn": 1007, "Run": 1008, "ResetKeyboard": 1009, "ExportChord": 1010, 
+                   "Prefs": 1006, "MidiLearn": 1007, "Run": 1008, "ResetKeyboard": 1009, "ExportChord": 1010, "Retrig": 1011,
+                   "ExportTracks": 1012, "ExportChordTracks": 1013,
                    "Modules": 1100, "About": 5999, "Tutorial": 6000, "MidiLearnHelp": 6001, "ExportHelp": 6002, "CloseTut": 7000,
                    "CloseHelp": 7001, "CloseLFO": 7002, "DeSelect": 9998, "Select": 9999, "Uniform": 10000, "Triangular": 10001, 
                    "Minimum": 10002, "Jitter": 10003, "Duplicate": 10100}
@@ -49,7 +50,7 @@ constants["VARIABLE_NAMES"] = ["AUDIO_HOST", "OUTPUT_DRIVER", "MIDI_INTERFACE", 
 constants["VAR_PREF_LABELS"] = {"FORMAT": 'Exported soundfile format', "SR": 'Sampling rate', 
                                 "AUTO_OPEN": 'Auto open default or last synth', "POLY": 'Keyboard polyphony',
                                 "PYO_PRECISION": 'Internal sample precision', "BITS": 'Exported sample type', 
-                                "CUSTOM_MODULES_PATH": 'User-defined modules file', 
+                                "CUSTOM_MODULES_PATH": 'User-defined modules location', 
                                 "SLIDERPORT": "Slider's portamento in seconds", 
                                 "AUDIO_HOST": "Audio host API",
                                 "OUTPUT_DRIVER":'Prefered output driver', 

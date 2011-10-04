@@ -1027,6 +1027,15 @@ class Keyboard(wx.Panel):
                 dc.SetBrush(wx.Brush("#FFFFFF", wx.SOLID))
                 dc.SetPen(wx.Pen("#FFFFFF", width=1, style=wx.SOLID))
                 dc.DrawRectangleRect(rec)
+            if i == 35:
+                font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
+                font.SetPointSize(ptsize-2)
+                dc.SetFont(font)
+                if i in self.whiteSelected:
+                    dc.SetTextForeground("#FFFFFF")
+                else:
+                    dc.SetTextForeground("#000000")
+                dc.DrawText("C", rec[0]+3, rec[3]-15)
     
         dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
         for i, rec in enumerate(self.blackKeys):
