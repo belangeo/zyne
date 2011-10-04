@@ -740,7 +740,7 @@ class BasePanel(wx.Panel):
             self.corner.SetToolTip(wx.ToolTip("Move window"))
         else:
             self.corner = GenStaticText(self, -1, label="m/s")
-            self.corner.SetToolTip(wx.ToolTip("Mute / Solo. Click to mute, Alt+Click to solo"))
+            self.corner.SetToolTip(wx.ToolTip("Mute / Solo. Click to mute, Shift+Click to solo"))
         self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
         if from_lfo:
             self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 2), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 2), (self.corner, 0, wx.RIGHT, 5)])
@@ -754,6 +754,7 @@ class BasePanel(wx.Panel):
         if from_lfo:
             self.sliderAmp = self.createSlider("Amplitude", .1, 0, 1, False, False, self.changeAmp, -1)
         else:
+            self.sizer.AddSpacer(2)
             self.sliderAmp = self.createSlider("Amplitude", 1, 0.0001, 2, False, False, self.changeAmp, 0)
             self.tmp_amplitude = 1
 
@@ -783,10 +784,14 @@ class BasePanel(wx.Panel):
             self.sizer.AddSpacer(3)
     
     def createSlider(self, label, value, minValue, maxValue, integer, log, callback, i=-1):
-        if self.from_lfo:
-            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,14))
+        if vars.constants["PLATFORM"] == "darwin":
+            height = 14
         else:
-            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,14))
+            height = 13
+        if self.from_lfo:
+            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,height))
+        else:
+            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,height))
         self.labels.append(text)
         if vars.constants["PLATFORM"] == "darwin":
             font, psize = text.GetFont(), text.GetFont().GetPointSize()
@@ -804,7 +809,7 @@ class BasePanel(wx.Panel):
             self.buttons[i] = button
             self.lfo_frames[i] = lfo_frame
             hsizer.Add(slider, 0)
-            hsizer.Add(button, 0, wx.LEFT|wx.TOP, 2)
+            hsizer.Add(button, 0, wx.LEFT|wx.TOP, 1)
             self.sizer.Add(hsizer, 0, wx.LEFT|wx.RIGHT, 5)
         self.sizer.AddSpacer(2)
         self.sliders.append(slider)
@@ -1127,7 +1132,7 @@ class GenericPanel(BasePanel):
         self.corner.SetForegroundColour(col)
 
     def MouseDownCorner(self, evt):
-        if evt.AltDown():
+        if evt.ShiftDown():
             if self.mute <= 1:
                 self.setMute(2)
             elif self.mute == 2:
