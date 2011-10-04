@@ -127,6 +127,7 @@ class PreferencesDialog(wx.Dialog):
             msg = "Choose an output driver..."
         elif name == "MIDI_INTERFACE":
             driverList, driverIndexes = get_midi_input_devices()
+            driverList.append("Virtual Keyboard")
             msg = "Choose a Midi interface..."
         driverList = [vars.vars["ensureNFD"](driver) for driver in driverList]
         widget = wx.FindWindowByName(name)
