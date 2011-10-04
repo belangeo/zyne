@@ -1,5 +1,5 @@
 # encoding: utf-8
-import wx, math, sys
+import wx, math, sys, copy
 from wx.lib.embeddedimage import PyEmbeddedImage
 from pyolib._wxwidgets import ControlSlider, BACKGROUND_COLOUR
 import Resources.variables as vars
@@ -904,9 +904,13 @@ class Keyboard(wx.Panel):
         self.gap = 0
         self.w1 = 15
         self.w2 = self.w1 / 2 + 1
+        self.hold = 1
+        self.keyPressed = None
+        self.offset = 0
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.SetMinSize((-1, size[1]))
@@ -925,9 +929,9 @@ class Keyboard(wx.Panel):
     def getNotes(self):
         notes = []
         for key in self.whiteSelected:
-            notes.append((self.white[key%7] + key/7*12, 127-self.whiteVelocities[key]))
+            notes.append((self.white[key%7] + key/7*12  + self.offset, 127-self.whiteVelocities[key]))
         for key in self.blackSelected:
-            notes.append((self.black[key%5] + key/5*12, 127-self.blackVelocities[key]))
+            notes.append((self.black[key%5] + key/5*12  + self.offset, 127-self.blackVelocities[key]))
         notes.sort()
         return notes
 
@@ -943,6 +947,8 @@ class Keyboard(wx.Panel):
     
     def setRects(self):
         w,h = self.GetSize()
+        self.offRec = wx.Rect(w-55, 0, 21, h)
+        self.holdRec = wx.Rect(w-34, 0, 21, h)
         num = w / self.w1
         self.gap = w - num * self.w1
         self.whiteKeys = [wx.Rect(i*self.w1, 0, self.w1-1, h) for i in range(num)]
@@ -964,49 +970,120 @@ class Keyboard(wx.Panel):
     
     def OnSize(self, evt):
         self.setRects()
-    
+        wx.CallAfter(self.Refresh)
+
+    def MouseUp(self, evt):
+        if not self.hold and self.keyPressed != None:
+            key = self.keyPressed[0]
+            pit = self.keyPressed[1]
+            if key in self.blackSelected:
+                self.blackSelected.remove(key)
+                del self.blackVelocities[key]
+            if key in self.whiteSelected:
+                self.whiteSelected.remove(key)
+                del self.whiteVelocities[key]
+            note = (pit, 0)
+            self.keyPressed = None
+            if self.outFunction:
+                self.outFunction(note)
+            self.Refresh()
+
     def MouseDown(self, evt):
         w,h = self.GetSize()
         pos = evt.GetPosition()
+        if self.holdRec.Contains(pos):
+            if self.hold:
+                self.hold = 0
+                self.GetTopLevelParent().onResetKeyboard(None)
+            else:
+                self.hold = 1
+            self.Refresh()
+            return
+        if self.offUpRec.Contains(pos):
+            self.offset += 12
+            if self.offset > 60:
+                self.offset = 60
+            self.GetTopLevelParent().onResetKeyboard(None)
+            self.Refresh()
+            return
+        if self.offDownRec.Contains(pos):
+            self.offset -= 12
+            if self.offset < 0:
+                self.offset = 0
+            self.GetTopLevelParent().onResetKeyboard(None)
+            self.Refresh()
+            return
+
         total = len(self.blackSelected) + len(self.whiteSelected)
         scanWhite = True
         note = None
-        for i, rec in enumerate(self.blackKeys):
-            if rec.Contains(pos):
-                pit = self.black[i%5] + i/5*12
-                if i in self.blackSelected:
-                    self.blackSelected.remove(i)
-                    del self.blackVelocities[i]
-                    vel = 0
-                else:
-                    hb = h * 4 / 7
-                    vel = (hb - pos[1]) * 127 / hb
-                    if total < self.poly:
-                        self.blackSelected.append(i)
-                        self.blackVelocities[i] = int(127 - vel)
-                note = (pit, vel)
-                scanWhite = False
-                break
-        if scanWhite:
-            for i, rec in enumerate(self.whiteKeys):
+        if self.hold:
+            for i, rec in enumerate(self.blackKeys):
                 if rec.Contains(pos):
-                    pit = self.white[i%7] + i/7*12
-                    if i in self.whiteSelected:
-                        self.whiteSelected.remove(i)
-                        del self.whiteVelocities[i]
+                    pit = self.black[i%5] + i/5*12  + self.offset
+                    if i in self.blackSelected:
+                        self.blackSelected.remove(i)
+                        del self.blackVelocities[i]
                         vel = 0
                     else:
-                        vel = (h - pos[1]) * 127 / h
+                        hb = h * 4 / 7
+                        vel = (hb - pos[1]) * 127 / hb
                         if total < self.poly:
-                            self.whiteSelected.append(i)
-                            self.whiteVelocities[i] = int(127 - vel)
+                            self.blackSelected.append(i)
+                            self.blackVelocities[i] = int(127 - vel)
                     note = (pit, vel)
+                    scanWhite = False
                     break
-        if self.outFunction and note:
-            if note[1] == 0:
-                self.outFunction(note)
-            elif total < self.poly:
-                self.outFunction(note)
+            if scanWhite:
+                for i, rec in enumerate(self.whiteKeys):
+                    if rec.Contains(pos):
+                        pit = self.white[i%7] + i/7*12  + self.offset
+                        if i in self.whiteSelected:
+                            self.whiteSelected.remove(i)
+                            del self.whiteVelocities[i]
+                            vel = 0
+                        else:
+                            vel = (h - pos[1]) * 127 / h
+                            if total < self.poly:
+                                self.whiteSelected.append(i)
+                                self.whiteVelocities[i] = int(127 - vel)
+                        note = (pit, vel)
+                        break
+            if self.outFunction and note:
+                if note[1] == 0:
+                    self.outFunction(note)
+                elif total < self.poly:
+                    self.outFunction(note)
+        else:
+            self.keyPressed = None
+            for i, rec in enumerate(self.blackKeys):
+                if rec.Contains(pos):
+                    pit = self.black[i%5] + i/5*12  + self.offset
+                    if i not in self.blackSelected:
+                        hb = h * 4 / 7
+                        vel = (hb - pos[1]) * 127 / hb
+                        if total < self.poly:
+                            self.blackSelected.append(i)
+                            self.blackVelocities[i] = int(127 - vel)
+                    note = (pit, vel)
+                    self.keyPressed = (i, pit)
+                    scanWhite = False
+                    break
+            if scanWhite:
+                for i, rec in enumerate(self.whiteKeys):
+                    if rec.Contains(pos):
+                        pit = self.white[i%7] + i/7*12 + self.offset
+                        if i not in self.whiteSelected:
+                            vel = (h - pos[1]) * 127 / h
+                            if total < self.poly:
+                                self.whiteSelected.append(i)
+                                self.whiteVelocities[i] = int(127 - vel)
+                        note = (pit, vel)
+                        self.keyPressed = (i, pit)
+                        break
+            if self.outFunction and note:
+                if total < self.poly:
+                    self.outFunction(note)
         self.Refresh()
     
     def OnPaint(self, evt):
@@ -1019,7 +1096,7 @@ class Keyboard(wx.Panel):
     
         for i, rec in enumerate(self.whiteKeys):
             if i in self.whiteSelected:
-                amp = self.whiteVelocities[i]
+                amp = int(self.whiteVelocities[i] * 1.5)
                 dc.GradientFillLinear(rec, (250,250,250), (amp,amp,amp), wx.SOUTH)
                 dc.SetBrush(wx.Brush("#CCCCCC", wx.SOLID))
                 dc.SetPen(wx.Pen("#CCCCCC", width=1, style=wx.SOLID))
@@ -1027,9 +1104,10 @@ class Keyboard(wx.Panel):
                 dc.SetBrush(wx.Brush("#FFFFFF", wx.SOLID))
                 dc.SetPen(wx.Pen("#FFFFFF", width=1, style=wx.SOLID))
                 dc.DrawRectangleRect(rec)
-            if i == 35:
+            if i == (35 - (7 * (self.offset / 12))):
                 font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
                 font.SetPointSize(ptsize-2)
+                font.SetWeight(wx.BOLD)
                 dc.SetFont(font)
                 if i in self.whiteSelected:
                     dc.SetTextForeground("#FFFFFF")
@@ -1040,7 +1118,7 @@ class Keyboard(wx.Panel):
         dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
         for i, rec in enumerate(self.blackKeys):
             if i in self.blackSelected:
-                amp = self.blackVelocities[i]
+                amp = int(self.blackVelocities[i] * 1.5)
                 dc.GradientFillLinear(rec, (250,250,250), (amp,amp,amp), wx.SOUTH)
                 dc.DrawLine(rec[0],0,rec[0],rec[3])
                 dc.DrawLine(rec[0]+rec[2],0,rec[0]+rec[2],rec[3])
@@ -1051,6 +1129,29 @@ class Keyboard(wx.Panel):
                 dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
                 dc.DrawRectangleRect(rec)
     
+        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
+        dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
+        dc.DrawRectangleRect(self.offRec)
+        dc.DrawRectangleRect(self.holdRec)
+        dc.DrawRectangleRect(wx.Rect(w-14, 0, 14, h))
+        
+        dc.SetTextForeground("#000000")
+        dc.DrawText("off", self.offRec[0]+3, 10)
+        x1, y1 = self.offRec[0], self.offRec[1]
+        dc.SetBrush(wx.Brush("#000000", wx.SOLID))
+        dc.DrawPolygon([wx.Point(x1+3,32), wx.Point(x1+10,25), wx.Point(x1+17,32)])
+        self.offUpRec = wx.Rect(x1, 24, x1+20, 10)
+        dc.DrawPolygon([wx.Point(x1+3,53), wx.Point(x1+10,60), wx.Point(x1+17,53)])
+        self.offDownRec = wx.Rect(x1, 52, x1+20, 10)
+        dc.DrawText("%d" % (self.offset/12), x1+7, 36)
+    
+        if self.hold:
+            dc.SetTextForeground("#0000CC")
+        else:
+            dc.SetTextForeground("#000000")
+        for i, char in enumerate("HOLD"):
+            dc.DrawText(char, self.holdRec[0]+6, self.holdRec[3]/6*i+10)
+        
         dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
         dc.SetPen(wx.Pen(BACKGROUND_COLOUR, width=1, style=wx.SOLID))
         dc.DrawRectangle(w-self.gap, 0, self.gap, h)
