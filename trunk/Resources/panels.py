@@ -279,10 +279,13 @@ class ServerPanel(wx.Panel):
             self.defaultInterface = get_midi_default_input()
             self.popupInterface = wx.Choice(self, id=-1, pos=(118,40), size=(95, 20), choices=self.interfaceList)
             if preferedInterface and preferedInterface in self.interfaceList:
-                interfaceIndex = self.interfaceIndexes[self.interfaceList.index(preferedInterface)]
-                self.fsserver.shutdown()
-                self.fsserver.setMidiInputDevice(interfaceIndex)
-                self.fsserver.boot()
+                if preferedInterface != "Virtual Keyboard":
+                    interfaceIndex = self.interfaceIndexes[self.interfaceList.index(preferedInterface)]
+                    self.fsserver.shutdown()
+                    self.fsserver.setMidiInputDevice(interfaceIndex)
+                    self.fsserver.boot()
+                else:
+                    wx.CallAfter(self.prepareForVirtualKeyboard)
                 self.popupInterface.SetStringSelection(preferedInterface)
             elif self.defaultInterface:
                 self.fsserver.shutdown()
