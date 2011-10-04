@@ -190,8 +190,8 @@ class GenericModule(BaseSynth):
     def __init__(self, config):
         # `mode` handles pitch conversion : 1 for hertz, 2 for transpo, 3 for midi
         BaseSynth.__init__(self, config, mode=1)
-        self.fm1 = FM(carrier=self.pitch, ratio=self.p1, index=self.p2, mul=self.amp*self.leftamp).mix(1)
-        self.fm2 = FM(carrier=self.pitch*0.997, ratio=self.p1, index=self.p2, mul=self.amp*self.rightamp).mix(1)
+        self.fm1 = FM(carrier=self.pitch, ratio=self.p1, index=self.p2, mul=self.amp*self.panL).mix(1)
+        self.fm2 = FM(carrier=self.pitch*0.997, ratio=self.p1, index=self.p2, mul=self.amp*self.panR).mix(1)
         self.mix = Mix([self.fm1, self.fm2], voices=2)
         self.out = Biquad(self.mix, freq=self.p3, q=1, type=0)
 
