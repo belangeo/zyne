@@ -14,11 +14,11 @@
 
 What must be defined to include custom modules in the zyne application ?
 
-- In a python file:
+- In one or more python files:
     1 - Classes implementing custom dsp chains.
     2 - A dictionary, called `MODULES`, specifying the modules and their properties.
 - In the preferences panel:
-    3 - The path to your python file. Several modules can be defined in the file.
+    3 - The path to the directory where you saved your python files. Several modules can be defined in a single file.
 
 
 ---- API ----
@@ -530,6 +530,9 @@ class LFOSynth(CtlBind):
     
     def setJitter(self, x):
         self.jitter.value = x
+
+    def setSharp(self, x):
+        self.lfo.sharp = x
     
     def setAmp(self, x):
         self.rawamp.value = x
@@ -879,8 +882,14 @@ def checkForCustomModules():
                             path = vars.vars["ensureNFD"](sline[1].strip())
     
     if path != "":
-        if os.path.isfile(path):
-            execfile(vars.vars["toSysEncoding"](path), globals())
-            vars.vars["EXTERNAL_MODULES"] = MODULES
+        if os.path.isdir(path):
+            files = [f for f in os.listdir(path) if f.endswith(".py")]
+            for file in files:
+                try:
+                    filepath = os.path.join(path, file)
+                    execfile(vars.vars["toSysEncoding"](filepath), globals())
+                    vars.vars["EXTERNAL_MODULES"].update(MODULES)
+                except:
+                    pass
 
 checkForCustomModules()

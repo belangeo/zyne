@@ -61,13 +61,14 @@ MODULES =   {
             }
 
 LFO_CONFIG =    {
-                "p1": ["Speed", 4, .01, 200, False, True],
+                "p1": ["Speed", 4, .01, 1000, False, True],
                 "p2": ["Waveform", 3, 0, 7, True, False],
-                "p3": ["Jitter", 0, 0, 1, False, False]
+                "p3": ["Jitter", 0, 0, 1, False, False],
+                "p4": ["Sharpness", 0.5, 0, 1, False, False],
                 }
 
-LFO_INIT = {"state": False, "params": [.001, .1, .7, 1, .1, 4, 3, 0], 
-            "ctl_params": [None, None, None, None, None, None, None, None], "shown": False}
+LFO_INIT = {"state": False, "params": [.001, .1, .7, 1, .1, 4, 3, 0, .5], 
+            "ctl_params": [None, None, None, None, None, None, None, None, None], "shown": False}
 def get_lfo_init():
     return copy.deepcopy(LFO_INIT)
 
@@ -117,7 +118,7 @@ class LFOFrame(wx.MiniFrame):
         self.Bind(wx.EVT_MENU, self.onClose, id=vars.constants["ID"]["CloseLFO"])
         self.mouseOffset = (0,0)
         self.which = which
-        self.panel = LFOPanel(self, "LFO", "--- %s LFO ---" % label, synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], which)
+        self.panel = LFOPanel(self, "LFO", "--- %s LFO ---" % label, synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], LFO_CONFIG["p4"], which)
         self.panel.SetPosition((0,0))
         self.panel.corner.Bind(wx.EVT_LEFT_DOWN, self.onMouseDown)
         self.panel.corner.Bind(wx.EVT_LEFT_UP, self.onMouseUp)
@@ -181,7 +182,7 @@ class LFOButtons(GenStaticText):
         if vars.constants["PLATFORM"] != "darwin":
             self.font.SetPointSize(psize-2)
         else:
-            self.font.SetPointSize(psize-4)
+            self.font.SetPointSize(psize-5)
         self.SetFont(self.font)
         self.Bind(wx.EVT_ENTER_WINDOW, self.hover)
         self.Bind(wx.EVT_LEAVE_WINDOW, self.leave)
@@ -439,7 +440,7 @@ class ServerPanel(wx.Panel):
         evt.SetInt(1)
         self.changeInterface(evt)
     
-    def resetVirtualKeyboard(self):
+    def resetVirtualKeyboard(self, resetDisplay=True):
         modules = self.GetTopLevelParent().modules
         for pit in self.virtualNotePressed.keys():
             voice = self.virtualNotePressed[pit]
@@ -449,8 +450,16 @@ class ServerPanel(wx.Panel):
                 synth._virtualpit[voice].setValue(pit)
                 synth._trigamp[voice].setValue(0)
         self.virtualvoice = 0
-        self.keyboard.reset()
+        if resetDisplay:
+            self.keyboard.reset()
     
+    def retrigVirtualNotes(self):
+        notes = self.keyboard.getNotes()
+        self.resetVirtualKeyboard(resetDisplay=False)
+        modules = self.GetTopLevelParent().modules
+        for note in notes:
+            self.onKeyboard(note)
+        
     def onKeyboard(self, note):
         pit = note[0]
         vel = note[1]
@@ -727,11 +736,9 @@ class BasePanel(wx.Panel):
             self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(16,16), style=wx.NO_BORDER)
             self.corner.SetToolTip(wx.ToolTip("Move window"))
         else:
-            self.corner = GenStaticText(self, -1, label="mute")
-            self.corner.Bind(wx.EVT_LEFT_DOWN, self.MouseDownCorner)
+            self.corner = GenStaticText(self, -1, label="m/s")
+            self.corner.SetToolTip(wx.ToolTip("Mute / Solo. Click to mute, Alt+Click to solo"))
         self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
-        self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
-        self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
         if from_lfo:
             self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 2), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 2), (self.corner, 0, wx.RIGHT, 5)])
             self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 2)
@@ -757,15 +764,15 @@ class BasePanel(wx.Panel):
     
     def createAdsrKnobs(self):
         self.knobSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.knobDel = ControlKnob(self, 0, 30.0, 0, log=False, label='Delay', outFunction=self.changeDelay)
+        self.knobDel = ControlKnob(self, 0, 60.0, 0, log=False, label='Delay', outFunction=self.changeDelay)
         self.knobSizer.Add(self.knobDel, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
-        self.knobAtt = ControlKnob(self, 0.001, 30.0, 0.001, log=True, label='Attack', outFunction=self.changeAttack)
+        self.knobAtt = ControlKnob(self, 0.001, 60.0, 0.001, log=True, label='Attack', outFunction=self.changeAttack)
         self.knobSizer.Add(self.knobAtt, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
-        self.knobDec = ControlKnob(self, 0.001, 30.0, 0.1, log=True, label='Decay', outFunction=self.changeDecay)
+        self.knobDec = ControlKnob(self, 0.001, 60.0, 0.1, log=True, label='Decay', outFunction=self.changeDecay)
         self.knobSizer.Add(self.knobDec, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
         self.knobSus = ControlKnob(self, 0.001, 1.0, 0.7, label='Sustain', outFunction=self.changeSustain)
         self.knobSizer.Add(self.knobSus, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
-        self.knobRel = ControlKnob(self, 0.001, 30.0, 1.0, log=True, label='Release', outFunction=self.changeRelease)
+        self.knobRel = ControlKnob(self, 0.001, 60.0, 1.0, log=True, label='Release', outFunction=self.changeRelease)
         self.knobSizer.Add(self.knobRel, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 0)
         self.sizer.Add(self.knobSizer, 0, wx.BOTTOM|wx.LEFT, 1)
         self.sliders.extend([self.knobDel, self.knobAtt, self.knobDec, self.knobSus, self.knobRel])
@@ -774,7 +781,7 @@ class BasePanel(wx.Panel):
     
     def createSlider(self, label, value, minValue, maxValue, integer, log, callback, i=-1):
         if self.from_lfo:
-            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,16))
+            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,14))
         else:
             text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,14))
         self.labels.append(text)
@@ -783,13 +790,9 @@ class BasePanel(wx.Panel):
             font.SetPointSize(psize-2)
             text.SetFont(font)
         self.sizer.Add(text, 0, wx.LEFT, 5)
-        if self.from_lfo:
-            slider = ZyneControlSlider(self, minValue, maxValue, value, size=(212,16), log=log, integer=integer, outFunction=callback)
-            self.sizer.Add(slider, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
-        elif integer:
+        if self.from_lfo or integer:
             slider = ZyneControlSlider(self, minValue, maxValue, value, size=(212,14), log=log, integer=integer, outFunction=callback)
             self.sizer.Add(slider, 0, wx.LEFT|wx.RIGHT, 5)
-            self.sizer.AddSpacer(2)            
         else:
             hsizer = wx.BoxSizer(wx.HORIZONTAL)
             slider = ZyneControlSlider(self, minValue, maxValue, value, size=(195,14), log=log, integer=integer, outFunction=callback)
@@ -800,7 +803,7 @@ class BasePanel(wx.Panel):
             hsizer.Add(slider, 0)
             hsizer.Add(button, 0, wx.LEFT|wx.TOP, 2)
             self.sizer.Add(hsizer, 0, wx.LEFT|wx.RIGHT, 5)
-            self.sizer.AddSpacer(2)
+        self.sizer.AddSpacer(2)
         self.sliders.append(slider)
         return slider
     
@@ -822,30 +825,6 @@ class BasePanel(wx.Panel):
         else:
             win = self.GetTopLevelParent()
             win.Hide()
-
-    def hoverCorner(self, evt):
-        if hasattr(self, "mute"):
-            if self.mute:
-                col = "#555555"
-            else:
-                col = "#0000CC"
-        else:
-            col = "#555555"
-        font = self.corner.GetFont()
-        font.SetWeight(wx.BOLD)
-        self.corner.SetFont(font)
-        self.corner.SetForegroundColour(col)
-    
-    def leaveCorner(self, evt):
-        if hasattr(self, "mute"):
-            if self.mute:
-                col = "#000000"
-            else:
-                col = "#0000EE"
-        else:
-            col = "#000000"
-        self.corner.SetFont(self.font)
-        self.corner.SetForegroundColour(col)
 
     def changeDelay(self, x):
         self.synth.amp.delay = x
@@ -940,6 +919,8 @@ class BasePanel(wx.Panel):
             else:
                 if i == 5:
                     val = random.uniform(.25, 1.5)
+                elif i in [1, 2, 4]:
+                    val = random.uniform(0.0, 4.0)                
                 else:
                     val = random.uniform(mini, maxi)
             slider.SetValue(val)
@@ -963,6 +944,8 @@ class BasePanel(wx.Panel):
                                 val **= 10.0
                                 val *= (maxi - mini)
                                 val += mini
+                            elif j in [1, 2, 4]:
+                                val = random.uniform(0.0, 4.0)                
                             else:
                                 val = random.uniform(mini, maxi)
                         slider.SetValue(val)
@@ -981,11 +964,8 @@ class BasePanel(wx.Panel):
             else:
                 if i == 5:
                     val = random.triangular(.25, 1.5)
-                elif i in [1, 2]:
-                    val = random.triangular(0, 1)
-                    val **= 10.0
-                    val *= (maxi - mini)
-                    val += mini
+                elif i in [1, 2, 4]:
+                    val = random.triangular(0.0, 4.0)
                 else:
                     val = random.triangular(mini, maxi)
             slider.SetValue(val)
@@ -1011,6 +991,8 @@ class BasePanel(wx.Panel):
                                 val **= 10.0
                                 val *= (maxi - mini)
                                 val += mini
+                            elif j in [1, 2, 4]:
+                                val = random.triangular(0.0, 4.0)                
                             else:
                                 val = random.triangular(mini, maxi)
                         slider.SetValue(val)
@@ -1027,11 +1009,8 @@ class BasePanel(wx.Panel):
             else:
                 if i == 5:
                     val = random.uniform(.25, 1.25)
-                elif i in [1, 2]:
-                    val = min([random.uniform(0, 1) for k in range(2)])
-                    val **= 10.0
-                    val *= (maxi - mini)
-                    val += mini
+                elif i in [1, 2, 4]:
+                    val = min([random.uniform(0.0, 4.0) for k in range(4)])
                 else:
                     val = min([random.uniform(mini, maxi) for k in range(4)])
             slider.SetValue(val)
@@ -1055,6 +1034,8 @@ class BasePanel(wx.Panel):
                                 val **= 10.0
                                 val *= (maxi - mini)
                                 val += mini
+                            elif j in [1, 2, 4]:
+                                val = min([random.uniform(0.0, 4.0) for k in range(4)])
                             else:
                                 val = min([random.uniform(mini, maxi) for k in range(4)])
                         slider.SetValue(val)
@@ -1098,6 +1079,9 @@ class GenericPanel(BasePanel):
     def __init__(self, parent, name, title, synth, p1, p2, p3):
         BasePanel.__init__(self, parent, name, title, synth, p1, p2, p3)
         self.mute = 1
+        self.corner.Bind(wx.EVT_LEFT_DOWN, self.MouseDownCorner)
+        self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
+        self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
         if p1[0] == "Transposition":
             self.sliderTranspo = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeTranspo, 1)
         else:
@@ -1110,7 +1094,7 @@ class GenericPanel(BasePanel):
             self.sliderTranspo = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeTranspo, 3)
         else:
             self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3, 3)
-        self.sliderPan = self.createSlider("Pan", .5, 0, 1, False, False, self.changePan, 4)
+        self.sliderPan = self.createSlider("Panning", .5, 0, 1, False, False, self.changePan, 4)
         if vars.constants["PLATFORM"] != "darwin":
             self.sizer.AddSpacer(2)
         self.SetSizerAndFit(self.sizer)    
@@ -1127,41 +1111,65 @@ class GenericPanel(BasePanel):
     def changeTranspo(self, x):
         self.synth._transpo.value = x
 
+    def hoverCorner(self, evt):
+        col = {0: "#0000CC", 1: "#555555", 2: "#FFAA00"}[self.mute]
+        font = self.corner.GetFont()
+        font.SetWeight(wx.BOLD)
+        self.corner.SetFont(font)
+        self.corner.SetForegroundColour(col)
+
+    def leaveCorner(self, evt):
+        col = {0: "#0000EE", 1: "#000000", 2: "#FF7700"}[self.mute]
+        self.corner.SetFont(self.font)
+        self.corner.SetForegroundColour(col)
+
     def MouseDownCorner(self, evt):
-        if self.mute:
-            self.mute = 0
-            self.corner.SetForegroundColour("#0000EE")
-            self.tmp_amplitude = self.sliderAmp.GetValue()
-            self.synth._lfo_amp.stop()
-            self.sliderAmp.SetValue(0.0001)
-            self.sliderAmp.Disable()
+        if evt.AltDown():
+            if self.mute <= 1:
+                self.setMute(2)
+            elif self.mute == 2:
+                self.setMute(1)
+                for module in self.GetTopLevelParent().modules:
+                    if module != self:
+                        module.setMute(1)
         else:
-            self.mute = 1
+            if self.mute:
+                self.setMute(0)
+            else:
+                self.setMute(1)
+        self.Refresh()
+
+    def setMute(self, mute):
+        if mute == 2:
+            for module in self.GetTopLevelParent().modules:
+                if module != self:
+                    module.setMute(0)
+            self.corner.SetForegroundColour("#FF7700")
+            self.synth._lfo_amp.play()
+            self.sliderAmp.SetValue(self.tmp_amplitude)
+            self.sliderAmp.Enable()
+        elif mute == 1:
             self.corner.SetForegroundColour("#000000")
             self.synth._lfo_amp.play()
             self.sliderAmp.SetValue(self.tmp_amplitude)
             self.sliderAmp.Enable()
-        self.Refresh()
-    
-    def setMute(self, mute):
-        self.mute = mute
-        if self.mute:
-            self.corner.SetForegroundColour("#000000")
-            self.synth._lfo_amp.play()
-            self.sliderAmp.SetValue(self.tmp_amplitude)
-        else:
+        elif mute == 0 and self.mute != 0:
             self.tmp_amplitude = self.sliderAmp.GetValue()
             self.corner.SetForegroundColour("#0000EE")
             self.synth._lfo_amp.stop()
             self.sliderAmp.SetValue(0.0001)
+            self.sliderAmp.Disable()
+        self.mute = mute
+        self.Refresh()
         
 class LFOPanel(BasePanel):
-    def __init__(self, parent, name, title, synth, p1, p2, p3, which):
+    def __init__(self, parent, name, title, synth, p1, p2, p3, p4, which):
         BasePanel.__init__(self, parent, name, title, synth, p1, p2, p3, from_lfo=True)
         self.which = which
         self.sliderP1 = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeP1)
         self.sliderP2 = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeP2)
         self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3)
+        self.sliderP4 = self.createSlider(p4[0], p4[1], p4[2], p4[3], p4[4], p4[5], self.changeP4)
         self.SetSizerAndFit(self.sizer) 
     
     def changeP1(self, x):
@@ -1183,6 +1191,12 @@ class LFOPanel(BasePanel):
             self.synth._params[self.which].setJitter(x)
         else:
             self.synth._params[self.which].lfo.setJitter(x)
+
+    def changeP4(self, x):
+        if self.which == 0:
+            self.synth._params[self.which].setSharp(x)
+        else:
+            self.synth._params[self.which].lfo.setSharp(x)
     
     def changeDelay(self, x):
         if self.which == 0:

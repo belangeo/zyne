@@ -158,7 +158,7 @@ class ZyneFrame(wx.Frame):
     def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(920,522)):
         wx.Frame.__init__(self, parent, id=-1, title=title, size=size)
         self.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, ord("\t"), vars.constants["ID"]["Select"]),
-                                                     (wx.ACCEL_CTRL, ord("\t"), vars.constants["ID"]["DeSelect"])]))
+                                                     (wx.ACCEL_SHIFT, ord("\t"), vars.constants["ID"]["DeSelect"])]))
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(vars.constants["ID"]["New"], 'New...\tCtrl+N', kind=wx.ITEM_NORMAL)
@@ -174,10 +174,17 @@ class ZyneFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onExport, id=vars.constants["ID"]["Export"])
         self.fileMenu.Append(vars.constants["ID"]["ExportChord"], 'Export as chords...\tShift+Ctrl+E', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onExport, id=vars.constants["ID"]["ExportChord"])
+        self.fileMenu.Append(vars.constants["ID"]["ExportTracks"], 'Export samples as separated tracks...\tCtrl+F', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onExport, id=vars.constants["ID"]["ExportTracks"])
+        self.fileMenu.Append(vars.constants["ID"]["ExportChordTracks"], 'Export chords as separated tracks...\tShift+Ctrl+F', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onExport, id=vars.constants["ID"]["ExportChordTracks"])
+        self.fileMenu.AppendSeparator()
         self.fileMenu.Append(vars.constants["ID"]["MidiLearn"], 'Midi learn mode\tShift+Ctrl+M', kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.onMidiLearnMode, id=vars.constants["ID"]["MidiLearn"])
         self.fileMenu.Append(vars.constants["ID"]["ResetKeyboard"], 'Reset virtual keyboard\tCtrl+Y', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onResetKeyboard, id=vars.constants["ID"]["ResetKeyboard"])
+        self.fileMenu.Append(vars.constants["ID"]["Retrig"], 'Retrig virtual notes\tCtrl+T', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onRetrig, id=vars.constants["ID"]["Retrig"])
         pref_item = self.fileMenu.Append(vars.constants["ID"]["Prefs"], 'Preferences...\tCtrl+,', 'Open Cecilia preferences pane', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=vars.constants["ID"]["Prefs"])
         self.fileMenu.AppendSeparator()
@@ -200,7 +207,7 @@ class ZyneFrame(wx.Frame):
         self.genMenu.AppendSeparator()
         self.genMenu.Append(vars.constants["ID"]["Select"], 'Tabulates selection\tTab', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.tabulate, id=vars.constants["ID"]["Select"])
-        self.genMenu.Append(vars.constants["ID"]["DeSelect"], 'Clear selection\tCtrl+Tab', kind=wx.ITEM_NORMAL)
+        self.genMenu.Append(vars.constants["ID"]["DeSelect"], 'Clear selection\tShift+Tab', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.clearSelection, id=vars.constants["ID"]["DeSelect"])
         self.genMenu.AppendSeparator()
         self.genMenu.Append(vars.constants["ID"]["Duplicate"], 'Duplicates selected module\tCtrl+D', kind=wx.ITEM_NORMAL)
@@ -414,6 +421,9 @@ class ZyneFrame(wx.Frame):
     def onResetKeyboard(self, evt):
         self.serverPanel.resetVirtualKeyboard()
 
+    def onRetrig(self, evt):
+        self.serverPanel.retrigVirtualNotes()
+
     def OnSize(self, evt):
         self.splitWindow.SetSashPosition(-80)
         self.setModulePostions()
@@ -503,12 +513,20 @@ class ZyneFrame(wx.Frame):
     def onExport(self, evt):
         if evt.GetId() == vars.constants["ID"]["Export"]:
             mode = "Samples"
-            title = "Export Samples..."
-            title2 = "Exporting Samples..."
-        elif evt.GetId() == vars.constants["ID"]["ExportChord"]:
-            mode = "Chords"
-            title = "Export Chords..."
-            title2 = "Exporting Chords..."
+            title = "Export samples..."
+            title2 = "Exporting samples..."
+            num_modules = 1
+        elif evt.GetId() in [vars.constants["ID"]["ExportChord"], vars.constants["ID"]["ExportChordTracks"]]:
+            if evt.GetId() == vars.constants["ID"]["ExportChord"]:            
+                mode = "Chords"
+                title = "Export chords..."
+                title2 = "Exporting chords..."
+                num_modules = 1
+            else:
+                mode = "ChordsTracks"
+                title = "Export chords as separated tracks..."
+                title2 = "Exporting chords as separated tracks..."
+                num_modules = len(self.modules)
             notes = self.keyboard.getNotes()
             if len(notes) == 0:
                 wx.LogMessage("Play some notes on the virtual keyboard before calling the export chords function!.")
@@ -518,6 +536,11 @@ class ZyneFrame(wx.Frame):
             min_pitch = min(midi_pitches)
             pitch_factors = [pit - min_pitch for pit in midi_pitches]
             amp_factors = [amp / 127.0 for amp in midi_velocities]
+        elif evt.GetId() == vars.constants["ID"]["ExportTracks"]:
+            mode = "Tracks"
+            title = "Export samples as separated tracks..."
+            title2 = "Exporting samples as separated tracks..."
+            num_modules = len(self.modules)
         dlg = SamplingDialog(self, title=title, size=(325,220))
         dlg.CenterOnParent()
         if dlg.ShowModal() == wx.ID_OK:
@@ -534,7 +557,7 @@ class ZyneFrame(wx.Frame):
             first = int(dlg.first.GetValue())
             last = int(dlg.last.GetValue())
             step = int(dlg.step.GetValue())
-            num_iter = len(range(first,last,step))
+            num_iter = len(range(first,last,step)) * num_modules
             vars.vars["NOTEONDUR"] = float(dlg.noteon.GetValue())
             duration = float(dlg.release.GetValue()) + vars.vars["NOTEONDUR"]
             ext = self.serverPanel.getExtensionFromFileFormat()
@@ -557,16 +580,36 @@ class ZyneFrame(wx.Frame):
                 elif mode == "Chords":
                     vars.vars["MIDIPITCH"] = [i + fac for fac in pitch_factors]
                     vars.vars["MIDIVELOCITY"] = amp_factors
-                self.setModulesAndParams(modules, params, lfo_params, ctl_params, True)
-                name = "%03d-%s.%s" % (i, filename, ext)
-                path = vars.vars["toSysEncoding"](os.path.join(subrootpath, name))
-                count += 1
-                (keepGoing, skip) = dlg2.Update(count, "Exporting %s" % name)
-                self.serverPanel.setRecordOptions(dur=duration, filename=path)
-                self.serverPanel.start()
-                self.deleteAllModules()
-                self.serverPanel.shutdown()
-                self.serverPanel.boot()
+                elif mode == "Tracks":
+                    vars.vars["MIDIPITCH"] = i
+                    vars.vars["MIDIVELOCITY"] = 0.707
+                elif mode == "ChordsTracks":
+                    vars.vars["MIDIPITCH"] = [i + fac for fac in pitch_factors]
+                    vars.vars["MIDIVELOCITY"] = amp_factors
+                if mode in ["Samples", "Chords"]:
+                    self.setModulesAndParams(modules, params, lfo_params, ctl_params, True)
+                    name = "%03d_%s.%s" % (i, filename, ext)
+                    path = vars.vars["toSysEncoding"](os.path.join(subrootpath, name))
+                    count += 1
+                    (keepGoing, skip) = dlg2.Update(count, "Exporting %s" % name)
+                    self.serverPanel.setRecordOptions(dur=duration, filename=path)
+                    self.serverPanel.start()
+                    self.deleteAllModules()
+                    self.serverPanel.shutdown()
+                    self.serverPanel.boot()
+                else:
+                    for j in range(num_modules):
+                        self.setModulesAndParams(modules, params, lfo_params, ctl_params, True)
+                        self.modules[j].setMute(2)
+                        name = "%03d_%s_track_%02d_%s.%s" % (i, filename, j, self.modules[j].name, ext)
+                        path = vars.vars["toSysEncoding"](os.path.join(subrootpath, name))
+                        count += 1
+                        (keepGoing, skip) = dlg2.Update(count, "Exporting %s" % name)
+                        self.serverPanel.setRecordOptions(dur=duration, filename=path)
+                        self.serverPanel.start()
+                        self.deleteAllModules()
+                        self.serverPanel.shutdown()
+                        self.serverPanel.boot()
             dlg2.Destroy()
             self.serverPanel.reinitServer(0.05, vars.vars["AUDIO_HOST"], serverSettings, postProcSettings)
             vars.vars["MIDIPITCH"] = None
@@ -685,7 +728,7 @@ class ZyneFrame(wx.Frame):
             module.Destroy()
         self.modules = []
         self.refreshOutputSignal()
-        self.keyboard.reset()
+        self.serverPanel.resetVirtualKeyboard()
         self.refresh()
     
     def refreshOutputSignal(self):
