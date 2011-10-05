@@ -829,8 +829,9 @@ class BasePanel(wx.Panel):
         del self.synth
         if not self.from_lfo:
             for frame in self.lfo_frames:
-                if frame.IsShown():
-                    frame.Hide()
+                if frame != None:
+                    if frame.IsShown():
+                        frame.Hide()
             self.GetTopLevelParent().deleteModule(self)
             self.Destroy()
         else:

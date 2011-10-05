@@ -579,7 +579,7 @@ class Panner(CtlBind):
     def __init__(self, parent, lfo_trigger, midi_metro):
         CtlBind.__init__(self)
         self.parent = parent
-        self.lfo_trigger = Clip(lfo_trigger*100., 0, 1)
+        self.lfo_trigger = Ceil(lfo_trigger)
         self._midi_metro = midi_metro
         self.lfo = LFOSynth(0.5, self.lfo_trigger, midi_metro)
         self.slider = SigTo(0.5, vars.vars["SLIDERPORT"], 0.5, add=self.lfo.sig())
@@ -722,6 +722,11 @@ class FmSynth(BaseSynth):
         self.filt1 = Biquadx(self.fm1+self.fm3, freq=self.p3, q=1, type=0, stages=2)
         self.filt2 = Biquadx(self.fm2+self.fm4, freq=self.p3, q=1, type=0, stages=2)
         self.out = Mix([self.filt1, self.filt2], voices=2)
+        self.pat = Pattern(self.pp, time=.1).play()
+        
+    def pp(self):
+        print self.panL.get(True)
+
 
 class AddSynth(BaseSynth):
     def __init__(self, config):
