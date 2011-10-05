@@ -314,6 +314,7 @@ class ZyneFrame(wx.Frame):
                 slider.outFunction(param)
             self.modules[-1].reinitLFOS(lfo_params, ctl_binding=False)
             self.refresh()
+            wx.CallAfter(self.SetFocus)
 
     def onRun(self, evt):
         state = self.serverPanel.onOff.GetValue()
