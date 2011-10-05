@@ -1137,21 +1137,21 @@ class Keyboard(wx.Panel):
         dc.DrawRectangleRect(wx.Rect(w-14, 0, 14, h))
         
         dc.SetTextForeground("#000000")
-        dc.DrawText("off", self.offRec[0]+3, 10)
+        dc.DrawText("off", self.offRec[0]+3, 15)
         x1, y1 = self.offRec[0], self.offRec[1]
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
-        dc.DrawPolygon([wx.Point(x1+3,32), wx.Point(x1+10,25), wx.Point(x1+17,32)])
-        self.offUpRec = wx.Rect(x1, 24, x1+20, 10)
-        dc.DrawPolygon([wx.Point(x1+3,51), wx.Point(x1+10,58), wx.Point(x1+17,51)])
-        self.offDownRec = wx.Rect(x1, 50, x1+20, 10)
-        dc.DrawText("%d" % (self.offset/12), x1+7, 36)
+        dc.DrawPolygon([wx.Point(x1+3,37), wx.Point(x1+10,30), wx.Point(x1+17,37)])
+        self.offUpRec = wx.Rect(x1, 29, x1+20, 10)
+        dc.DrawPolygon([wx.Point(x1+3,56), wx.Point(x1+10,63), wx.Point(x1+17,56)])
+        self.offDownRec = wx.Rect(x1, 55, x1+20, 10)
+        dc.DrawText("%d" % (self.offset/12), x1+7, 41)
     
         if self.hold:
             dc.SetTextForeground("#0000CC")
         else:
             dc.SetTextForeground("#000000")
         for i, char in enumerate("HOLD"):
-            dc.DrawText(char, self.holdRec[0]+6, self.holdRec[3]/6*i+10)
+            dc.DrawText(char, self.holdRec[0]+7, self.holdRec[3]/6*i+15)
         
         dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
         dc.SetPen(wx.Pen(BACKGROUND_COLOUR, width=1, style=wx.SOLID))
