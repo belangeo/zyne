@@ -1140,10 +1140,17 @@ class Keyboard(wx.Panel):
         dc.DrawText("off", self.offRec[0]+3, 15)
         x1, y1 = self.offRec[0], self.offRec[1]
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
-        dc.DrawPolygon([wx.Point(x1+3,36), wx.Point(x1+10,29), wx.Point(x1+17,36)])
-        self.offUpRec = wx.Rect(x1, 28, x1+20, 10)
-        dc.DrawPolygon([wx.Point(x1+3,55), wx.Point(x1+10,62), wx.Point(x1+17,55)])
-        self.offDownRec = wx.Rect(x1, 54, x1+20, 10)
+        if vars.constants["PLATFORM"] == "darwin":
+            dc.DrawPolygon([wx.Point(x1+3,36), wx.Point(x1+10,29), wx.Point(x1+17,36)])
+            self.offUpRec = wx.Rect(x1, 28, x1+20, 10)
+            dc.DrawPolygon([wx.Point(x1+3,55), wx.Point(x1+10,62), wx.Point(x1+17,55)])
+            self.offDownRec = wx.Rect(x1, 54, x1+20, 10)
+        else:
+            dc.DrawPolygon([wx.Point(x1+3,38), wx.Point(x1+10,31), wx.Point(x1+17,38)])
+            self.offUpRec = wx.Rect(x1, 30, x1+20, 10)
+            dc.DrawPolygon([wx.Point(x1+3,57), wx.Point(x1+10,64), wx.Point(x1+17,57)])
+            self.offDownRec = wx.Rect(x1, 56, x1+20, 10)
+            
         dc.DrawText("%d" % (self.offset/12), x1+7, 41)
     
         if self.hold:
