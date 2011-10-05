@@ -1094,7 +1094,6 @@ class Keyboard(wx.Panel):
         dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
 
-        font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
         if vars.constants["PLATFORM"] == "darwin":
             dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.BOLD))
         else:
