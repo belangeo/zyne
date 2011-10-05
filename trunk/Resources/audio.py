@@ -715,18 +715,13 @@ class FmSynth(BaseSynth):
         self.norm_amp = self.amp * 0.1
         self.leftamp = self.norm_amp*self.panL
         self.rightamp = self.norm_amp*self.panR
-        self.fm1 = FM(carrier=self.pitch, ratio=self.p1, index=self.indexLine*self.indexrnd[0], mul=self.leftamp).mix()
-        self.fm2 = FM(carrier=self.pitch*.997, ratio=self.p1, index=self.indexLine*self.indexrnd[1], mul=self.rightamp).mix()
-        self.fm3 = FM(carrier=self.pitch*.995, ratio=self.p1, index=self.indexLine*self.indexrnd[2], mul=self.leftamp).mix()
-        self.fm4 = FM(carrier=self.pitch*1.002, ratio=self.p1, index=self.indexLine*self.indexrnd[3], mul=self.rightamp).mix()
-        self.filt1 = Biquadx(self.fm1+self.fm3, freq=self.p3, q=1, type=0, stages=2)
-        self.filt2 = Biquadx(self.fm2+self.fm4, freq=self.p3, q=1, type=0, stages=2)
+        self.fm1 = FM(carrier=self.pitch, ratio=self.p1, index=self.indexLine*self.indexrnd[0], mul=self.leftamp)
+        self.fm2 = FM(carrier=self.pitch*.997, ratio=self.p1, index=self.indexLine*self.indexrnd[1], mul=self.rightamp)
+        self.fm3 = FM(carrier=self.pitch*.995, ratio=self.p1, index=self.indexLine*self.indexrnd[2], mul=self.leftamp)
+        self.fm4 = FM(carrier=self.pitch*1.002, ratio=self.p1, index=self.indexLine*self.indexrnd[3], mul=self.rightamp)
+        self.filt1 = Biquadx(self.fm1+self.fm3, freq=self.p3, q=1, type=0, stages=2).mix()
+        self.filt2 = Biquadx(self.fm2+self.fm4, freq=self.p3, q=1, type=0, stages=2).mix()
         self.out = Mix([self.filt1, self.filt2], voices=2)
-        self.pat = Pattern(self.pp, time=.1).play()
-        
-    def pp(self):
-        print self.panL.get(True)
-
 
 class AddSynth(BaseSynth):
     def __init__(self, config):
@@ -740,7 +735,7 @@ class AddSynth(BaseSynth):
         self.sine2 = SineLoop(freq=self.pitch*self.fac[1], feedback=self.p3*self.feedrnd[1], mul=self.rightamp).mix()
         self.sine3 = SineLoop(freq=self.pitch*self.fac[2], feedback=self.p3*self.feedrnd[2], mul=self.leftamp).mix()
         self.sine4 = SineLoop(freq=self.pitch*self.fac[3], feedback=self.p3*self.feedrnd[3], mul=self.rightamp).mix()
-        self.out = Mix([self.sine1+self.sine2+self.sine3+self.sine4], voices=2)
+        self.out = Mix([self.sine1, self.sine2, self.sine3, self.sine4], voices=2)
 
 class WindSynth(BaseSynth):
     def __init__(self, config):
@@ -826,12 +821,12 @@ class Ross(BaseSynth):
         self.norm_amp = self.amp * 0.3
         self.leftamp = self.norm_amp*self.panL
         self.rightamp = self.norm_amp*self.panR
-        self.ross1 = Rossler(pitch=self.rosspit*self.deviation[0], chaos=self.p1, stereo=True, mul=self.leftamp).mix()
-        self.ross2 = Rossler(pitch=self.rosspit*self.deviation[1], chaos=self.p1, stereo=True, mul=self.rightamp).mix()
+        self.ross1 = Rossler(pitch=self.rosspit*self.deviation[0], chaos=self.p1, stereo=True, mul=self.leftamp)
+        self.ross2 = Rossler(pitch=self.rosspit*self.deviation[1], chaos=self.p1, stereo=True, mul=self.rightamp)
         self.eq1 = EQ(self.ross1, freq=260, q=25, boost=-12)
         self.eq2 = EQ(self.ross2, freq=260, q=25, boost=-12)
-        self.filt1 = Biquad(self.eq1, freq=self.p3)
-        self.filt2 = Biquad(self.eq2, freq=self.p3)
+        self.filt1 = Biquad(self.eq1, freq=self.p3).mix()
+        self.filt2 = Biquad(self.eq2, freq=self.p3).mix()
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 class Wave(BaseSynth):
@@ -846,7 +841,7 @@ class Wave(BaseSynth):
         self.wav2 = LFO(freq=self.pitch*.997, sharp=self.p3, type=0, mul=self.rightamp)
         self.wav3 = LFO(freq=self.pitch*1.002, sharp=self.p3, type=0, mul=self.leftamp)
         self.wav4 = LFO(freq=self.pitch*1.0045, sharp=self.p3, type=0, mul=self.rightamp)
-        self.out = Mix([self.wav1.mix(),self.wav2.mix(),self.wav3.mix(),self.wav4.mix()], voices=2)
+        self.out = Mix([self.wav1.mix(), self.wav2.mix(), self.wav3.mix(), self.wav4.mix()], voices=2)
     
     def changeWave(self):
         typ = int(self.p1.get())
@@ -875,10 +870,11 @@ class Reson(BaseSynth):
         self.excite = Noise(.02)
         self.leftamp = self.amp*self.panL
         self.rightamp = self.amp*self.panR
-        self.wave1 = Waveguide(self.excite, freq=self.pitch*self.deviation[0], dur=30, minfreq=1, mul=self.leftamp).mix()
-        self.wave2 = Waveguide(self.excite, freq=self.pitch*self.deviation[1], dur=30, minfreq=1, mul=self.rightamp).mix()
-        self.mix = Mix([self.wave1, self.wave2], voices=2)
-        self.out = Biquad(self.mix, freq=self.p3)
+        self.wave1 = Waveguide(self.excite, freq=self.pitch*self.deviation[0], dur=30, minfreq=1, mul=self.leftamp)
+        self.wave2 = Waveguide(self.excite, freq=self.pitch*self.deviation[1], dur=30, minfreq=1, mul=self.rightamp)
+        self.filt1 = Biquad(self.wave1, freq=self.p3).mix()
+        self.filt2 = Biquad(self.wave2, freq=self.p3).mix()
+        self.out = Mix([self.filt1, self.filt2], voices=2)
 
 def checkForCustomModules():
     path = ""
