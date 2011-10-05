@@ -906,7 +906,7 @@ class Keyboard(wx.Panel):
         self.w2 = self.w1 / 2 + 1
         self.hold = 1
         self.keyPressed = None
-        self.offset = 0
+        self.offset = 12
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
