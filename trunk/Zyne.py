@@ -698,6 +698,7 @@ class ZyneFrame(wx.Frame):
         dic = MODULES[name]
         self.modules.append(GenericPanel(self.panel, name, dic["title"], dic["synth"], dic["p1"], dic["p2"], dic["p3"]))
         self.addModule(self.modules[-1])
+        wx.CallAfter(self.SetFocus)
     
     def addModule(self, mod):
         w, h = self.GetSize()

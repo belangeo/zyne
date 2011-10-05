@@ -809,7 +809,7 @@ class BasePanel(wx.Panel):
             self.buttons[i] = button
             self.lfo_frames[i] = lfo_frame
             hsizer.Add(slider, 0)
-            hsizer.Add(button, 0, wx.LEFT|wx.TOP, 1)
+            hsizer.Add(button, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 2)
             self.sizer.Add(hsizer, 0, wx.LEFT|wx.RIGHT, 5)
         self.sizer.AddSpacer(2)
         self.sliders.append(slider)
