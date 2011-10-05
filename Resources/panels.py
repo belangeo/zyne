@@ -828,6 +828,9 @@ class BasePanel(wx.Panel):
     def MouseDown(self, evt):
         del self.synth
         if not self.from_lfo:
+            for frame in self.lfo_frames:
+                if frame.IsShown():
+                    frame.Hide()
             self.GetTopLevelParent().deleteModule(self)
             self.Destroy()
         else:
