@@ -1095,9 +1095,9 @@ class Keyboard(wx.Panel):
         dc.DrawRectangle(0, 0, w, h)
 
         if vars.constants["PLATFORM"] == "darwin":
-            dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.BOLD))
+            dc.SetFont(wx.Font(12, wx.ROMAN, wx.NORMAL, wx.BOLD))
         else:
-            dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.BOLD))
+            dc.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.BOLD))
 
         for i, rec in enumerate(self.whiteKeys):
             if i in self.whiteSelected:
@@ -1140,10 +1140,10 @@ class Keyboard(wx.Panel):
         dc.DrawText("off", self.offRec[0]+3, 15)
         x1, y1 = self.offRec[0], self.offRec[1]
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
-        dc.DrawPolygon([wx.Point(x1+3,37), wx.Point(x1+10,30), wx.Point(x1+17,37)])
-        self.offUpRec = wx.Rect(x1, 29, x1+20, 10)
-        dc.DrawPolygon([wx.Point(x1+3,56), wx.Point(x1+10,63), wx.Point(x1+17,56)])
-        self.offDownRec = wx.Rect(x1, 55, x1+20, 10)
+        dc.DrawPolygon([wx.Point(x1+3,36), wx.Point(x1+10,29), wx.Point(x1+17,36)])
+        self.offUpRec = wx.Rect(x1, 28, x1+20, 10)
+        dc.DrawPolygon([wx.Point(x1+3,55), wx.Point(x1+10,62), wx.Point(x1+17,55)])
+        self.offDownRec = wx.Rect(x1, 54, x1+20, 10)
         dc.DrawText("%d" % (self.offset/12), x1+7, 41)
     
         if self.hold:
@@ -1151,7 +1151,7 @@ class Keyboard(wx.Panel):
         else:
             dc.SetTextForeground("#000000")
         for i, char in enumerate("HOLD"):
-            dc.DrawText(char, self.holdRec[0]+7, self.holdRec[3]/6*i+15)
+            dc.DrawText(char, self.holdRec[0]+6, self.holdRec[3]/6*i+15)
         
         dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
         dc.SetPen(wx.Pen(BACKGROUND_COLOUR, width=1, style=wx.SOLID))
