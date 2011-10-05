@@ -506,7 +506,8 @@ class LFOSynth(CtlBind):
         self.speed = SigTo(4, vars.vars["SLIDERPORT"], 4)
         self.jitter = SigTo(0, vars.vars["SLIDERPORT"], 0)
         self.freq = Randi(min=1-self.jitter, max=1+self.jitter, freq=1, mul=self.speed)
-        self.lfo = LFO(freq=self.freq, sharp=.9, type=3, mul=self.amp).stop()
+        self.lfo = LFO(freq=self.freq, sharp=.9, type=3).stop()
+        self.sigout = Sig(self.lfo * self.amp).stop()
     
     def play(self):
         self.rawamp.play()
@@ -515,6 +516,7 @@ class LFOSynth(CtlBind):
         self.jitter.play()
         self.freq.play()
         self.lfo.play()
+        self.sigout.play()
     
     def stop(self):
         self.rawamp.stop()
@@ -523,9 +525,10 @@ class LFOSynth(CtlBind):
         self.jitter.stop()
         self.freq.stop()
         self.lfo.stop()
+        self.sigout.stop()
     
     def sig(self):
-        return self.lfo
+        return self.sigout
     
     def setSpeed(self, x):
         self.speed.value = x
@@ -778,7 +781,7 @@ class SawMod(BaseSynth):
         self.table = SawTable(order=10, size=2048)
         self.change = Change(self.p1)
         self.trigChange = TrigFunc(self.change, function=self.changeOrder)
-        self.lfo = Osc(table=self.table, freq=self.p2, mul=self.p3*.0707, add=.0707)
+        self.lfo = Osc(table=self.table, freq=self.p2, mul=self.p3*.1, add=.1)
         self.norm_amp = self.amp * self.lfo
         self.leftamp = self.norm_amp*self.panL
         self.rightamp = self.norm_amp*self.panR
