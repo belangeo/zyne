@@ -58,6 +58,26 @@ MODULES =   {
                     "p2": ["Chorus Depth", .001, .001, .125, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
                     },
+            # "Particle": { "title": "--- Particle generator ---", "synth": Particle, 
+            #         "p1": ["Density", 10, 0.01, 20, False, True],
+            #         "p2": ["Duration", .05, .001, .5, False, True],
+            #         "p3": ["Filter Q", 5, 1, 100, False, True]
+            #         },
+            "CrossFM": { "title": "--- Frequency Modulation ---", "synth": CrossFmSynth, 
+                    "p1": ["FM Ratio", .25, 0, 4, False, False],
+                    "p2": ["FM Index 1", 2, 0, 40, False, False],
+                    "p3": ["FM Index 2", 2, 0, 40, False, False],
+                    },
+            "OTReson": { "title": "--- Out of tune Resonators ---", "synth": OTReson, 
+                    "p1": ["Transposition", 0, -36, 36, True, False],
+                    "p2": ["Detune", .01, .0001, 1, False, True],
+                    "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
+                    },
+            "InfiniteRev": { "title": "--- Infinite Reverb ---", "synth": InfiniteRev, 
+                    "p1": ["Transposition", 0, -36, 36, True, False],
+                    "p2": ["Brightness", 5, 0, 100, True, False],
+                    "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
+                    },
             }
 
 LFO_CONFIG =    {
@@ -484,7 +504,8 @@ class ServerPanel(wx.Panel):
     def handleAudio(self, evt):
         popups = [self.popupDriver, self.popupInterface, self.popupSr, self.popupPoly, self.popupBit, self.popupFormat]
         menuIds = [vars.constants["ID"]["New"], vars.constants["ID"]["Open"], vars.constants["ID"]["MidiLearn"], 
-                   vars.constants["ID"]["Export"], vars.constants["ID"]["Quit"]]
+                   vars.constants["ID"]["Export"], vars.constants["ID"]["ExportChord"], vars.constants["ID"]["ExportTracks"], 
+                   vars.constants["ID"]["ExportChordTracks"], vars.constants["ID"]["Quit"]]
         if evt.GetInt() == 1:
             for popup in popups:
                 popup.Disable()

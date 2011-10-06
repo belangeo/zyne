@@ -360,8 +360,12 @@ class ZyneFrame(wx.Frame):
         self.moduleNames = sorted(MODULES.keys())
         id = vars.constants["ID"]["Modules"]
         for i, name in enumerate(self.moduleNames):
-            self.addMenu.Append(id, 'Add %s module\tCtrl+%d' % (name, ((i+1)%10)), kind=wx.ITEM_NORMAL)
-            self.Bind(wx.EVT_MENU, self.onAddModule, id=id)
+            if i < 10:
+                self.addMenu.Append(id, 'Add %s module\tCtrl+%d' % (name, ((i+1)%10)), kind=wx.ITEM_NORMAL)
+                self.Bind(wx.EVT_MENU, self.onAddModule, id=id)
+            else:
+                self.addMenu.Append(id, 'Add %s module\tShift+Ctrl+%d' % (name, ((i+1)%10)), kind=wx.ITEM_NORMAL)
+                self.Bind(wx.EVT_MENU, self.onAddModule, id=id)
             id += 1
         if vars.vars["EXTERNAL_MODULES"] != {}:
             self.addMenu.AppendSeparator()

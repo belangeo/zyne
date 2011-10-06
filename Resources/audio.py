@@ -879,6 +879,80 @@ class Reson(BaseSynth):
         self.filt2 = Biquad(self.wave2, freq=self.p3).mix()
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
+# class Particle(BaseSynth):
+#     def __init__(self, config):
+#         BaseSynth.__init__(self, config, mode=1)
+#         num = len(self.p1)
+#         self.table = CosTable([(0,0), (100,1), (500,.5), (3000,.25), (8191,0)])
+#         self.cloud = [Cloud(self.p1[i], poly=4).play() for i in range(num)]
+#         self.env = [TrigEnv(self.cloud[i], self.table, self.p2[i]) for i in range(num)]
+#         self.src = Noise()
+#         self.leftamp = self.amp*self.panL
+#         self.rightamp = self.amp*self.panR
+#         self.rndfreq1 = [TrigRand(self.cloud[i], min=.85, max=1.25, port=.005, init=1, 
+#                         mul=self.pitch[i]*2) for i in range(num)]
+#         self.filters1 = [Biquadx(self.src, freq=self.rndfreq1, q=self.p3[i], type=2, 
+#                         mul=self.env[i]*self.leftamp[i]).mix() for i in range(num)]
+#         self.rndfreq2 = [TrigRand(self.cloud[i], min=.85, max=1.25, port=.005, init=1, 
+#                         mul=self.pitch[i]*2) for i in range(num)]
+#         self.filters2 = [Biquadx(self.src, freq=self.rndfreq2, q=self.p3[i], type=2, 
+#                         mul=self.env[i]*self.rightamp[i]).mix() for i in range(num)]
+#         self.mixL = Mix(self.filters1, voices=1)
+#         self.mixR = Mix(self.filters2, voices=1)
+#         self.out = Mix([self.mixL, self.mixR], voices=2)
+
+class CrossFmSynth(BaseSynth):
+    def __init__(self, config):
+        BaseSynth.__init__(self, config,  mode=1)
+        self.indexLine = self.amp * self.p2
+        self.indexrnd = Randi(min=.95, max=1.05, freq=[random.uniform(.5,2) for i in range(4)])
+        self.indexLine2 = self.amp * self.p3
+        self.indexrnd2 = Randi(min=.95, max=1.05, freq=[random.uniform(.5,2) for i in range(4)])
+        self.norm_amp = self.amp * 0.1
+        self.leftamp = self.norm_amp*self.panL
+        self.rightamp = self.norm_amp*self.panR
+        self.fm1 = CrossFM(carrier=self.pitch, ratio=self.p1, ind1=self.indexLine*self.indexrnd[0], 
+                            ind2=self.indexLine2*self.indexrnd2[0], mul=self.leftamp).mix()
+        self.fm2 = CrossFM(carrier=self.pitch*.997, ratio=self.p1, ind1=self.indexLine*self.indexrnd[1], 
+                            ind2=self.indexLine2*self.indexrnd2[1], mul=self.rightamp).mix()
+        self.fm3 = CrossFM(carrier=self.pitch*.995, ratio=self.p1, ind1=self.indexLine*self.indexrnd[2], 
+                            ind2=self.indexLine2*self.indexrnd2[2], mul=self.leftamp).mix()
+        self.fm4 = CrossFM(carrier=self.pitch*1.002, ratio=self.p1, ind1=self.indexLine*self.indexrnd[3], 
+                            ind2=self.indexLine2*self.indexrnd2[3], mul=self.rightamp).mix()
+        self.filt1 = Biquad(self.fm1+self.fm3, freq=5000, q=1, type=0)
+        self.filt2 = Biquad(self.fm2+self.fm4, freq=5000, q=1, type=0)
+        self.out = Mix([self.filt1, self.filt2], voices=2)
+
+class OTReson(BaseSynth):
+    def __init__(self, config):
+        BaseSynth.__init__(self, config, mode=1)
+        self.excite = Noise(.02)
+        self.leftamp = self.amp*self.panL
+        self.rightamp = self.amp*self.panR
+        self.wave1 = AllpassWG(self.excite, freq=self.pitch, feed=1, detune=self.p2, minfreq=1, mul=self.leftamp)
+        self.wave2 = AllpassWG(self.excite, freq=self.pitch*.999, feed=1, detune=self.p2, minfreq=1, mul=self.rightamp)
+        self.filt1 = Biquad(self.wave1, freq=self.p3).mix()
+        self.filt2 = Biquad(self.wave2, freq=self.p3).mix()
+        self.out = Mix([self.filt1, self.filt2], voices=2)
+
+class InfiniteRev(BaseSynth):
+    def __init__(self, config):
+        BaseSynth.__init__(self, config, mode=1)
+        self.table = CosTable([(0,0), (4000,1), (8191,0)])
+        self.feedtrig = Ceil(self.amp)
+        self.feedadsr = MidiAdsr(self.feedtrig, .0001, 0.0, 1.0, 4.0)
+        self.env = TrigEnv(self.trig, self.table, dur=.25, mul=.2)
+        self.src1 = SineLoop(freq=self.pitch, feedback=self.p2*0.0025, mul=self.env)
+        self.src2 = SineLoop(freq=self.pitch*1.002, feedback=self.p2*0.0025, mul=self.env)
+        self.excite = self.src1+self.src2
+        self.leftamp = self.amp*self.panL
+        self.rightamp = self.amp*self.panR
+        self.rev1 = WGVerb(self.excite, feedback=self.feedadsr, cutoff=15000, mul=self.leftamp)
+        self.rev2 = WGVerb(self.excite, feedback=self.feedadsr, cutoff=15000, mul=self.rightamp)
+        self.filt1 = Biquad(self.rev1, freq=self.p3).mix()
+        self.filt2 = Biquad(self.rev2, freq=self.p3).mix()
+        self.out = Mix([self.filt1, self.filt2], voices=2)
+
 def checkForCustomModules():
     path = ""
     preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
