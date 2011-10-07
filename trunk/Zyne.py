@@ -7,6 +7,7 @@ from Resources.preferences import PreferencesDialog
 from Resources.splash import ZyneSplashScreen
 import wx.richtext as rt
 import Resources.audio as audio
+import Resources.tutorial as tutorial
 
 class TutorialFrame(wx.Frame):
     def __init__(self, *args, **kw):
@@ -36,7 +37,7 @@ class TutorialFrame(wx.Frame):
         self.rtc.EndFontSize()
         self.rtc.EndBold()
         self.rtc.Newline()
-        lines = audio.__doc__.splitlines(True)
+        lines = tutorial.__doc__.splitlines(True)
         section_count = 1
         for line in lines:
             if line.count("----") == 2:
@@ -310,6 +311,7 @@ class ZyneFrame(wx.Frame):
     def updateAddModuleMenu(self, evt):
         for mod in MODULES.keys():
              if mod in vars.vars["EXTERNAL_MODULES"]:
+                 del MODULES[mod]["synth"]
                  del MODULES[mod]
         items = self.addMenu.GetMenuItems()
         for item in items:
@@ -318,6 +320,8 @@ class ZyneFrame(wx.Frame):
         self.buildAddModuleMenu()
         modules, params, lfo_params, ctl_params = self.getModulesAndParams()
         self.deleteAllModules()
+        self.serverPanel.shutdown()
+        self.serverPanel.boot()
         self.setModulesAndParams(modules, params, lfo_params, ctl_params)
     
     def buildAddModuleMenu(self):

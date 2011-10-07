@@ -138,15 +138,15 @@ class HelpFrame(wx.Frame):
         self.rtc.EndSuppressUndo()
         self.rtc.Thaw()
 
-        num_lines = self.rtc.GetNumberOfLines()
-        length = 0
-        for i in range(num_lines):
-            l = self.rtc.GetLineLength(i)
-            if l > length:
-                length = l
-        pixelsize = self.rtc.GetFont().GetPixelSize()
-        X, Y = length * pixelsize[0], num_lines * pixelsize[1]
-        wx.CallAfter(self.SetSize, (int(X/1.5), Y+100))
+        # num_lines = self.rtc.GetNumberOfLines()
+        # length = 0
+        # for i in range(num_lines):
+        #     l = self.rtc.GetLineLength(i)
+        #     if l > length:
+        #         length = l
+        # pixelsize = self.rtc.GetFont().GetPixelSize()
+        # X, Y = length * pixelsize[0], num_lines * pixelsize[1]
+        # wx.CallAfter(self.SetSize, (int(X/1.5), Y+100))
 
     def onClose(self, evt):
         self.Destroy()
@@ -1003,9 +1003,9 @@ class GenericPanel(BasePanel):
 
     def MouseDownInfo(self, evt):
         if self.synth.__doc__ != None:
-            lines = [line for line in self.synth.__doc__.splitlines(True) if line != "\n"]
-            win = HelpFrame(self, -1, title="Module info", size=(400, 350), 
-                            subtitle="Info about %s module." % self.name, lines=lines)
+            lines = [vars.vars["ensureNFD"](line) for line in self.synth.__doc__.splitlines(True) if line != "\n"]
+            win = HelpFrame(self, -1, title="Module info", size=(600, 450), 
+                            subtitle=vars.vars["ensureNFD"]("Info about %s module." % self.name), lines=lines)
             win.CenterOnParent()
             win.Show(True)
         else:
