@@ -345,8 +345,8 @@ class ZyneFrame(wx.Frame):
                 MODULES.update(vars.vars["EXTERNAL_MODULES"].items())
                 id += 1
             self.addMenu.AppendSeparator()
-            self.addMenu.Append(id, "Update Modules", kind=wx.ITEM_NORMAL)
-            self.Bind(wx.EVT_MENU, self.updateAddModuleMenu, id=id)
+            self.addMenu.Append(vars.constants["ID"]["UpdateModules"], "Update Modules\tCtrl+U", kind=wx.ITEM_NORMAL)
+            self.Bind(wx.EVT_MENU, self.updateAddModuleMenu, id=vars.constants["ID"]["UpdateModules"])
     
     def openMidiLearnHelp(self, evt):
         lines = []

@@ -3,7 +3,7 @@
 
 import wx, sys, os
 
-def GetRoundBitmap( w, h, r ):
+def GetRoundBitmap(w, h, r=10):
     maskColor = wx.Color(0,0,0)
     shownColor = wx.Color(5,5,5)
     b = wx.EmptyBitmap(w,h)
@@ -17,7 +17,7 @@ def GetRoundBitmap( w, h, r ):
     b.SetMaskColour(maskColor)
     return b
 
-def GetRoundShape( w, h, r ):
+def GetRoundShape(w, h, r=10):
     return wx.RegionFromBitmap(GetRoundBitmap(w,h,r))
 
 class ZyneSplashScreen(wx.Frame):
@@ -31,8 +31,8 @@ class ZyneSplashScreen(wx.Frame):
         
         self.mainframe = mainframe
         self.bmp = wx.Bitmap(os.path.join(img), wx.BITMAP_TYPE_PNG)
-        w, h = self.bmp.GetWidth(), self.bmp.GetHeight()
-        self.SetClientSize((w, h))
+        self.w, self.h = self.bmp.GetWidth(), self.bmp.GetHeight()
+        self.SetClientSize((self.w, self.h))
 
         if wx.Platform == "__WXGTK__":
             self.Bind(wx.EVT_WINDOW_CREATE, self.SetWindowShape)
@@ -51,7 +51,7 @@ class ZyneSplashScreen(wx.Frame):
         self.Show(True)
         
     def SetWindowShape(self, *evt):
-        r = GetRoundShape(350,350,10)
+        r = GetRoundShape(self.w, self.h)
         self.hasShape = self.SetShape(r)
 
     def OnPaint(self, evt):
