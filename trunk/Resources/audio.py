@@ -51,7 +51,7 @@ Attributes :
                 Useful to trig an envelope or a sound at the beginning of a note.
     self.p1, self.p2, self.p3 : User-defined slider's values.
     self.module_path : Path of the "custom modules" folder if set in the preferences panel.
-    self.export_path : Path of the "exported sounds" folder.
+    self.export_path : Path of the "exported sounds" folder if set in the preferences panel.
 
 
 MODULES = {module_name : {  "title" : title_to_be_displayed,
@@ -125,7 +125,7 @@ self.out : This variable must be the object that send the sound to the output. A
             must be mixed in the self.out variable, which will then be sent to the post-processing
             effects and finally to the soundcard.
 self.module_path : Path of the "custom modules" folder if set in the preferences panel.
-self.export_path : Path of the "exported sounds"" folder.
+self.export_path : Path of the "exported sounds"" folder if set in the preferences panel.
 
 To minimise conflicts between variable's names, all other variables used in the class "BaseSynth" 
 begin with an underscore. If you don't use this syntax in your custom classes, you will avoid to
@@ -713,10 +713,14 @@ class BaseSynth:
 class FmSynth(BaseSynth):
     """
     Simple frequency modulation synthesis.
-    
-    FM Ratio : Ratio between carrier frequency and modulation frequency.
-    FM Index : Modulation index.
-    Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+
+    Author : Olivier Bélanger - 2011
+
+    Parameters:
+
+        FM Ratio : Ratio between carrier frequency and modulation frequency.
+        FM Index : Modulation index.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
     
     """
     def __init__(self, config):
