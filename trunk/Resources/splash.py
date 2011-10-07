@@ -51,7 +51,7 @@ class ZyneSplashScreen(wx.Frame):
         self.Show(True)
         
     def SetWindowShape(self, *evt):
-        r = GetRoundShape(500,500,10)
+        r = GetRoundShape(350,350,10)
         self.hasShape = self.SetShape(r)
 
     def OnPaint(self, evt):
