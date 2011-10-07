@@ -711,6 +711,14 @@ class BaseSynth:
             del self.__dict__[key]
 
 class FmSynth(BaseSynth):
+    """
+    Simple frequency modulation synthesis.
+    
+    FM Ratio : Ratio between carrier frequency and modulation frequency.
+    FM Index : Modulation index.
+    Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config,  mode=1)
         self.indexLine = self.amp * self.p2

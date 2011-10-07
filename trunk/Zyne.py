@@ -4,44 +4,9 @@ import wx, os, sys
 import Resources.variables as vars
 from Resources.panels import *
 from Resources.preferences import PreferencesDialog
+from Resources.splash import ZyneSplashScreen
 import wx.richtext as rt
 import Resources.audio as audio
-
-class HelpFrame(wx.Frame):
-    def __init__(self, parent, id, title, size, subtitle, lines):
-        wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
-        self.menubar = wx.MenuBar()
-        self.fileMenu = wx.Menu()
-        self.fileMenu.Append(vars.constants["ID"]["CloseHelp"], 'Close...\tCtrl+W', kind=wx.ITEM_NORMAL)
-        self.Bind(wx.EVT_MENU, self.onClose, id=vars.constants["ID"]["CloseHelp"])
-        self.menubar.Append(self.fileMenu, "&File")
-        self.SetMenuBar(self.menubar)
-    
-        self.rtc = rt.RichTextCtrl(self, style=wx.VSCROLL|wx.HSCROLL|wx.NO_BORDER)
-        self.rtc.SetEditable(False)
-        wx.CallAfter(self.rtc.SetFocus)
-    
-        self.rtc.Freeze()
-        self.rtc.BeginSuppressUndo()
-        self.rtc.BeginParagraphSpacing(0, 20)
-        self.rtc.BeginBold()
-        if vars.constants["PLATFORM"] == "linux2":
-            self.rtc.BeginFontSize(12)
-        else:
-            self.rtc.BeginFontSize(16)
-        self.rtc.WriteText(subtitle)
-        self.rtc.EndFontSize()
-        self.rtc.EndBold()
-        self.rtc.Newline()
-        for line in lines:
-            self.rtc.WriteText(line)
-        self.rtc.Newline()
-        self.rtc.EndParagraphSpacing()
-        self.rtc.EndSuppressUndo()
-        self.rtc.Thaw()
-    
-    def onClose(self, evt):
-        self.Destroy()
 
 class TutorialFrame(wx.Frame):
     def __init__(self, *args, **kw):
@@ -273,7 +238,6 @@ class ZyneFrame(wx.Frame):
                 self.openfile(path)
             except:
                 pass
-        self.Show()
   
     def tabulate(self, evt):
         num = len(self.modules)
@@ -770,7 +734,6 @@ class ZyneApp(wx.App):
     def OnInit(self):
         self.frame = ZyneFrame(None)
         self.frame.SetPosition((50,50))
-        self.frame.Show()
         return True
     
     def MacOpenFile(self, filename):
@@ -782,6 +745,7 @@ if __name__ == '__main__':
         file = sys.argv[1]
     
     app = ZyneApp(0)
+    splash = ZyneSplashScreen(None, os.path.join(vars.constants["RESOURCES_PATH"], "ZyneSplash.png"), app.frame)
     if file:
         app.frame.openfile(file)
     app.MainLoop()

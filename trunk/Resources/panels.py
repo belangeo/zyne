@@ -6,9 +6,10 @@ import Resources.variables as vars
 from Resources.widgets import *
 from pyolib._wxwidgets import VuMeter, BACKGROUND_COLOUR
 from Resources.audio import *
+import wx.richtext as rt
 
 MODULES =   {
-            "FM": { "title": "--- Frequency Modulation ---", "synth": FmSynth, 
+            "FM": { "title": "- Frequency Modulation -", "synth": FmSynth, 
                     "p1": ["FM Ratio", .25, 0, 4, False, False],
                     "p2": ["FM Index", 5, 0, 40, False, False],
                     "p3": ["Lowpass Cutoff", 2000, 100, 18000, False, True]
@@ -99,6 +100,42 @@ class MyFileDropTarget(wx.FileDropTarget):
     
     def OnDropFiles(self, x, y, filename):
         self.window.GetTopLevelParent().openfile(filename[0])
+
+class HelpFrame(wx.Frame):
+    def __init__(self, parent, id, title, size, subtitle, lines):
+        wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
+        self.menubar = wx.MenuBar()
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(vars.constants["ID"]["CloseHelp"], 'Close...\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onClose, id=vars.constants["ID"]["CloseHelp"])
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
+
+        self.rtc = rt.RichTextCtrl(self, style=wx.VSCROLL|wx.HSCROLL|wx.NO_BORDER)
+        self.rtc.SetEditable(False)
+        wx.CallAfter(self.rtc.SetFocus)
+
+        self.rtc.Freeze()
+        self.rtc.BeginSuppressUndo()
+        self.rtc.BeginParagraphSpacing(0, 20)
+        self.rtc.BeginBold()
+        if vars.constants["PLATFORM"] == "linux2":
+            self.rtc.BeginFontSize(12)
+        else:
+            self.rtc.BeginFontSize(16)
+        self.rtc.WriteText(subtitle)
+        self.rtc.EndFontSize()
+        self.rtc.EndBold()
+        self.rtc.Newline()
+        for line in lines:
+            self.rtc.WriteText(line)
+        self.rtc.Newline()
+        self.rtc.EndParagraphSpacing()
+        self.rtc.EndSuppressUndo()
+        self.rtc.Thaw()
+
+    def onClose(self, evt):
+        self.Destroy()
 
 class LFOFrame(wx.MiniFrame):
     def __init__(self, parent, synth, label, which):
@@ -726,66 +763,12 @@ class ServerPanel(wx.Panel):
 class BasePanel(wx.Panel):
     def __init__(self, parent, name, title, synth, p1, p2, p3, from_lfo=False):
         wx.Panel.__init__(self, parent, style=wx.SUNKEN_BORDER)
-        if from_lfo:
-            self.name, self.synth = name, synth
-        else:
-            self.name, self.synth = name, synth([p1,p2,p3])
         self.SetMaxSize((230,250))
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.from_lfo = from_lfo
-        if not self.from_lfo:
-            self.lfo_sliders = [get_lfo_init(), get_lfo_init(), get_lfo_init(), get_lfo_init(), get_lfo_init()]
-            self.buttons = [None, None, None, None, None]
-            self.lfo_frames = [None, None, None, None, None]
         self.sliders = []
         self.labels = []
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.titleSizer = wx.FlexGridSizer(1, 3, 5, 5)
-        self.titleSizer.AddGrowableCol(1)
-        #self.titleSizer.SetFlexibleDirection(wx.HORIZONTAL)
-        #self.titleSizer.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_NONE)
-        self.titleSizer.SetMinSize((220, -1))
-        self.close = GenStaticText(self, -1, label="X")
-        self.close.SetBackgroundColour(BACKGROUND_COLOUR)
-        self.close.Bind(wx.EVT_ENTER_WINDOW, self.hoverX)
-        self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
-        self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
-        if not self.from_lfo:
-            self.close.SetToolTip(wx.ToolTip("Delete module"))
-        else:
-            self.close.SetToolTip(wx.ToolTip("Close window"))
-        self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
-        if from_lfo:
-            bmp = wx.BitmapFromImage(MOVE.GetImage().Rescale(16, 16))
-            self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(16,16), style=wx.NO_BORDER)
-            self.corner.SetToolTip(wx.ToolTip("Move window"))
-        else:
-            self.corner = GenStaticText(self, -1, label="m/s")
-            self.corner.SetToolTip(wx.ToolTip("Mute / Solo. Click to mute, Shift+Click to solo"))
-        self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
-        if from_lfo:
-            self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 2), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 2), (self.corner, 0, wx.RIGHT, 5)])
-            self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 2)
-            self.sizer.Add(ZyneStaticLine(self, size=(226, 2)), 0, wx.BOTTOM, 3)
-        else:
-            self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 3), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 3)])
-            self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 3)
-            self.sizer.Add(ZyneStaticLine(self, size=(230, 2)), 0, wx.BOTTOM, 3)
-        self.createAdsrKnobs()
-        if from_lfo:
-            self.sliderAmp = self.createSlider("Amplitude", .1, 0, 1, False, False, self.changeAmp, -1)
-        else:
-            self.sizer.AddSpacer(2)
-            self.sliderAmp = self.createSlider("Amplitude", 1, 0.0001, 2, False, False, self.changeAmp, 0)
-            self.tmp_amplitude = 1
-
-        self.font = self.close.GetFont()
-        if vars.constants["PLATFORM"] == "darwin":
-            ptsize = self.font.GetPointSize()
-            self.font.SetPointSize(ptsize - 2)
-        self.close.SetFont(self.font)
-        self.title.SetFont(self.font)
-        self.corner.SetFont(self.font)
     
     def createAdsrKnobs(self):
         self.knobSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -805,14 +788,9 @@ class BasePanel(wx.Panel):
             self.sizer.AddSpacer(3)
     
     def createSlider(self, label, value, minValue, maxValue, integer, log, callback, i=-1):
-        if vars.constants["PLATFORM"] == "darwin":
-            height = 14
-        else:
-            height = 13
-        if self.from_lfo:
-            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,height))
-        else:
-            text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,height))
+        if vars.constants["PLATFORM"] == "darwin": height = 14
+        else: height = 13
+        text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,height))
         self.labels.append(text)
         if vars.constants["PLATFORM"] == "darwin":
             font, psize = text.GetFont(), text.GetFont().GetPointSize()
@@ -858,27 +836,6 @@ class BasePanel(wx.Panel):
         else:
             win = self.GetTopLevelParent()
             win.Hide()
-
-    def changeDelay(self, x):
-        self.synth.amp.delay = x
-    
-    def changeAttack(self, x):
-        self.synth.amp.attack = x
-    
-    def changeDecay(self, x):
-        self.synth.amp.decay = x
-    
-    def changeSustain(self, x):
-        self.synth.amp.sustain = x
-    
-    def changeRelease(self, x):
-        self.synth.amp.release = x
-    
-    def changeAmp(self, x):
-        self.synth._rawamp.value = x
-
-    def changePan(self, x):
-        self.synth._panner.set(x)
    
     def setBackgroundColour(self, col):
         self.SetBackgroundColour(col)
@@ -894,6 +851,175 @@ class BasePanel(wx.Panel):
                 but.SetBackgroundColour(col)
         self.Refresh()
 
+class GenericPanel(BasePanel):
+    def __init__(self, parent, name, title, synth, p1, p2, p3):
+        BasePanel.__init__(self, parent, name, title, synth, p1, p2, p3)
+        self.name, self.synth = name, synth([p1,p2,p3])
+        self.mute = 1
+        self.lfo_sliders = [get_lfo_init(), get_lfo_init(), get_lfo_init(), get_lfo_init(), get_lfo_init()]
+        self.buttons = [None, None, None, None, None]
+        self.lfo_frames = [None, None, None, None, None]
+        self.titleSizer = wx.FlexGridSizer(1, 4, 5, 5)
+        self.titleSizer.AddGrowableCol(2)
+        self.titleSizer.SetMinSize((220, -1))
+        self.close = GenStaticText(self, -1, label="X")
+        self.close.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.close.Bind(wx.EVT_ENTER_WINDOW, self.hoverX)
+        self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
+        self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.close.SetToolTip(wx.ToolTip("Delete module"))
+        self.info = GenStaticText(self, -1, label="?")
+        self.info.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.info.Bind(wx.EVT_ENTER_WINDOW, self.hoverInfo)
+        self.info.Bind(wx.EVT_LEAVE_WINDOW, self.leaveInfo)
+        self.info.Bind(wx.EVT_LEFT_DOWN, self.MouseDownInfo)
+        self.info.SetToolTip(wx.ToolTip("Show module's infos"))
+        self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
+        self.corner = GenStaticText(self, -1, label="m/s")
+        self.corner.SetToolTip(wx.ToolTip("Mute / Solo. Click to mute, Shift+Click to solo"))
+        self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.corner.Bind(wx.EVT_LEFT_DOWN, self.MouseDownCorner)
+        self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
+        self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
+        self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 3), (self.info, 0, wx.LEFT, 3), 
+                                (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 3)])
+        self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 3)
+        self.sizer.Add(ZyneStaticLine(self, size=(230, 2)), 0, wx.BOTTOM, 3)
+
+        self.font = self.close.GetFont()
+        if vars.constants["PLATFORM"] == "darwin":
+            ptsize = self.font.GetPointSize()
+            self.font.SetPointSize(ptsize - 2)
+        for obj in [self.close, self.info, self.title, self.corner]:
+            obj.SetFont(self.font)
+
+        self.createAdsrKnobs()
+
+        self.sizer.AddSpacer(2)
+        self.sliderAmp = self.createSlider("Amplitude", 1, 0.0001, 2, False, False, self.changeAmp, 0)
+        self.tmp_amplitude = 1
+
+        if p1[0] == "Transposition":
+            self.sliderTranspo = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeTranspo, 1)
+        else:
+            self.sliderP1 = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeP1, 1)
+        if p2[0] == "Transposition":
+            self.sliderTranspo = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeTranspo, 2)
+        else:
+            self.sliderP2 = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeP2, 2)
+        if p3[0] == "Transposition":
+            self.sliderTranspo = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeTranspo, 3)
+        else:
+            self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3, 3)
+        self.sliderPan = self.createSlider("Panning", .5, 0, 1, False, False, self.changePan, 4)
+        if vars.constants["PLATFORM"] != "darwin":
+            self.sizer.AddSpacer(2)
+        self.SetSizerAndFit(self.sizer)    
+    
+    def changeP1(self, x):
+        self.synth.set(1, x)
+    
+    def changeP2(self, x):
+        self.synth.set(2, x)
+    
+    def changeP3(self, x):
+        self.synth.set(3, x)
+    
+    def changeTranspo(self, x):
+        self.synth._transpo.value = x
+
+    def changeDelay(self, x):
+        self.synth.amp.delay = x
+
+    def changeAttack(self, x):
+        self.synth.amp.attack = x
+
+    def changeDecay(self, x):
+        self.synth.amp.decay = x
+
+    def changeSustain(self, x):
+        self.synth.amp.sustain = x
+
+    def changeRelease(self, x):
+        self.synth.amp.release = x
+
+    def changeAmp(self, x):
+        self.synth._rawamp.value = x
+
+    def changePan(self, x):
+        self.synth._panner.set(x)
+
+    def hoverCorner(self, evt):
+        col = {0: "#0000CC", 1: "#555555", 2: "#FFAA00"}[self.mute]
+        font = self.corner.GetFont()
+        font.SetWeight(wx.BOLD)
+        self.corner.SetFont(font)
+        self.corner.SetForegroundColour(col)
+
+    def leaveCorner(self, evt):
+        col = {0: "#0000EE", 1: "#000000", 2: "#FF7700"}[self.mute]
+        self.corner.SetFont(self.font)
+        self.corner.SetForegroundColour(col)
+
+    def MouseDownCorner(self, evt):
+        if evt.ShiftDown():
+            if self.mute <= 1:
+                self.setMute(2)
+            elif self.mute == 2:
+                self.setMute(1)
+                for module in self.GetTopLevelParent().modules:
+                    if module != self:
+                        module.setMute(1)
+        else:
+            if self.mute:
+                self.setMute(0)
+            else:
+                self.setMute(1)
+        self.Refresh()
+
+    def hoverInfo(self, evt):
+        font = self.info.GetFont()
+        font.SetWeight(wx.BOLD)
+        self.info.SetFont(font)
+        self.info.SetForegroundColour("#555555")
+
+    def leaveInfo(self, evt):
+        self.info.SetFont(self.font)
+        self.info.SetForegroundColour("#000000")
+
+    def MouseDownInfo(self, evt):
+        if self.synth.__doc__ != None:
+            win = HelpFrame(self, -1, title="Module info", size=(400, 350), 
+                            subtitle="Info about %s module." % self.name, 
+                            lines=self.synth.__doc__.splitlines(True))
+            win.CenterOnParent()
+            win.Show(True)
+        else:
+            wx.LogMessage("No info for %s module." % self.name)
+
+    def setMute(self, mute):
+        if mute == 2:
+            for module in self.GetTopLevelParent().modules:
+                if module != self:
+                    module.setMute(0)
+            self.corner.SetForegroundColour("#FF7700")
+            self.synth._lfo_amp.play()
+            self.sliderAmp.SetValue(self.tmp_amplitude)
+            self.sliderAmp.Enable()
+        elif mute == 1:
+            self.corner.SetForegroundColour("#000000")
+            self.synth._lfo_amp.play()
+            self.sliderAmp.SetValue(self.tmp_amplitude)
+            self.sliderAmp.Enable()
+        elif mute == 0 and self.mute != 0:
+            self.tmp_amplitude = self.sliderAmp.GetValue()
+            self.corner.SetForegroundColour("#0000EE")
+            self.synth._lfo_amp.stop()
+            self.sliderAmp.SetValue(0.0001)
+            self.sliderAmp.Disable()
+        self.mute = mute
+        self.Refresh()
+    
     def getLFOParams(self):
         lfo_params = []
         for i in range(len(self.buttons)):
@@ -910,7 +1036,7 @@ class BasePanel(wx.Panel):
                 lfo_params.append({"state": self.buttons[i].state, "params": params, 
                                    "ctl_params": ctl_params, "shown": shown})
         return lfo_params
-    
+
     def startLFO(self, which, x):
         self.lfo_sliders[which]["state"] = x
         if which == 0:
@@ -920,7 +1046,7 @@ class BasePanel(wx.Panel):
                 self.synth._lfo_amp.play()
         else:
             self.synth._params[which].start_lfo(x)
-    
+
     def reinitLFOS(self, lfo_param, ctl_binding=True):
         self.lfo_sliders = lfo_param
         for i, lfo_conf in enumerate(self.lfo_sliders):
@@ -1108,97 +1234,40 @@ class BasePanel(wx.Panel):
                         slider.SetValue(val)
                         slider.outFunction(val)
 
-class GenericPanel(BasePanel):
-    def __init__(self, parent, name, title, synth, p1, p2, p3):
-        BasePanel.__init__(self, parent, name, title, synth, p1, p2, p3)
-        self.mute = 1
-        self.corner.Bind(wx.EVT_LEFT_DOWN, self.MouseDownCorner)
-        self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
-        self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
-        if p1[0] == "Transposition":
-            self.sliderTranspo = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeTranspo, 1)
-        else:
-            self.sliderP1 = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeP1, 1)
-        if p2[0] == "Transposition":
-            self.sliderTranspo = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeTranspo, 2)
-        else:
-            self.sliderP2 = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeP2, 2)
-        if p3[0] == "Transposition":
-            self.sliderTranspo = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeTranspo, 3)
-        else:
-            self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3, 3)
-        self.sliderPan = self.createSlider("Panning", .5, 0, 1, False, False, self.changePan, 4)
-        if vars.constants["PLATFORM"] != "darwin":
-            self.sizer.AddSpacer(2)
-        self.SetSizerAndFit(self.sizer)    
-    
-    def changeP1(self, x):
-        self.synth.set(1, x)
-    
-    def changeP2(self, x):
-        self.synth.set(2, x)
-    
-    def changeP3(self, x):
-        self.synth.set(3, x)
-    
-    def changeTranspo(self, x):
-        self.synth._transpo.value = x
-
-    def hoverCorner(self, evt):
-        col = {0: "#0000CC", 1: "#555555", 2: "#FFAA00"}[self.mute]
-        font = self.corner.GetFont()
-        font.SetWeight(wx.BOLD)
-        self.corner.SetFont(font)
-        self.corner.SetForegroundColour(col)
-
-    def leaveCorner(self, evt):
-        col = {0: "#0000EE", 1: "#000000", 2: "#FF7700"}[self.mute]
-        self.corner.SetFont(self.font)
-        self.corner.SetForegroundColour(col)
-
-    def MouseDownCorner(self, evt):
-        if evt.ShiftDown():
-            if self.mute <= 1:
-                self.setMute(2)
-            elif self.mute == 2:
-                self.setMute(1)
-                for module in self.GetTopLevelParent().modules:
-                    if module != self:
-                        module.setMute(1)
-        else:
-            if self.mute:
-                self.setMute(0)
-            else:
-                self.setMute(1)
-        self.Refresh()
-
-    def setMute(self, mute):
-        if mute == 2:
-            for module in self.GetTopLevelParent().modules:
-                if module != self:
-                    module.setMute(0)
-            self.corner.SetForegroundColour("#FF7700")
-            self.synth._lfo_amp.play()
-            self.sliderAmp.SetValue(self.tmp_amplitude)
-            self.sliderAmp.Enable()
-        elif mute == 1:
-            self.corner.SetForegroundColour("#000000")
-            self.synth._lfo_amp.play()
-            self.sliderAmp.SetValue(self.tmp_amplitude)
-            self.sliderAmp.Enable()
-        elif mute == 0 and self.mute != 0:
-            self.tmp_amplitude = self.sliderAmp.GetValue()
-            self.corner.SetForegroundColour("#0000EE")
-            self.synth._lfo_amp.stop()
-            self.sliderAmp.SetValue(0.0001)
-            self.sliderAmp.Disable()
-        self.mute = mute
-        self.Refresh()
-        
 class LFOPanel(BasePanel):
     def __init__(self, parent, name, title, synth, p1, p2, p3, p4, which):
         BasePanel.__init__(self, parent, name, title, synth, p1, p2, p3, from_lfo=True)
+        self.name, self.synth = name, synth
         self.which = which
+        self.titleSizer = wx.FlexGridSizer(1, 3, 5, 5)
+        self.titleSizer.AddGrowableCol(1)
+        self.titleSizer.SetMinSize((220, -1))
+        self.close = GenStaticText(self, -1, label="X")
+        self.close.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.close.Bind(wx.EVT_ENTER_WINDOW, self.hoverX)
+        self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
+        self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.close.SetToolTip(wx.ToolTip("Close window"))
+        self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
+        bmp = wx.BitmapFromImage(MOVE.GetImage().Rescale(16, 16))
+        self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(16,16), style=wx.NO_BORDER)
+        self.corner.SetToolTip(wx.ToolTip("Move window"))
+        self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 2), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 2), (self.corner, 0, wx.RIGHT, 5)])
+        self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 2)
+        self.sizer.Add(ZyneStaticLine(self, size=(226, 2)), 0, wx.BOTTOM, 3)
+
+        self.font = self.close.GetFont()
+        if vars.constants["PLATFORM"] == "darwin":
+            ptsize = self.font.GetPointSize()
+            self.font.SetPointSize(ptsize - 2)
+        for obj in [self.close, self.title]:
+            obj.SetFont(self.font)
+
+        self.createAdsrKnobs()
+
+        self.sliderAmp = self.createSlider("Amplitude", .1, 0, 1, False, False, self.changeAmp, -1)
+
         self.sliderP1 = self.createSlider(p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], self.changeP1)
         self.sliderP2 = self.createSlider(p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], self.changeP2)
         self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3)
