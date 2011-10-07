@@ -755,6 +755,23 @@ class InfiniteRev(BaseSynth):
         self.filt2 = Biquad(self.rev2, freq=self.p3).mix()
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
+class Degradation(BaseSynth):
+    def __init__(self, config):
+        BaseSynth.__init__(self, config, mode=1)
+        self.table = HarmTable([1,0,0,.2,0,0,.1,0,0,.07,0,0,0,.05]).normalize()
+        self.leftamp = self.amp*self.panL
+        self.rightamp = self.amp*self.panR
+        self.src1 = Osc(table=self.table, freq=self.pitch, mul=.25)
+        self.src2 = Osc(table=self.table, freq=self.pitch*0.997, mul=.25)
+        self.src3 = Osc(table=self.table, freq=self.pitch*1.004, mul=.25)
+        self.src4 = Osc(table=self.table, freq=self.pitch*1.0021, mul=.25)
+        self.deg1 = Degrade(self.src1+self.src3, bitdepth=self.p1, srscale=self.p2, mul=self.leftamp)
+        self.deg2 = Degrade(self.src2+self.src4, bitdepth=self.p1, srscale=self.p2, mul=self.rightamp)
+        self.filt1 = Biquad(self.deg1, freq=self.p3).mix()
+        self.filt2 = Biquad(self.deg2, freq=self.p3).mix()
+        self.mix = Mix([self.filt1, self.filt2], voices=2)
+        self.out = DCBlock(self.mix)
+
 def checkForCustomModules():
     path = ""
     preffile = os.path.join(os.path.expanduser("~"), ".zynerc")

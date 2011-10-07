@@ -79,6 +79,11 @@ MODULES =   {
                     "p2": ["Brightness", 5, 0, 100, True, False],
                     "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
                     },
+            "Degradation": { "title": "--- Wave Degradation ---", "synth": Degradation, 
+                    "p1": ["Bit Depth", 6, 2, 16, False, True],
+                    "p2": ["SR Scale", .1, 0.001, .5, False, True],
+                    "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
+                    },
             }
 
 LFO_CONFIG =    {
@@ -556,7 +561,7 @@ class ServerPanel(wx.Panel):
         popups = [self.popupDriver, self.popupInterface, self.popupSr, self.popupPoly, self.popupBit, self.popupFormat]
         menuIds = [vars.constants["ID"]["New"], vars.constants["ID"]["Open"], vars.constants["ID"]["MidiLearn"], 
                    vars.constants["ID"]["Export"], vars.constants["ID"]["ExportChord"], vars.constants["ID"]["ExportTracks"], 
-                   vars.constants["ID"]["ExportChordTracks"], vars.constants["ID"]["Quit"]]
+                   vars.constants["ID"]["ExportChordTracks"], vars.constants["ID"]["Quit"], vars.constants["ID"]["UpdateModules"]]
         if evt.GetInt() == 1:
             for popup in popups:
                 popup.Disable()
