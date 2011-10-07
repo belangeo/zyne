@@ -55,7 +55,7 @@ Attributes :
 
     _*self.module_path*_ : Path of the "custom modules" folder if set in the preferences panel.
 
-    _*self.export_path*_ : Path of the "exported sounds" folder.
+    _*self.export_path*_ : Path of the "exported sounds" folder if set in the preferences panel.
 
 {{{
 MODULES = {module_name : {  "title" : title_to_be_displayed,
@@ -125,7 +125,7 @@ class MySound(BaseSynth):
 
   * _*self.module_path*_ : Path of the "custom modules" folder if set in the preferences panel.
     
-  * _*self.export_path*_ : Path of the "exported sounds" folder.
+  * _*self.export_path*_ : Path of the "exported sounds" folder if set in the preferences panel.
 
   * _*self.out*_ : This variable must be the object that send the sound to the output. Although it is possible, the custom class should not called the `out` method of any object. Every signals must be mixed in the self.out variable, which will then be sent to the post-processing effects and finally to the soundcard.
 
