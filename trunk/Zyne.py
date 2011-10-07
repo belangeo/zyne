@@ -722,7 +722,8 @@ class ZyneFrame(wx.Frame):
         description = "Zyne is a simple soft synthesizer allowing the " \
         "user to create original sounds and export bank of samples.\n\n" \
         "Zyne is written with Python and " \
-        "WxPython and uses pyo as its audio engine."
+        "WxPython and uses pyo as its audio engine.\n\n" \
+        "A special thank to Jean-Michel Dumas for beta testing and a lots of ideas!"
     
         info.Name = 'Zyne'
         info.Version = '%s' % vars.constants["VERSION"]
