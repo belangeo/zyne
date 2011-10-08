@@ -59,11 +59,6 @@ MODULES =   {
                     "p2": ["Chorus Depth", .001, .001, .125, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
                     },
-            # "Particle": { "title": "--- Particle generator ---", "synth": Particle, 
-            #         "p1": ["Density", 10, 0.01, 20, False, True],
-            #         "p2": ["Duration", .05, .001, .5, False, True],
-            #         "p3": ["Filter Q", 5, 1, 100, False, True]
-            #         },
             "CrossFM": { "title": "--- Frequency Modulation ---", "synth": CrossFmSynth, 
                     "p1": ["FM Ratio", .25, 0, 4, False, False],
                     "p2": ["FM Index 1", 2, 0, 40, False, False],
@@ -108,16 +103,22 @@ class MyFileDropTarget(wx.FileDropTarget):
 
 class HelpFrame(wx.Frame):
     def __init__(self, parent, id, title, size, subtitle, lines):
-        wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
-        self.menubar = wx.MenuBar()
-        self.fileMenu = wx.Menu()
-        self.fileMenu.Append(vars.constants["ID"]["CloseHelp"], 'Close...\tCtrl+W', kind=wx.ITEM_NORMAL)
+        wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size, 
+                        style=wx.FRAME_TOOL_WINDOW | wx.FRAME_FLOAT_ON_PARENT | wx.NO_BORDER)
+        self.SetBackgroundColour(BACKGROUND_COLOUR)
+        if vars.constants["PLATFORM"] == "darwin":
+            close_accel = wx.ACCEL_CMD
+        else:
+            close_accel = wx.ACCEL_CTRL
+        self.SetAcceleratorTable(wx.AcceleratorTable([(close_accel, ord("W"), vars.constants["ID"]["CloseHelp"])]))
         self.Bind(wx.EVT_MENU, self.onClose, id=vars.constants["ID"]["CloseHelp"])
-        self.menubar.Append(self.fileMenu, "&File")
-        self.SetMenuBar(self.menubar)
 
         self.rtc = rt.RichTextCtrl(self, style=wx.VSCROLL|wx.HSCROLL|wx.NO_BORDER)
+        self.rtc.Bind(wx.EVT_LEFT_DOWN, self.onClose)
         self.rtc.SetEditable(False)
+        self.rtc.SetBackgroundColour(BACKGROUND_COLOUR)
+        caret = self.rtc.GetCaret()
+        caret.Hide()
         wx.CallAfter(self.rtc.SetFocus)
     
         font = self.rtc.GetFont()
@@ -144,14 +145,19 @@ class HelpFrame(wx.Frame):
         self.rtc.Thaw()
 
         # num_lines = self.rtc.GetNumberOfLines()
-        # length = 0
-        # for i in range(num_lines):
-        #     l = self.rtc.GetLineLength(i)
-        #     if l > length:
-        #         length = l
-        # pixelsize = self.rtc.GetFont().GetPixelSize()
-        # X, Y = length * pixelsize[0], num_lines * pixelsize[1]
-        # wx.CallAfter(self.SetSize, (int(X/1.5), Y+100))
+        # l = None
+        # for i, line in enumerate(lines):
+        #     if "_____" in line:
+        #         l = i
+        #         break
+        # if l != None:
+        #     length = len(lines[l])
+        #     pixelsize = self.rtc.GetFont().GetPixelSize()
+        #     X, Y = length * pixelsize[0], num_lines * pixelsize[1]
+        #     wx.CallAfter(self.SetSize, (X, Y+150))
+        # wx.CallAfter(self.CenterOnParent)
+        #wx.CallAfter(self.layout)
+        wx.CallAfter(self.SetInitialSize)
 
     def onClose(self, evt):
         self.Destroy()
@@ -1008,8 +1014,8 @@ class GenericPanel(BasePanel):
 
     def MouseDownInfo(self, evt):
         if self.synth.__doc__ != None:
-            lines = [vars.vars["ensureNFD"](line) for line in self.synth.__doc__.splitlines(True) if line != "\n"]
-            win = HelpFrame(self, -1, title="Module info", size=(600, 450), 
+            lines = [vars.vars["ensureNFD"](line) for line in self.synth.__doc__.splitlines(True)]
+            win = HelpFrame(self.GetTopLevelParent(), -1, title="Module info", size=(650, 450), 
                             subtitle=vars.vars["ensureNFD"]("Info about %s module." % self.name), lines=lines)
             win.CenterOnParent()
             win.Show(True)

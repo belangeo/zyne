@@ -503,15 +503,20 @@ class BaseSynth:
 class FmSynth(BaseSynth):
     """
     Simple frequency modulation synthesis.
-
-    Author : Olivier Bélanger - 2011
+    
+    With frequency modulation, the timbre of a simple waveform is changed by 
+    frequency modulating it with a modulating frequency that is also in the audio
+    range, resulting in a more complex waveform and a different-sounding tone.
 
     Parameters:
 
         FM Ratio : Ratio between carrier frequency and modulation frequency.
-        FM Index : Modulation index.
+        FM Index : Represents the number of sidebands on each side of the carrier frequency.
         Lowpass Cutoff : Cutoff frequency of the lowpass filter.
     
+    ________________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    ________________________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config,  mode=1)
@@ -529,6 +534,21 @@ class FmSynth(BaseSynth):
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 class AddSynth(BaseSynth):
+    """
+    Additive synthesis.
+    
+    Additive synthesis created by the addition of four looped sine waves.
+
+    Parameters:
+
+        Transposition : Transposition, in semitones, of the pitches played on the keyboard.
+        Spread : Spreading factor of the sine wave frequencies.
+        Feedback : Amount of output signal sent back in the waveform calculation.
+    
+    _______________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _______________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.fac = Pow(range(1,6), self.p2, mul=[random.uniform(.995,1.005) for i in range(4)])
@@ -543,6 +563,21 @@ class AddSynth(BaseSynth):
         self.out = Mix([self.sine1, self.sine2, self.sine3, self.sine4], voices=2)
 
 class WindSynth(BaseSynth):
+    """
+    Wind synthesis.
+    
+    Simulation of the whistling of the wind with a white noise filtered by four bandpass filters.
+
+    Parameters:
+
+        Rand frequency : Speed of filter's frequency variations.
+        Rand depth : Depth of filter's frequency variations.
+        Filter Q : Inverse of the filter's bandwidth. Amplitude of the whistling.
+    
+    _______________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _______________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.clpit = Clip(self.pitch, min=40, max=15000)
@@ -680,28 +715,6 @@ class Reson(BaseSynth):
         self.filt1 = Biquad(self.wave1, freq=self.p3).mix()
         self.filt2 = Biquad(self.wave2, freq=self.p3).mix()
         self.out = Mix([self.filt1, self.filt2], voices=2)
-
-# class Particle(BaseSynth):
-#     def __init__(self, config):
-#         BaseSynth.__init__(self, config, mode=1)
-#         num = len(self.p1)
-#         self.table = CosTable([(0,0), (100,1), (500,.5), (3000,.25), (8191,0)])
-#         self.cloud = [Cloud(self.p1[i], poly=4).play() for i in range(num)]
-#         self.env = [TrigEnv(self.cloud[i], self.table, self.p2[i]) for i in range(num)]
-#         self.src = Noise()
-#         self.leftamp = self.amp*self.panL
-#         self.rightamp = self.amp*self.panR
-#         self.rndfreq1 = [TrigRand(self.cloud[i], min=.85, max=1.25, port=.005, init=1, 
-#                         mul=self.pitch[i]*2) for i in range(num)]
-#         self.filters1 = [Biquadx(self.src, freq=self.rndfreq1, q=self.p3[i], type=2, 
-#                         mul=self.env[i]*self.leftamp[i]).mix() for i in range(num)]
-#         self.rndfreq2 = [TrigRand(self.cloud[i], min=.85, max=1.25, port=.005, init=1, 
-#                         mul=self.pitch[i]*2) for i in range(num)]
-#         self.filters2 = [Biquadx(self.src, freq=self.rndfreq2, q=self.p3[i], type=2, 
-#                         mul=self.env[i]*self.rightamp[i]).mix() for i in range(num)]
-#         self.mixL = Mix(self.filters1, voices=1)
-#         self.mixR = Mix(self.filters2, voices=1)
-#         self.out = Mix([self.mixL, self.mixR], voices=2)
 
 class CrossFmSynth(BaseSynth):
     def __init__(self, config):
