@@ -179,7 +179,10 @@ class SndLooper(BaseSynth):
     """
     Soundfile looper/slicer.
     
-    This module loads a soundfile in memory and reads it with a slicing algorithm. Each slice takes a new starting point and a new duration. The overall transposition is controled by the pitches played on the keyboard. Midi key 60 (middle C) is the key where there is no transposition.
+    This module loads a soundfile in memory and reads it with a slicing algorithm. Each slice
+    takes a new starting point and a new duration. The overall transposition is controled by 
+    the pitches played on the keyboard. Midi key 60 (middle C) is the key where there is no 
+    transposition.
 
     Parameters:
 
