@@ -192,6 +192,23 @@ MODULES = {
 
 {{{
 class GenericModule(BaseSynth):
+    """
+    Simple frequency modulation synthesis.
+    
+    With frequency modulation, the timbre of a simple waveform is changed by 
+    frequency modulating it with a modulating frequency that is also in the audio
+    range, resulting in a more complex waveform and a different-sounding tone.
+
+    Parameters:
+
+        FM Ratio : Ratio between carrier frequency and modulation frequency.
+        FM Index : Represents the number of sidebands on each side of the carrier frequency.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    ________________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    ________________________________________________________________________________________
+    """
     def __init__(self, config):
         # `mode` handles pitch conversion : 1 for hertz, 2 for transpo, 3 for midi
         BaseSynth.__init__(self, config, mode=1)
