@@ -385,7 +385,7 @@ class ServerPanel(wx.Panel):
         self.popupSr.SetStringSelection(str(vars.vars["SR"]))
         self.serverSettings.append(self.popupSr.GetSelection())
         self.popupSr.Bind(wx.EVT_CHOICE, self.changeSr)
-        self.polyText = wx.StaticText(self, id=-1, label="Poly", pos=(120,65))
+        self.polyText = wx.StaticText(self, id=-1, label="Polyphony", pos=(120,65))
         self.popupPoly = wx.Choice(self, id=-1, pos=(118,80), size=(95,20), choices=[str(i) for i in range(1,21)])
         self.popupPoly.SetStringSelection(str(vars.vars["POLY"]))
         self.serverSettings.append(self.popupPoly.GetSelection())
