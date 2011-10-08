@@ -566,7 +566,8 @@ class WindSynth(BaseSynth):
     """
     Wind synthesis.
     
-    Simulation of the whistling of the wind with a white noise filtered by four bandpass filters.
+    Simulation of the whistling of the wind with a white noise filtered by four 
+    bandpass filters.
 
     Parameters:
 
@@ -574,9 +575,9 @@ class WindSynth(BaseSynth):
         Rand depth : Depth of filter's frequency variations.
         Filter Q : Inverse of the filter's bandwidth. Amplitude of the whistling.
     
-    _______________________________________________________________________________________
+    ______________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _______________________________________________________________________________________
+    ______________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -593,6 +594,22 @@ class WindSynth(BaseSynth):
         self.out = Mix([self.filt1, self.filt2, self.filt3, self.filt4], voices=2)
 
 class SquareMod(BaseSynth):
+    """
+    Square waveform modulation.
+    
+    A square waveform, with control over the number of harmonics, which is modulated 
+    in amplitude by itself.
+
+    Parameters:
+
+        Harmonics : Number of harmonics of the waveform.
+        LFO frequency : Speed of the LFO modulating the amplitude.
+        LFO Amplitude : Depth of the LFO modulating the amplitude.
+    
+    _______________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _______________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.table = SquareTable(order=10, size=2048)
@@ -613,6 +630,22 @@ class SquareMod(BaseSynth):
         self.table.order = order
 
 class SawMod(BaseSynth):
+    """
+    Sawtooth waveform modulation.
+    
+    A sawtooth waveform, with control over the number of harmonics, which is 
+    modulated in amplitude by itself.
+
+    Parameters:
+
+        Harmonics : Number of harmonics of the waveform.
+        LFO frequency : Speed of the LFO modulating the amplitude.
+        LFO Amplitude : Depth of the LFO modulating the amplitude.
+    
+    ________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    ________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.table = SawTable(order=10, size=2048)
@@ -633,6 +666,23 @@ class SawMod(BaseSynth):
         self.table.order = order
 
 class PulsarSynth(BaseSynth):
+    """
+    Pulsar synthesis.
+    
+    Pulsar synthesis is a method of electronic music synthesis based on the generation of 
+    trains of sonic particles. Pulsar synthesis can produce either rhythms or tones as it 
+    criss‐crosses perceptual time spans.
+    
+    Parameters:
+
+        Harmonics : Number of harmonics of the waveform table.
+        Transposition : Transposition, in semitones, of the pitches played on the keyboard.
+        LFO Frequency : Speed of the LFO modulating the ratio waveform / silence.
+    
+    ______________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    ______________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.table = SawTable(order=10, size=2048)
@@ -654,6 +704,23 @@ class PulsarSynth(BaseSynth):
         self.table.order = order
 
 class Ross(BaseSynth):
+    """
+    Rossler attractor.
+    
+    The Rossler attractor is a system of three non-linear ordinary differential equations. 
+    These differential equations define a continuous-time dynamical system that exhibits 
+    chaotic dynamics associated with the fractal properties of the attractor.
+    
+    Parameters:
+
+        Chaos : Intensity of the chaotic behavior.
+        Chorus depth : Depth of the deviation between the left and right channels.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    _____________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _____________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.rosspit = Clip(self.pitch / 5000. + 0.25, min=0., max=1.)
@@ -670,6 +737,25 @@ class Ross(BaseSynth):
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 class Wave(BaseSynth):
+    """
+    Bandlimited waveform synthesis.
+    
+    Simple waveform synthesis with different waveform shapes. The number of harmonic of the 
+    waveforms is limited depending on the frequency played on the keyboard and the sampling 
+    rate to avoid aliasing. Waveform shapes are:
+    0 = Ramp (saw up), 1 = Sawtooth, 2 = Square, 3 = Triangle
+    4 = Pulse, 5 = Bipolar pulse, 6 = Sample and Hold, 7 = Modulated sine
+    
+    Parameters:
+
+        Waveform : Waveform shape.
+        Transposition : Transposition, in semitones, of the pitches played on the keyboard.
+        Sharpness : The sharpness factor allows more or less harmonics in the waveform.
+    
+    _____________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _____________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.change = Change(self.p1)
