@@ -1,5 +1,5 @@
 # encoding: utf-8
-""" 
+''' 
 ---- Sections ----
 
 1. Sections
@@ -139,6 +139,21 @@ using semitone transposition and second, a soundfile looper/slicer using transpo
 from the keyboard's pitches.
 
 class ChoruSyn(BaseSynth):
+    """
+    Simple chorus of six sine waves.
+    
+    Six sine waves with control on the overall frequency deviation.
+
+    Parameters:
+
+        Transposition : Transposition, in semitones, of the pitches played on the keyboard.
+        Deviation speed : Speed of the interpolated random applied on each wave.
+        Deviation range : Amplitude of the interpolated random applied on each wave.
+    
+    _______________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _______________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         # First slider is used as semitone transpo, so self.p1 is not defined
@@ -161,6 +176,24 @@ class ChoruSyn(BaseSynth):
         self.out = Mix([self.osc1, self.osc2, self.osc3, self.osc4, self.osc5, self.osc6], voices=2).out()
 
 class SndLooper(BaseSynth):
+    """
+    Soundfile looper/slicer.
+    
+    This module loads a soundfile in memory and reads it with a slicing algorithm. Each slice
+    takes a new starting point and a new duration. The overall transposition is controled by 
+    the pitches played on the keyboard. Midi key 60 (middle C) is the key where there is no 
+    transposition.
+
+    Parameters:
+
+        Transposition : Transposition, in semitones, of the pitches played on the keyboard.
+        Deviation speed : Speed of the interpolated random applied on the starting point.
+        Deviation range : Amplitude of the interpolated random applied on the starting point.
+    
+    _______________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _______________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=2)
         self.table = SndTable(SNDS_PATH+"/transparent.aif")
@@ -191,6 +224,23 @@ MODULES = {
 ---- Generic class to use as a startup ----
 
 class GenericModule(BaseSynth):
+    """
+    Simple frequency modulation synthesis.
+    
+    With frequency modulation, the timbre of a simple waveform is changed by 
+    frequency modulating it with a modulating frequency that is also in the audio
+    range, resulting in a more complex waveform and a different-sounding tone.
+
+    Parameters:
+
+        FM Ratio : Ratio between carrier frequency and modulation frequency.
+        FM Index : Represents the number of sidebands on each side of the carrier frequency.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    ________________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    ________________________________________________________________________________________
+    """
     def __init__(self, config):
         # `mode` handles pitch conversion : 1 for hertz, 2 for transpo, 3 for midi
         BaseSynth.__init__(self, config, mode=1)
@@ -208,4 +258,4 @@ MODULES = {
                     },
           }
 
-"""
+'''

@@ -777,6 +777,22 @@ class Wave(BaseSynth):
         self.wav4.type = typ
 
 class PluckedString(BaseSynth):
+    """
+    Simple plucked string synthesis model.
+    
+    A Resonator network is feed with a burst of noise to simulate the behavior of a
+    plucked string.
+    
+    Parameters:
+
+        Transposition : Transposition, in semitones, of the pitches played on the keyboard.
+        Duration : Length, in seconds, of the string resonance.
+        Chorus depth : Depth of the frequency deviation between the left and right channels.
+    
+    _______________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _______________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.deviation = Randi(min=0.-self.p3, max=self.p3, freq=[random.uniform(2,4) for i in range(2)], add=1)
@@ -790,6 +806,21 @@ class PluckedString(BaseSynth):
         self.out = Mix([self.wave1, self.wave2], voices=2)
 
 class Reson(BaseSynth):
+    """
+    Stereo resonators.
+    
+    A Resonator network feeded with a white noise.
+    
+    Parameters:
+
+        Transposition : Transposition, in semitones, of the pitches played on the keyboard.
+        Chorus depth : Depth of the frequency deviation between the left and right channels.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    _______________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _______________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.deviation = Randi(min=0.-self.p2, max=self.p2, freq=[random.uniform(2,4) for i in range(4)], add=1)
@@ -803,6 +834,24 @@ class Reson(BaseSynth):
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 class CrossFmSynth(BaseSynth):
+    """
+    Cross frequency modulation synthesis.
+    
+    Frequency modulation synthesis where the output of both oscillators modulates the 
+    frequency of the other one. 
+
+    Parameters:
+
+        FM Ratio : Ratio between carrier frequency and modulation frequency.
+        FM Index 1 : This value multiplied by the carrier frequency gives the carrier 
+                     amplitude for modulating the modulation oscillator frequency.
+        FM Index 2 : This value multiplied by the modulation frequency gives the modulation 
+                     amplitude for modulating the carrier oscillator frequency.
+    
+    __________________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    __________________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config,  mode=1)
         self.indexLine = self.amp * self.p2
@@ -825,6 +874,22 @@ class CrossFmSynth(BaseSynth):
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 class OTReson(BaseSynth):
+    """
+    Out of tune waveguide model with a recursive allpass network.
+    
+    A waveguide model consisting of a delay-line with a 3-stages recursive allpass filter 
+    which made the resonances of the waveguide out of tune.
+    
+    Parameters:
+
+        Transposition : Transposition, in semitones, of the pitches played on the keyboard.
+        Detune : Control the depth of the allpass delay-line filter, i.e. the depth of the detuning.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    _______________________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _______________________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.excite = Noise(.02)
@@ -837,6 +902,22 @@ class OTReson(BaseSynth):
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 class InfiniteRev(BaseSynth):
+    """
+    Infinite reverb.
+    
+    An infinite reverb feeded by a short impulse of a looped sine. The impulse frequencies
+    is controled by the pitches played on the keyboard.
+    
+    Parameters:
+
+        Transposition : Transposition, in semitones, applied on the sinusoidal impulse.
+        Brightness : Amount of feedback of the looped sine.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    _____________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _____________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.table = CosTable([(0,0), (4000,1), (8191,0)])
@@ -855,6 +936,21 @@ class InfiniteRev(BaseSynth):
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 class Degradation(BaseSynth):
+    """
+    Signal quality reducer.
+    
+    Reduces the sampling rate and/or bit-depth of a chorused complex waveform oscillator.
+    
+    Parameters:
+
+        Bit Depth : Signal quantization in bits.
+        SR Scale : Sampling rate multiplier.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    _____________________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    _____________________________________________________________________________________
+    """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
         self.table = HarmTable([1,0,0,.2,0,0,.1,0,0,.07,0,0,0,.05]).normalize()

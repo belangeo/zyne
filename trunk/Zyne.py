@@ -37,7 +37,7 @@ class TutorialFrame(wx.Frame):
         self.rtc.EndFontSize()
         self.rtc.EndBold()
         self.rtc.Newline()
-        lines = tutorial.__doc__.splitlines(True)
+        lines = [vars.vars["ensureNFD"](line) for line in tutorial.__doc__.splitlines(True)]
         section_count = 1
         for line in lines:
             if line.count("----") == 2:
