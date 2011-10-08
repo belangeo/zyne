@@ -179,15 +179,13 @@ class SndLooper(BaseSynth):
     """
     Soundfile looper/slicer.
     
-    This module loads a soundfile in memory and reads it with a slicing algorithm. Each slice
-    takes a new pitch and a new duration. The overall transposition is controled by the pitches
-    played on the keyboard. Midi key 60 (middle C) is the key where there is no transposition.
+    This module loads a soundfile in memory and reads it with a slicing algorithm. Each slice takes a new starting point and a new duration. The overall transposition is controled by the pitches played on the keyboard. Midi key 60 (middle C) is the key where there is no transposition.
 
     Parameters:
 
         Transposition : Transposition, in semitones, of the pitches played on the keyboard.
-        Deviation speed : Speed of the interpolated random applied on each slice.
-        Deviation range : Amplitude of the interpolated random applied on each slice.
+        Deviation speed : Speed of the interpolated random applied on the starting point.
+        Deviation range : Amplitude of the interpolated random applied on the starting point.
     
     _______________________________________________________________________________________
     Author : Olivier Bélanger - 2011
@@ -199,10 +197,10 @@ class SndLooper(BaseSynth):
         self.st = Phasor(.1, mul=self.table.getDur()-.25)
         self.dur = Choice([.125, .125, .125, .25, .25, .5], freq=1)
         self.varFreq = self.p2*[random.uniform(.95, 1.05) for i in range(2)]
-        self.pitchVar = Randi(min=0.-self.p3, max=self.p3, freq=self.varFreq, add=1)
-        self.looper1 = Looper(self.table, pitch=self.pitch, start=self.st*self.pitchVar[0], 
+        self.startVar = Randi(min=0.-self.p3, max=self.p3, freq=self.varFreq, add=1)
+        self.looper1 = Looper(self.table, pitch=self.pitch, start=self.st*self.startVar[0], 
                           dur=self.dur, interp=4, autosmooth=True, mul=self.amp*self.panL).mix(1)
-        self.looper2 = Looper(self.table, pitch=self.pitch, start=self.st*self.pitchVar[1], 
+        self.looper2 = Looper(self.table, pitch=self.pitch, start=self.st*self.startVar[1], 
                           dur=self.dur, interp=4, autosmooth=True, mul=self.amp*self.panR).mix(1)
         self.out = Mix([self.looper1, self.looper2], voices=2)
 
