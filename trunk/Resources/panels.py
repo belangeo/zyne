@@ -1014,8 +1014,12 @@ class GenericPanel(BasePanel):
 
     def MouseDownInfo(self, evt):
         if self.synth.__doc__ != None:
+            if vars.constants["PLATFORM"] == "darwin":
+                size = (650, 450)
+            else:
+                size = (500, 450)
             lines = [vars.vars["ensureNFD"](line) for line in self.synth.__doc__.splitlines(True)]
-            win = HelpFrame(self.GetTopLevelParent(), -1, title="Module info", size=(650, 450), 
+            win = HelpFrame(self.GetTopLevelParent(), -1, title="Module info", size=size, 
                             subtitle=vars.vars["ensureNFD"]("Info about %s module." % self.name), lines=lines)
             win.CenterOnParent()
             win.Show(True)

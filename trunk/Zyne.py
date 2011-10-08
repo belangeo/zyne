@@ -349,6 +349,10 @@ class ZyneFrame(wx.Frame):
             self.Bind(wx.EVT_MENU, self.updateAddModuleMenu, id=vars.constants["ID"]["UpdateModules"])
     
     def openMidiLearnHelp(self, evt):
+        if vars.constants["PLATFORM"] == "darwin":
+            size = (400, 350)
+        else:
+            size = (400, 300)
         lines = []
         lines.append("To assign midi controllers to module's sliders, user can use the midi learn mode.\n")
         lines.append("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
@@ -356,17 +360,21 @@ class ZyneFrame(wx.Frame):
         lines.append("To remove a midi assignation, click a second time on the selected slider without playing with a midi controller.\n")
         lines.append("Finally, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) again to leave midi learn mode. Next time you start the server, you will be able to control the sliders with your midi controller.\n\n")
         lines.append("Midi assignations are saved within the .zy file and will be automatically assigned at future launches of the synth.\n")
-        win = HelpFrame(self, -1, title="Midi Learn Help", size=(400, 350), subtitle="How to use the midi learn mode.", lines=lines)
+        win = HelpFrame(self, -1, title="Midi Learn Help", size=size, subtitle="How to use the midi learn mode.", lines=lines)
         win.CenterOnParent()
         win.Show(True)
 
     def openExportHelp(self, evt):
+        if vars.constants["PLATFORM"] == "darwin":
+            size = (400, 420)
+        else:
+            size = (400, 300)
         lines = []
         lines.append("The export samples window allows the user to create a bank of samples, mapped on a range of midi keys, from the actual state of the current synth.\n")
         lines.append("The path where the exported samples will be saved can be defined in the preferences panel. If not, a folder named 'zyne_export' will be created on the Desktop. Inside this folder, a subfolder will be created according to the string given in the field 'Common file name'. Samples will be saved inside this subfolder with automatic name incrementation.\n")
         lines.append("The fields 'First', 'Last' and 'Step' define which notes, in midi keys, will be sampled and exported. From 'First' to 'Last' in steps of 'Step'.\n")
         lines.append("The fields 'Noteon dur' and 'Release dur' define the duration, in seconds, of the note part and the release part, respectively. The value in 'Noteon dur' should be equal or higher than the addition of the attack and the decay of the longest module. The value in the 'Release part' should be equal or higher than the longest release.\n")
-        win = HelpFrame(self, -1, title="Export Samples Help", size=(400, 420), subtitle="How to use the export samples window.", lines=lines)
+        win = HelpFrame(self, -1, title="Export Samples Help", size=size, subtitle="How to use the export samples window.", lines=lines)
         win.CenterOnParent()
         win.Show(True)
 
