@@ -866,6 +866,9 @@ class BasePanel(wx.Panel):
         self.SetBackgroundColour(col)
         self.close.SetBackgroundColour(col)
         self.corner.SetBackgroundColour(col)
+        self.separator.setBackgroundColour(col)
+        if not self.from_lfo:
+            self.info.SetBackgroundColour(col)
         for slider in self.sliders:
             try:
                 slider.setBackgroundColour(col)
@@ -909,7 +912,8 @@ class GenericPanel(BasePanel):
         self.titleSizer.AddMany([(self.close, 0, wx.LEFT, 3), (self.info, 0, wx.LEFT, 3), 
                                 (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL, 0), (self.corner, 0, wx.RIGHT, 3)])
         self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 3)
-        self.sizer.Add(ZyneStaticLine(self, size=(230, 2)), 0, wx.BOTTOM, 3)
+        self.separator = ZyneStaticLine(self, size=(230, 2))
+        self.sizer.Add(self.separator, 0, wx.BOTTOM, 3)
 
         self.font = self.close.GetFont()
         if vars.constants["PLATFORM"] == "darwin":
