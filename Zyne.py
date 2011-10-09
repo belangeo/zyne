@@ -279,6 +279,12 @@ class ZyneFrame(wx.Frame):
                 slider.outFunction(param)
             self.modules[-1].reinitLFOS(lfo_params, ctl_binding=False)
             self.refresh()
+            
+            old = self.selected
+            self.selected = len(self.modules) - 1
+            self.modules[old].setBackgroundColour(BACKGROUND_COLOUR)
+            self.modules[self.selected].setBackgroundColour("#DDDDE7")
+            
             wx.CallAfter(self.SetFocus)
 
     def onRun(self, evt):
@@ -350,7 +356,7 @@ class ZyneFrame(wx.Frame):
     
     def openMidiLearnHelp(self, evt):
         if vars.constants["PLATFORM"] == "darwin":
-            size = (400, 350)
+            size = (400, 370)
         else:
             size = (400, 300)
         lines = []
