@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import wx, os, sys
+import wx, os, sys, urllib
 import Resources.variables as vars
 from Resources.panels import *
 from Resources.preferences import PreferencesDialog
@@ -341,8 +341,8 @@ class ZyneFrame(wx.Frame):
                 self.addMenu.Append(id, 'Add %s module\tShift+Ctrl+%d' % (name, ((i+1)%10)), kind=wx.ITEM_NORMAL)
                 self.Bind(wx.EVT_MENU, self.onAddModule, id=id)
             id += 1
+        self.addMenu.AppendSeparator()
         if vars.vars["EXTERNAL_MODULES"] != {}:
-            self.addMenu.AppendSeparator()
             moduleNames = sorted(vars.vars["EXTERNAL_MODULES"].keys())
             for i, name in enumerate(moduleNames):
                 self.addMenu.Append(id, 'Add %s module' % vars.vars["toSysEncoding"](name), kind=wx.ITEM_NORMAL)
@@ -353,7 +353,33 @@ class ZyneFrame(wx.Frame):
             self.addMenu.AppendSeparator()
             self.addMenu.Append(vars.constants["ID"]["UpdateModules"], "Update Modules\tCtrl+U", kind=wx.ITEM_NORMAL)
             self.Bind(wx.EVT_MENU, self.updateAddModuleMenu, id=vars.constants["ID"]["UpdateModules"])
-    
+            self.addMenu.AppendSeparator()
+        self.addMenu.Append(vars.constants["ID"]["CheckoutModules"], "Checkout external module repository", kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.checkoutExternalModules, id=vars.constants["ID"]["CheckoutModules"])
+
+    def checkoutExternalModules(self, evt):
+        if vars.vars["CUSTOM_MODULES_PATH"] == "":
+            wx.LogMessage("You must define a custom module path in the preferences panel to be able to checkout the server repository!")
+            return
+        url = "http://www.iact.umontreal.ca/zyne/external_modules"
+        file_index = "files.txt"
+        (index, msg) = urllib.urlretrieve(os.path.join(url, file_index))
+        f = open(index, "r")
+        text = f.read()
+        f.close()
+        files = [line.strip() for line in text.splitlines() if line != ""]
+        num_iter = len(files)
+        count = 0
+        dlg = wx.ProgressDialog("Downloading external modules", "", maximum = num_iter, parent=self,
+                                   style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
+        dlg.SetSize((300, 125))
+        for f in files:
+            (keepGoing, skip) = dlg.Update(count, "Downloading %s" % f)
+            urllib.urlretrieve(os.path.join(url, f), os.path.join(vars.vars["CUSTOM_MODULES_PATH"], f))
+            count += 1
+        dlg.Destroy()
+        self.updateAddModuleMenu(None)
+
     def openMidiLearnHelp(self, evt):
         if vars.constants["PLATFORM"] == "darwin":
             size = (400, 370)

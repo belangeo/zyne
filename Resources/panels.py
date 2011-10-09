@@ -567,7 +567,8 @@ class ServerPanel(wx.Panel):
         popups = [self.popupDriver, self.popupInterface, self.popupSr, self.popupPoly, self.popupBit, self.popupFormat]
         menuIds = [vars.constants["ID"]["New"], vars.constants["ID"]["Open"], vars.constants["ID"]["MidiLearn"], 
                    vars.constants["ID"]["Export"], vars.constants["ID"]["ExportChord"], vars.constants["ID"]["ExportTracks"], 
-                   vars.constants["ID"]["ExportChordTracks"], vars.constants["ID"]["Quit"], vars.constants["ID"]["UpdateModules"]]
+                   vars.constants["ID"]["ExportChordTracks"], vars.constants["ID"]["Quit"], vars.constants["ID"]["UpdateModules"], 
+                   vars.constants["ID"]["CheckoutModules"]]
         if evt.GetInt() == 1:
             for popup in popups:
                 popup.Disable()
