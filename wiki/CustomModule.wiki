@@ -9,8 +9,9 @@
   # API
   # Basics
   # Reserved variables
+  # Module's documentation
   # Examples
-  #  Generic class to use as a startup
+  # Generic class to use as a startup
 
 ==2. Introduction== 
 
@@ -138,8 +139,29 @@ class MySound(BaseSynth):
 
 To minimise conflicts between variable's names, all other variables used in the class "!BaseSynth" begin with an underscore. If you don't use this syntax in your custom classes, you will avoid to override basic module's objects.
 
+==6. Module's documentation==
 
-==6. Examples==
+The module documentation, accessible via the question mark on the interface must be included in the __doc__ string variable of the custom class. The following syntax must be respected:
+
+{{{
+"""
+Short description of the module.
+
+Longer explication about the audio process implemented.
+
+Parameters:
+
+    First param : Description
+    Second param : Description
+    Third param : Description
+
+___________________________________________________________________________________________________
+Author : Your Name - year
+___________________________________________________________________________________________________
+"""
+}}}
+
+==7. Examples==
 
 Example of a file containing two modules. First, a simple module implementing a chorus of sine waves using semitone transposition and second, a soundfile looper/slicer using transposition factor derived from the keyboard's pitches.
 
@@ -228,7 +250,7 @@ MODULES = {
           }
 }}}
 
-==7. Generic class to use as a startup== 
+==8. Generic class to use as a startup== 
 
 {{{
 class GenericModule(BaseSynth):
