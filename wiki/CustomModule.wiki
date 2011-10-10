@@ -43,7 +43,9 @@ Parameters :
         The keyboard can be transposed in semitones before the midi-to-hertz or the midi-to-transpo conversion. This is automatically done when a slider is defined with "Transposition" as the param_name.
 
 Attributes :
-    _*self.pitch*_ : this variable contains frequencies, in Hertz, Midi notes or transposition factors, from the pitches played on keyboard.
+    _*self.pitch*_ : PyoObject
+        this variable contains frequencies, in Hertz, Midi notes or     
+        transposition factors, from the pitches played on keyboard.
 
     _*self.amp*_ : this variable contains the ADSR amplitude envelope, normalized between 0 and 1, from the velocities played on the keyboard.
 
