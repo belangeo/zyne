@@ -1,7 +1,6 @@
 # encoding: utf-8
 import wx, os, math, copy, random
 from wx.lib.stattext import GenStaticText
-from wx.lib.statbmp import GenStaticBitmap
 import Resources.variables as vars
 from Resources.widgets import *
 from pyolib._wxwidgets import VuMeter, BACKGROUND_COLOUR
@@ -148,21 +147,7 @@ class HelpFrame(wx.Frame):
         self.rtc.EndSuppressUndo()
         self.rtc.Thaw()
 
-        # num_lines = self.rtc.GetNumberOfLines()
-        # l = None
-        # for i, line in enumerate(lines):
-        #     if "_____" in line:
-        #         l = i
-        #         break
-        # if l != None:
-        #     length = len(lines[l])
-        #     pixelsize = self.rtc.GetFont().GetPixelSize()
-        #     X, Y = length * pixelsize[0], num_lines * pixelsize[1]
-        #     wx.CallAfter(self.SetSize, (X, Y+150))
-        # wx.CallAfter(self.CenterOnParent)
-        #wx.CallAfter(self.Layout)
         wx.CallAfter(self.SetInitialSize)
-        #wx.CallAfter(self.SetSize, size)
         
     def onClose(self, evt):
         self.Destroy()
@@ -1289,10 +1274,8 @@ class LFOPanel(BasePanel):
         self.close.SetToolTip(wx.ToolTip("Close window"))
         self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
         bmp = wx.BitmapFromImage(MOVE.GetImage().Rescale(16, 16))
-        #self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(16,16), style=wx.NO_BORDER)
         self.corner = ZyneStaticBitmap(self, bitmap=bmp)
         self.corner.SetToolTip(wx.ToolTip("Move window"))
-        #self.corner.setBackgroundColour(BACKGROUND_COLOUR)
         self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 2), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 2), (self.corner, 0, wx.RIGHT, 5)])
         self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 2)
         self.sizer.Add(ZyneStaticLine(self, size=(226, 2)), 0, wx.BOTTOM, 3)
