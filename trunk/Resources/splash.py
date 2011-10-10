@@ -48,7 +48,7 @@ class ZyneSplashScreen(wx.Frame):
         if sys.platform == 'win32':
             self.Center(wx.VERTICAL)
             
-        self.Show(True)
+        wx.CallAfter(self.Show)
         
     def SetWindowShape(self, *evt):
         r = GetRoundShape(self.w, self.h)
