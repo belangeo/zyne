@@ -9,6 +9,7 @@
   # API
   # Basics
   # Reserved variables
+  # Stereo output vs keyboard polyphony
   # Module's documentation
   # Examples
   # Generic class to use as a startup
