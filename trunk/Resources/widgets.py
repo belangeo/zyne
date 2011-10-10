@@ -1197,4 +1197,25 @@ class ZyneStaticLine(wx.Panel):
         dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
         dc.DrawLine(4, 1, w-8, 1)
 
+class ZyneStaticBitmap(wx.Panel):
+    def __init__(self, parent, bitmap, pos=wx.DefaultPosition, size=(16,16)):
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.bitmap = bitmap
+        self.backColour = BACKGROUND_COLOUR
+        self.SetSize(size)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        
+    def setBackgroundColour(self, col):
+        self.backColour = col
+        self.Refresh()
 
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+        dc.SetBrush(wx.Brush(self.backColour, wx.SOLID))
+        dc.Clear()
+        dc.SetPen(wx.Pen(self.backColour, width=1, style=wx.SOLID))
+        dc.DrawRectangle(0, 0, w, h)
+        dc.DrawBitmap(self.bitmap, 0, 0, True)

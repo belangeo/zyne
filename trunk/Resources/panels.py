@@ -103,8 +103,12 @@ class MyFileDropTarget(wx.FileDropTarget):
 
 class HelpFrame(wx.Frame):
     def __init__(self, parent, id, title, size, subtitle, lines):
+        if vars.constants["PLATFORM"] == "win32":
+            style = wx.DEFAULT_FRAME_STYLE | wx.FRAME_TOOL_WINDOW | wx.FRAME_FLOAT_ON_PARENT | wx.NO_BORDER
+        else:
+            style = wx.FRAME_TOOL_WINDOW | wx.FRAME_FLOAT_ON_PARENT | wx.NO_BORDER  
         wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size, 
-                        style=wx.FRAME_TOOL_WINDOW | wx.FRAME_FLOAT_ON_PARENT | wx.NO_BORDER)
+                        style=style)
         self.SetBackgroundColour(BACKGROUND_COLOUR)
         if vars.constants["PLATFORM"] == "darwin":
             close_accel = wx.ACCEL_CMD
@@ -116,10 +120,10 @@ class HelpFrame(wx.Frame):
         self.rtc = rt.RichTextCtrl(self, style=wx.VSCROLL|wx.HSCROLL|wx.NO_BORDER)
         self.rtc.Bind(wx.EVT_LEFT_DOWN, self.onClose)
         self.rtc.SetEditable(False)
+        wx.CallAfter(self.rtc.SetFocus)
         self.rtc.SetBackgroundColour(BACKGROUND_COLOUR)
         caret = self.rtc.GetCaret()
         caret.Hide()
-        wx.CallAfter(self.rtc.SetFocus)
     
         font = self.rtc.GetFont()
         font.SetFamily(wx.FONTFAMILY_MODERN)
@@ -129,7 +133,7 @@ class HelpFrame(wx.Frame):
         self.rtc.BeginSuppressUndo()
         self.rtc.BeginParagraphSpacing(0, 20)
         self.rtc.BeginBold()
-        if vars.constants["PLATFORM"] == "linux2":
+        if vars.constants["PLATFORM"] in ["win32", "linux2"]:
             self.rtc.BeginFontSize(12)
         else:
             self.rtc.BeginFontSize(16)
@@ -156,9 +160,10 @@ class HelpFrame(wx.Frame):
         #     X, Y = length * pixelsize[0], num_lines * pixelsize[1]
         #     wx.CallAfter(self.SetSize, (X, Y+150))
         # wx.CallAfter(self.CenterOnParent)
-        #wx.CallAfter(self.layout)
+        #wx.CallAfter(self.Layout)
         wx.CallAfter(self.SetInitialSize)
-
+        #wx.CallAfter(self.SetSize, size)
+        
     def onClose(self, evt):
         self.Destroy()
 
@@ -1019,7 +1024,7 @@ class GenericPanel(BasePanel):
 
     def MouseDownInfo(self, evt):
         if self.synth.__doc__ != None:
-            if vars.constants["PLATFORM"] == "darwin":
+            if vars.constants["PLATFORM"] != "linux2":
                 size = (650, 450)
             else:
                 size = (500, 450)
@@ -1284,9 +1289,10 @@ class LFOPanel(BasePanel):
         self.close.SetToolTip(wx.ToolTip("Close window"))
         self.title = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](title))
         bmp = wx.BitmapFromImage(MOVE.GetImage().Rescale(16, 16))
-        self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(16,16), style=wx.NO_BORDER)
+        #self.corner = GenStaticBitmap(self, -1, bitmap=bmp, size=(16,16), style=wx.NO_BORDER)
+        self.corner = ZyneStaticBitmap(self, bitmap=bmp)
         self.corner.SetToolTip(wx.ToolTip("Move window"))
-        self.corner.SetBackgroundColour(BACKGROUND_COLOUR)
+        #self.corner.setBackgroundColour(BACKGROUND_COLOUR)
         self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 2), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 2), (self.corner, 0, wx.RIGHT, 5)])
         self.sizer.Add(self.titleSizer, 0, wx.BOTTOM|wx.TOP, 2)
         self.sizer.Add(ZyneStaticLine(self, size=(226, 2)), 0, wx.BOTTOM, 3)

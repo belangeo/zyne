@@ -363,11 +363,17 @@ class ZyneFrame(wx.Frame):
             return
         url = "http://www.iact.umontreal.ca/zyne/external_modules"
         file_index = "files.txt"
-        (index, msg) = urllib.urlretrieve(os.path.join(url, file_index))
+        path = os.path.join(url, file_index)
+        if vars.constants["PLATFORM"] == "win32":
+            path = path.replace("\\", "/")
+        (index, msg) = urllib.urlretrieve(path)
         f = open(index, "r")
         text = f.read()
         f.close()
         files = [line.strip() for line in text.splitlines() if line != ""]
+        if "<HTML>" in files[0]:
+            wx.LogMessage("Unable to download external modules...")
+            return
         num_iter = len(files)
         count = 0
         dlg = wx.ProgressDialog("Downloading external modules", "", maximum = num_iter, parent=self,
@@ -375,13 +381,18 @@ class ZyneFrame(wx.Frame):
         dlg.SetSize((300, 125))
         for f in files:
             (keepGoing, skip) = dlg.Update(count, "Downloading %s" % f)
-            urllib.urlretrieve(os.path.join(url, f), os.path.join(vars.vars["CUSTOM_MODULES_PATH"], f))
+            path = os.path.join(url, f)
+            outpath = os.path.join(vars.vars["CUSTOM_MODULES_PATH"], f)
+            if vars.constants["PLATFORM"] == "win32":
+                path = path.replace("\\", "/")
+                outpath = outpath.replace("\\", "/")
+            urllib.urlretrieve(path, outpath)
             count += 1
         dlg.Destroy()
         self.updateAddModuleMenu(None)
 
     def openMidiLearnHelp(self, evt):
-        if vars.constants["PLATFORM"] == "darwin":
+        if vars.constants["PLATFORM"] != "linux2":
             size = (400, 370)
         else:
             size = (400, 300)
@@ -397,7 +408,7 @@ class ZyneFrame(wx.Frame):
         win.Show(True)
 
     def openExportHelp(self, evt):
-        if vars.constants["PLATFORM"] == "darwin":
+        if vars.constants["PLATFORM"] != "linux2":
             size = (400, 420)
         else:
             size = (400, 300)
