@@ -563,7 +563,9 @@ class ServerPanel(wx.Panel):
             for popup in popups:
                 popup.Disable()
             for menuId in menuIds:
-                self.GetTopLevelParent().menubar.FindItemById(menuId).Enable(False)
+                menuItem = self.GetTopLevelParent().menubar.FindItemById(menuId)
+                if menuItem != None:
+                    menuItem.Enable(False)
             self.fsserver.start()
         else:
             self.fsserver.stop()
@@ -571,7 +573,9 @@ class ServerPanel(wx.Panel):
                 if popup != self.popupDriver or vars.vars["AUDIO_HOST"] != "Jack":
                     popup.Enable()
             for menuId in menuIds:
-                self.GetTopLevelParent().menubar.FindItemById(menuId).Enable(True)
+                menuItem = self.GetTopLevelParent().menubar.FindItemById(menuId)
+                if menuItem != None:
+                    menuItem.Enable(True)
     
     def handleRec(self, evt):
         if evt.GetInt() == 1:
