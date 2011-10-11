@@ -1,5 +1,5 @@
 # encoding: utf-8
-import wx, os, math, copy, random
+import wx, os, math, copy, random, time
 from wx.lib.stattext import GenStaticText
 import Resources.variables as vars
 from Resources.widgets import *
@@ -660,22 +660,22 @@ class ServerPanel(wx.Panel):
         mainFrame = self.GetTopLevelParent()
         mainFrameSize = mainFrame.GetSize()
         try:
-            self.setDriverSetting(self.fsserver.setMidiInputDevice, self.interfaceIndexes[evt.GetInt()])
             vars.vars["VIRTUAL"] = False
+            self.setDriverSetting(self.fsserver.setMidiInputDevice, self.interfaceIndexes[evt.GetInt()])
             if self.keyboardShown:
                 self.keyboardShown = 0
                 self.keyboard.reset()
                 mainFrame.SetSize((mainFrameSize[0], mainFrameSize[1]-80))
                 mainFrame.showKeyboard(False)
         except IndexError:
+            vars.vars["VIRTUAL"] = True
             if not self.keyboardShown:
-                vars.vars["VIRTUAL"] = True
                 self.setDriverSetting()
                 screenRect = self.GetTopLevelParent().GetScreenRect()
                 self.keyboardShown = 1
                 mainFrame.SetSize((mainFrameSize[0], mainFrameSize[1]+80))
                 mainFrame.showKeyboard()
-    
+        
     def changeSr(self, evt):
         if evt.GetInt() == 0: sr = 44100
         elif evt.GetInt() == 1: sr = 48000
