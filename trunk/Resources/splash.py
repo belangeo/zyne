@@ -4,17 +4,17 @@
 import wx, sys, os
 
 def GetRoundBitmap(w, h, r=10):
-    maskColor = wx.Color(0,0,0)
-    shownColor = wx.Color(5,5,5)
+    maskColour = wx.Colour(0,0,0)
+    shownColour = wx.Colour(5,5,5)
     b = wx.EmptyBitmap(w,h)
     dc = wx.MemoryDC(b)
-    dc.SetBrush(wx.Brush(maskColor))
+    dc.SetBrush(wx.Brush(maskColour))
     dc.DrawRectangle(0,0,w,h)
-    dc.SetBrush(wx.Brush(shownColor))
-    dc.SetPen(wx.Pen(shownColor))
+    dc.SetBrush(wx.Brush(shownColour))
+    dc.SetPen(wx.Pen(shownColour))
     dc.DrawCircle(w/2,h/2,w/2)
     dc.SelectObject(wx.NullBitmap)
-    b.SetMaskColour(maskColor)
+    b.SetMaskColour(maskColour)
     return b
 
 def GetRoundShape(w, h, r=10):

@@ -13,67 +13,67 @@ MODULES =   {
                     "p2": ["FM Index", 5, 0, 40, False, False],
                     "p3": ["Lowpass Cutoff", 2000, 100, 18000, False, True]
                     },
-            "Additive": { "title": "--- Additive Synthesis ---", "synth": AddSynth, 
+            "Additive": { "title": "- Additive Synthesis -", "synth": AddSynth, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Spread", 1, 0, 2, False, False],
                     "p3": ["Feedback", 0, 0, 1, False, False]
                     },
-            "Wind": { "title": "--- Wind Synthesis ---", "synth": WindSynth, 
+            "Wind": { "title": "- Wind Synthesis -", "synth": WindSynth, 
                     "p1": ["Rand frequency", 1, 0.01, 20, False, True],
                     "p2": ["Rand Depth", .1, .001, .25, False, False],
                     "p3": ["Filter Q", 5, 1, 20, False, False]
                     },
-            "SquareMod": { "title": "--- Square Modulation ---", "synth": SquareMod, 
+            "SquareMod": { "title": "- Square Modulation -", "synth": SquareMod, 
                     "p1": ["Harmonics", 10, 1, 40, True, False],
                     "p2": ["LFO Frequency", 1, .001, 20, False, False],
                     "p3": ["LFO Amplitude", 1, 0, 1, False, False]
                     },
-            "SawMod": { "title": "--- Sawtooth Modulation ---", "synth": SawMod, 
+            "SawMod": { "title": "- Sawtooth Modulation -", "synth": SawMod, 
                     "p1": ["Harmonics", 10, 1, 40, True, False],
                     "p2": ["LFO Frequency", 1, .001, 20, False, False],
                     "p3": ["LFO Amplitude", 1, 0, 1, False, False]
                     },
-            "Pulsar": { "title": "--- Pulsar Synthesis ---", "synth": PulsarSynth, 
+            "Pulsar": { "title": "- Pulsar Synthesis -", "synth": PulsarSynth, 
                     "p1": ["Harmonics", 10, 1, 20, True, False],
                     "p2": ["Transposition", 0, -36, 36, True, False],
                     "p3": ["LFO Frequency", 1, .02, 200, False, True],
                     },
-            "Ross": { "title": "--- Rossler Attractors ---", "synth": Ross, 
+            "Ross": { "title": "- Rossler Attractors -", "synth": Ross, 
                     "p1": ["Chaos", 0.5, 0., 1., False, False],
                     "p2": ["Chorus Depth", .001, .001, .125, False, True],
                     "p3": ["Lowpass Cutoff", 5000, 100, 15000, False, True]
                     },
-            "Wave": { "title": "--- Waveform Synthesis ---", "synth": Wave, 
+            "Wave": { "title": "- Waveform Synthesis -", "synth": Wave, 
                     "p1": ["Waveform", 0, 0, 7, True, False],
                     "p2": ["Transposition", 0, -36, 36, True, False],
                     "p3": ["Sharpness", 0.5, 0., 1., False, False],
                     },
-            "PluckedString": { "title": "--- Plucked String Synth ---", "synth": PluckedString, 
+            "PluckedString": { "title": "- Plucked String Synth -", "synth": PluckedString, 
                     "p1": ["Transposition", 0, -48, 0, True, False],
                     "p2": ["Duration", 30, .25, 60, False, False],
                     "p3": ["Chorus Depth", .001, .001, .125, False, True]
                     },
-            "Reson": { "title": "--- Resonators Synthesis ---", "synth": Reson, 
+            "Reson": { "title": "-- Resonators Synthesis -", "synth": Reson, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Chorus Depth", .001, .001, .125, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
                     },
-            "CrossFM": { "title": "--- Frequency Modulation ---", "synth": CrossFmSynth, 
+            "CrossFM": { "title": "- Frequency Modulation -", "synth": CrossFmSynth, 
                     "p1": ["FM Ratio", .25, 0, 4, False, False],
                     "p2": ["FM Index 1", 2, 0, 40, False, False],
                     "p3": ["FM Index 2", 2, 0, 40, False, False],
                     },
-            "OTReson": { "title": "--- Out of tune Resonators ---", "synth": OTReson, 
+            "OTReson": { "title": "- Out of tune Resonators -", "synth": OTReson, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Detune", .01, .0001, 1, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
                     },
-            "InfiniteRev": { "title": "--- Infinite Reverb ---", "synth": InfiniteRev, 
+            "InfiniteRev": { "title": "- Infinite Reverb -", "synth": InfiniteRev, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Brightness", 5, 0, 100, True, False],
                     "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
                     },
-            "Degradation": { "title": "--- Wave Degradation ---", "synth": Degradation, 
+            "Degradation": { "title": "- Wave Degradation -", "synth": Degradation, 
                     "p1": ["Bit Depth", 6, 2, 16, False, True],
                     "p2": ["SR Scale", .1, 0.001, .5, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
@@ -190,7 +190,7 @@ class LFOFrame(wx.MiniFrame):
         self.Bind(wx.EVT_MENU, self.onClose, id=vars.constants["ID"]["CloseLFO"])
         self.mouseOffset = (0,0)
         self.which = which
-        self.panel = LFOPanel(self, "LFO", "--- %s LFO ---" % label, synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], LFO_CONFIG["p4"], which)
+        self.panel = LFOPanel(self, "LFO", "- %s LFO -" % label, synth, LFO_CONFIG["p1"], LFO_CONFIG["p2"], LFO_CONFIG["p3"], LFO_CONFIG["p4"], which)
         self.panel.SetPosition((0,0))
         self.panel.corner.Bind(wx.EVT_LEFT_DOWN, self.onMouseDown)
         self.panel.corner.Bind(wx.EVT_LEFT_UP, self.onMouseUp)
