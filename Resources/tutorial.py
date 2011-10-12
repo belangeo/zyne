@@ -265,12 +265,12 @@ class SndLooper(BaseSynth):
         self.out = Mix([self.looper1, self.looper2], voices=2)
 
 MODULES = {
-            "ChoruSyn": { "title": "--- Chorused sines ---", "synth": ChoruSyn, 
+            "ChoruSyn": { "title": "- Chorused sines -", "synth": ChoruSyn, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Deviation speed", 1, .1, 10, False, False],
                     "p3": ["Deviation range", 0.02, 0.001, .5, False, True]
                     },
-            "SndLooper": { "title": "--- Sound Looper ---", "synth": SndLooper, 
+            "SndLooper": { "title": "- Sound Looper -", "synth": SndLooper, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Deviation speed", 1, .1, 10, False, False],
                     "p3": ["Deviation range", 0.02, 0.001, .5, False, True]
@@ -308,7 +308,7 @@ class GenericModule(BaseSynth):
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 MODULES = {
-            "GenericModule": { "title": "--- Generic module ---", "synth": GenericModule, 
+            "GenericModule": { "title": "- Generic module -", "synth": GenericModule, 
                     "p1": ["Ratio", 0.5, 0, 10, False, False],
                     "p2": ["Index", 5, 0, 20, False, False],
                     "p3": ["LP cutoff", 4000, 100, 15000, False, True]
