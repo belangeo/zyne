@@ -23,7 +23,7 @@ class FSServer:
         self.compOn = False
         self.eqFreq = [100, 500, 2000]
         self.eqGain = [1, 1, 1, 1]
-        self.server = Server(audio=vars.vars["AUDIO_HOST"].lower())
+        self.server = Server(duplex=0, audio=vars.vars["AUDIO_HOST"].lower())
         self.boot()
     
     def scanning(self, x):
@@ -88,7 +88,7 @@ class FSServer:
     
     def setOutputDevice(self, device):
         if vars.vars["AUDIO_HOST"] != "Jack":
-            self.server.setInOutDevice(device)
+            self.server.setOutputDevice(device)
     
     def setMidiInputDevice(self, device):
         self.server.setMidiInputDevice(device)
