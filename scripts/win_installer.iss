@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{743E4228-E23B-4758-BD5C-59EE059F4143}
 AppName=Zyne
-AppVersion=0.1.0
+AppVersion=0.1.1
 AppPublisher=iACT.umontreal.ca
 AppPublisherURL=http://code.google.com/p/zyne
 AppSupportURL=http://code.google.com/p/zyne
@@ -18,7 +18,7 @@ DefaultGroupName=Zyne
 AllowNoIcons=yes
 ;LicenseFile=C:\Documents and Settings\olipetwin\svn\cecilia4\Cecilia_Win\Resources\COPYING.txt
 ;InfoBeforeFile=C:\Documents and Settings\olipetwin\svn\cecilia4\Cecilia_Win\README.txt
-OutputBaseFilename=Zyne_0.1.0_setup
+OutputBaseFilename=Zyne_0.1.1_setup
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
@@ -32,8 +32,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "C:\Documents and Settings\user\svn\zyne\Zyne_Win\Zyne.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Documents and Settings\user\svn\zyne\Zyne_Win\Resources\*"; DestDir: "{app}\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "C:\Documents and Settings\olipetwin\svn\soundgrain\SoundGrain_Win\README.txt"; DestDir: "{app}"; Flags: ignoreversion
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
 Root: HKCR; Subkey: ".zy"; ValueType: string; ValueName: ""; ValueData: "ZyneFile"; Flags: uninsdeletevalue
