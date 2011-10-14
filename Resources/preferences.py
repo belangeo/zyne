@@ -40,9 +40,9 @@ class PreferencesDialog(wx.Dialog):
             host_choices = ["Portaudio", "Jack"]
         elif vars.constants["PLATFORM"] == "darwin":
             if vars.constants["OSX_BUILD_WITH_JACK_SUPPORT"]:
-                host_choices = ["Portaudio", "Coreaudio", "Jack"]
+                host_choices = ["Portaudio", "Jack"]
             else:
-                host_choices = ["Portaudio", "Coreaudio"]
+                host_choices = ["Portaudio"]
         else:
             host_choices = ["Portaudio"]
         host = self.prefs["AUDIO_HOST"]
@@ -178,7 +178,7 @@ class PreferencesDialog(wx.Dialog):
             line = line.strip()
             if line:
                 sline = line.split("=")
-                if sline[0].strip() == "AUDIO_HOST" and vars.constants["PLATFORM"] == "darwin" and not vars.constants["OSX_BUILD_WITH_JACK_SUPPORT"] and sline[1].strip() == "Jack":
+                if sline[0].strip() == "AUDIO_HOST" and vars.constants["PLATFORM"] == "darwin" and not vars.constants["OSX_BUILD_WITH_JACK_SUPPORT"] and sline[1].strip() in ["Jack", "Coreaudio"]:
                     self.prefs[sline[0].strip()] = vars.vars["ensureNFD"]("Portaudio")
                 else:
                     self.prefs[sline[0].strip()] = vars.vars["ensureNFD"](sline[1].strip())
