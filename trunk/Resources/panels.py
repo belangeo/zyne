@@ -661,7 +661,11 @@ class ServerPanel(wx.Panel):
         mainFrameSize = mainFrame.GetSize()
         try:
             vars.vars["VIRTUAL"] = False
-            self.setDriverSetting(self.fsserver.setMidiInputDevice, self.interfaceIndexes[self.interfaceList.index(evt.GetString())])
+            if evt.GetString() in self.interfaceList:
+                index = self.interfaceList.index(evt.GetString())
+            else:
+                index = 999
+            self.setDriverSetting(self.fsserver.setMidiInputDevice, self.interfaceIndexes[index])
             if self.keyboardShown:
                 self.keyboardShown = 0
                 self.keyboard.reset()

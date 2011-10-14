@@ -145,7 +145,7 @@ def checkForPreferencesFile():
                 vars[key] = int(prefs[key])
             elif key in ["SLIDERPORT"]:
                 vars[key] = float(prefs[key])
-            elif key == "AUDIO_HOST" and constants["PLATFORM"] == "darwin" and not constants["OSX_BUILD_WITH_JACK_SUPPORT"] and prefs[key] == "Jack":
+            elif key == "AUDIO_HOST" and constants["PLATFORM"] == "darwin" and not constants["OSX_BUILD_WITH_JACK_SUPPORT"] and prefs[key] in ["Jack", "Coreaudio"]:
                 vars[key] = ensureNFD("Portaudio")
             else:
                 vars[key] = prefs[key]
