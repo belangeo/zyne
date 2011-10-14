@@ -512,7 +512,7 @@ class ServerPanel(wx.Panel):
     
     def prepareForVirtualKeyboard(self):
         evt = wx.CommandEvent(10006, self.popupInterface.GetId())
-        evt.SetInt(1)
+        evt.SetString("Virtual Keyboard")
         self.changeInterface(evt)
     
     def resetVirtualKeyboard(self, resetDisplay=True):
@@ -661,7 +661,7 @@ class ServerPanel(wx.Panel):
         mainFrameSize = mainFrame.GetSize()
         try:
             vars.vars["VIRTUAL"] = False
-            self.setDriverSetting(self.fsserver.setMidiInputDevice, self.interfaceIndexes[evt.GetInt()])
+            self.setDriverSetting(self.fsserver.setMidiInputDevice, self.interfaceIndexes[self.interfaceList.index(evt.GetString())])
             if self.keyboardShown:
                 self.keyboardShown = 0
                 self.keyboard.reset()
