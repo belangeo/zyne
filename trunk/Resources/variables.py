@@ -5,7 +5,7 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 constants = dict()
-constants["VERSION"] = "0.1.0"
+constants["VERSION"] = "0.1.1"
 constants["PLATFORM"] = sys.platform
 constants["OSX_BUILD_WITH_JACK_SUPPORT"] = False
 constants["DEFAULT_ENCODING"] = sys.getdefaultencoding()
@@ -125,7 +125,13 @@ def checkForPreferencesFile():
     if os.path.isfile(preffile):
         with codecs.open(preffile, "r", encoding="utf-8") as f:
             lines = f.readlines()
-            if not lines[0].startswith("### Zyne") or not constants["VERSION"] in lines[0]:
+            pref_rel_version = int(lines[0].split()[3].split(".")[1])
+            cur_rel_version = int(constants["VERSION"].split(".")[1])
+            if lines[0].startswith("### Zyne"):
+                if pref_rel_version != cur_rel_version: 
+                    print "Zyne preferences out-of-date, using default values."
+                    lines = constants["DEFAULT_PREFS"].splitlines()
+            else:
                 print "Zyne preferences out-of-date, using default values."
                 lines = constants["DEFAULT_PREFS"].splitlines()
         prefs = dict()
