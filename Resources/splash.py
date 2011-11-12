@@ -55,7 +55,11 @@ class ZyneSplashScreen(wx.Frame):
         self.hasShape = self.SetShape(r)
 
     def OnPaint(self, evt):
+        w,h = self.GetSize()
         dc = wx.PaintDC(self)
+        dc.SetPen(wx.Pen("#000000"))
+        dc.SetBrush(wx.Brush("#000000"))
+        dc.DrawRectangle(0,0,w,h)
         dc.DrawBitmap(self.bmp, 0,0,True)
      
     def OnClose(self):
