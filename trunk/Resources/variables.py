@@ -5,7 +5,8 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 constants = dict()
-constants["VERSION"] = "0.1.1"
+constants["VERSION"] = "0.1.2"
+constants["YEAR"] = "2012"
 constants["PLATFORM"] = sys.platform
 constants["OSX_BUILD_WITH_JACK_SUPPORT"] = False
 constants["DEFAULT_ENCODING"] = sys.getdefaultencoding()

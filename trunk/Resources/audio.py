@@ -50,13 +50,15 @@ class FSServer:
         self.server.stop()
     
     def shutdown(self):
+        del self._modMix, self._outSig, self._outSigMix, self._fbEqAmps, self._fbEq
+        del self._outEq, self._outEqMix, self._compLevel, self._compDelay, self._outComp
         self.server.shutdown()
     
     def boot(self):
         self.server.boot()
-        self._outSig = Sig([0,0]).out()
+        self._modMix = Sig([0,0])
+        self._outSig = Sig(self._modMix).out()
         vars.vars["MIDI_ACTIVE"] = self.server.getMidiActive()
-        #print "midi is active :", vars.vars["MIDI_ACTIVE"]
         self._outSigMix = self._outSig.mix(1)
         
         self._fbEqAmps = SigTo(self.eqGain, time=.1, init=self.eqGain)
@@ -286,6 +288,20 @@ class CtlBind:
                 self.lfo_midictl_3 = Midictl(ctl, mini, maxi+.1, value)
             self.lfo_trigFunc_3 = TrigFunc(self._midi_metro, self.valToWidget3)
 
+    def __del__(self):
+        for key in self.__dict__.keys():
+            del self.__dict__[key]
+        if hasattr(self, "trigFunc"):
+            del self.trigFunc
+        if hasattr(self, "lfo_trigFunc_0"):
+            del self.lfo_trigFunc_0
+        if hasattr(self, "lfo_trigFunc_1"):
+            del self.lfo_trigFunc_1
+        if hasattr(self, "lfo_trigFunc_2"):
+            del self.lfo_trigFunc_2
+        if hasattr(self, "lfo_trigFunc_3"):
+            del self.lfo_trigFunc_3
+
 class LFOSynth(CtlBind):
     def __init__(self, rng, trigger, midi_metro, lfo_config=None):
         CtlBind.__init__(self)
@@ -334,10 +350,6 @@ class LFOSynth(CtlBind):
     
     def setAmp(self, x):
         self.rawamp.value = x
-    
-    def __del__(self):
-        for key in self.__dict__.keys():
-            del self.__dict__[key]
 
 class Param(CtlBind):
     def __init__(self, parent, i, conf, lfo_trigger, midi_metro):
@@ -363,10 +375,6 @@ class Param(CtlBind):
             self.lfo.stop()
         else:
             self.lfo.play()
-    
-    def __del__(self):
-        for key in self.__dict__.keys():
-            del self.__dict__[key]
 
 class Panner(CtlBind):
     def __init__(self, parent, lfo_trigger, midi_metro):
@@ -411,8 +419,8 @@ class ParamTranspo:
         self.trigFunc = TrigFunc(self._midi_metro, self.valToWidget)
     
     def __del__(self):
-        for key in self.__dict__.keys():
-            del self.__dict__[key]
+        if hasattr(self, "trigFunc"):
+            del self.trigFunc
 
 class BaseSynth:
     def __init__(self, config,  mode=1):
@@ -494,9 +502,6 @@ class BaseSynth:
         self._params[which].set(x)
     
     def __del__(self):
-        for param in self._params:
-            if param != None:
-                del param
         for key in self.__dict__.keys():
             del self.__dict__[key]
 

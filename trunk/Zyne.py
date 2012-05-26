@@ -8,6 +8,7 @@ from Resources.splash import ZyneSplashScreen
 import wx.richtext as rt
 import Resources.audio as audio
 import Resources.tutorial as tutorial
+from pyo import *
 
 class TutorialFrame(wx.Frame):
     def __init__(self, *args, **kw):
@@ -738,12 +739,15 @@ class ZyneFrame(wx.Frame):
     def deleteModule(self, module):
         if self.selected == self.modules.index(module):
             self.selected = None
+        for frame in module.lfo_frames:
+            if frame != None:
+                frame.Destroy()
         self.sizer.Remove(module)
         self.modules.remove(module)
         self.refreshOutputSignal()
         self.setModulePostions()
-        self.refresh()    
-    
+        self.refresh()
+
     def deleteAllModules(self):
         for module in self.modules:
             for frame in module.lfo_frames:
@@ -758,15 +762,16 @@ class ZyneFrame(wx.Frame):
     
     def refreshOutputSignal(self):
         if len(self.modules) == 0:
-            out = 0.0
+            out = Sig(0.0)
         else:
             for i,mod in enumerate(self.modules):
                 if i == 0:
-                    out = mod.synth.out
+                    out = Sig(mod.synth.out)
                 else:
-                    out = out + mod.synth.out
-        self.serverPanel.fsserver._outSig.value = out
-    
+                    out = out + Sig(mod.synth.out)
+        self.serverPanel.fsserver._modMix.value = out
+        self.serverPanel.fsserver._outSig.value = self.serverPanel.fsserver._modMix
+
     def refresh(self):
         self.sizer.Layout()    
         self.Refresh()   

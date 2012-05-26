@@ -58,7 +58,7 @@ MODULES =   {
                     "p2": ["Chorus Depth", .001, .001, .125, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
                     },
-            "CrossFM": { "title": "- Frequency Modulation -", "synth": CrossFmSynth, 
+            "CrossFM": { "title": "- Cross FM Modulation -", "synth": CrossFmSynth, 
                     "p1": ["FM Ratio", .25, 0, 4, False, False],
                     "p2": ["FM Index 1", 2, 0, 40, False, False],
                     "p3": ["FM Index 2", 2, 0, 40, False, False],
@@ -301,6 +301,9 @@ class LFOButtons(GenStaticText):
             self.SetForegroundColour("#0000EE")
         self.Refresh()
         self.callback(self.which, self.state)
+
+    def __del__(self):
+        del self.synth
 
 class ServerPanel(wx.Panel):
     def __init__(self, parent, colour="#DDDDE7"):
@@ -849,7 +852,6 @@ class BasePanel(wx.Panel):
         self.close.SetForegroundColour("#000000")
 
     def MouseDown(self, evt):
-        del self.synth
         if not self.from_lfo:
             for frame in self.lfo_frames:
                 if frame != None:
@@ -1266,6 +1268,9 @@ class GenericPanel(BasePanel):
                         slider.SetValue(val)
                         slider.outFunction(val)
 
+    def __del__(self):
+        self.synth.__del__()
+
 class LFOPanel(BasePanel):
     def __init__(self, parent, name, title, synth, p1, p2, p3, p4, which):
         BasePanel.__init__(self, parent, name, title, synth, p1, p2, p3, from_lfo=True)
@@ -1305,6 +1310,9 @@ class LFOPanel(BasePanel):
         self.sliderP4 = self.createSlider(p4[0], p4[1], p4[2], p4[3], p4[4], p4[5], self.changeP4)
         self.SetSizerAndFit(self.sizer) 
     
+    def __del__(self):
+        del self.synth
+
     def changeP1(self, x):
         if self.which == 0:
             self.synth._params[self.which].setSpeed(x)

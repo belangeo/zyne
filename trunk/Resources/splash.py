@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import wx, sys, os
+import Resources.variables as vars
 
 def GetRoundBitmap(w, h, r=10):
     maskColour = wx.Colour(0,0,0)
@@ -42,7 +43,7 @@ class ZyneSplashScreen(wx.Frame):
         dc = wx.ClientDC(self)
         dc.DrawBitmap(self.bmp, 0, 0, True)
 
-        self.fc = wx.FutureCall(3000, self.OnClose)
+        self.fc = wx.FutureCall(3500, self.OnClose)
 
         self.Center(wx.HORIZONTAL)
         if sys.platform == 'win32':
@@ -61,6 +62,17 @@ class ZyneSplashScreen(wx.Frame):
         dc.SetBrush(wx.Brush("#000000"))
         dc.DrawRectangle(0,0,w,h)
         dc.DrawBitmap(self.bmp, 0,0,True)
+        dc.SetTextForeground("#000000")
+        font = dc.GetFont()
+        font.SetFaceName("Monaco")
+        font.SetPixelSize((18,18))
+        dc.SetFont(font)
+        dc.DrawLabel("Modular Soft Synthesizer", wx.Rect(20, 230, 400, 18), wx.ALIGN_LEFT)
+        font.SetPixelSize((15,15))
+        dc.SetFont(font)
+        dc.DrawLabel(u"Olivier Bélanger", wx.Rect(0, 345, 400, 15), wx.ALIGN_CENTER)
+        dc.DrawLabel("iACT, %s" % vars.constants["YEAR"], wx.Rect(0, 360, 400, 15), wx.ALIGN_CENTER)
+        dc.DrawLabel("v. %s" % vars.constants["VERSION"], wx.Rect(0, 375, 400, 15), wx.ALIGN_CENTER)
      
     def OnClose(self):
         self.mainframe.Show()
