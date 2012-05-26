@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{743E4228-E23B-4758-BD5C-59EE059F4143}
 AppName=Zyne
-AppVersion=0.1.1
+AppVersion=0.1.2
 AppPublisher=iACT.umontreal.ca
 AppPublisherURL=http://code.google.com/p/zyne
 AppSupportURL=http://code.google.com/p/zyne
@@ -16,9 +16,7 @@ DefaultDirName={pf}\Zyne
 DisableDirPage=yes
 DefaultGroupName=Zyne
 AllowNoIcons=yes
-;LicenseFile=C:\Documents and Settings\olipetwin\svn\cecilia4\Cecilia_Win\Resources\COPYING.txt
-;InfoBeforeFile=C:\Documents and Settings\olipetwin\svn\cecilia4\Cecilia_Win\README.txt
-OutputBaseFilename=Zyne_0.1.1_setup
+OutputBaseFilename=Zyne_0.1.2_setup
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
@@ -46,6 +44,8 @@ Name: "{commondesktop}\Zyne"; Filename: "{app}\Zyne.exe"; Tasks: desktopicon
 [Run]
 Filename: "{app}\Zyne.exe"; Description: "{cm:LaunchProgram,Zyne}"; Flags: nowait postinstall skipifsilent
 
+[UninstallDelete]
+Type: files; Name: "{app}\Zyne Uninstall"
 
 
 
