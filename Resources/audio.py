@@ -243,9 +243,11 @@ class CtlBind:
         self.widget = widget
         if is_log:
             norm_init = pow(float(value - mini) / (maxi - mini), .1)
-            self.midictl = Midictl(ctl, 0, 1.01, norm_init)
+            self.midictl = Midictl(ctl, 0, 1.0, norm_init)
+            self.midictl.setInterpolation(False)
         else:
-            self.midictl = Midictl(ctl, mini, maxi+.1, value)
+            self.midictl = Midictl(ctl, mini, maxi, value)
+            self.midictl.setInterpolation(False)
         self.trigFunc = TrigFunc(self._midi_metro, self.valToWidget)
     
     def assignLfoMidiCtl(self, ctl, widget, i):
@@ -259,33 +261,41 @@ class CtlBind:
             self.lfo_widget_0 = widget
             if is_log:
                 norm_init = pow(float(value - mini) / (maxi - mini), .1)
-                self.lfo_midictl_0 = Midictl(ctl, 0, 1.01, norm_init)
+                self.lfo_midictl_0 = Midictl(ctl, 0, 1.0, norm_init)
+                self.lfo_midictl_0.setInterpolation(False)
             else:
-                self.lfo_midictl_0 = Midictl(ctl, mini, maxi+.1, value)
+                self.lfo_midictl_0 = Midictl(ctl, mini, maxi, value)
+                self.lfo_midictl_0.setInterpolation(False)
             self.lfo_trigFunc_0 = TrigFunc(self._midi_metro, self.valToWidget0)
         elif i == 1:
             self.lfo_widget_1 = widget
             if is_log:
                 norm_init = pow(float(value - mini) / (maxi - mini), .1)
-                self.lfo_midictl_1 = Midictl(ctl, 0, 1.01, norm_init)
+                self.lfo_midictl_1 = Midictl(ctl, 0, 1.0, norm_init)
+                self.lfo_midictl_1.setInterpolation(False)
             else:
-                self.lfo_midictl_1 = Midictl(ctl, mini, maxi+.1, value)
+                self.lfo_midictl_1 = Midictl(ctl, mini, maxi, value)
+                self.lfo_midictl_1.setInterpolation(False)
             self.lfo_trigFunc_1 = TrigFunc(self._midi_metro, self.valToWidget1)
         elif i == 2:
             self.lfo_widget_2 = widget
             if is_log:
                 norm_init = pow(float(value - mini) / (maxi - mini), .1)
-                self.lfo_midictl_2 = Midictl(ctl, 0, 1.01, norm_init)
+                self.lfo_midictl_2 = Midictl(ctl, 0, 1.0, norm_init)
+                self.lfo_midictl_2.setInterpolation(False)
             else:
-                self.lfo_midictl_2 = Midictl(ctl, mini, maxi+.1, value)
+                self.lfo_midictl_2 = Midictl(ctl, mini, maxi, value)
+                self.lfo_midictl_2.setInterpolation(False)
             self.lfo_trigFunc_2 = TrigFunc(self._midi_metro, self.valToWidget2)
         elif i == 3:
             self.lfo_widget_3 = widget
             if is_log:
                 norm_init = pow(float(value - mini) / (maxi - mini), .1)
-                self.lfo_midictl_3 = Midictl(ctl, 0, 1.01, norm_init)
+                self.lfo_midictl_3 = Midictl(ctl, 0, 1.0, norm_init)
+                self.lfo_midictl_3.setInterpolation(False)
             else:
-                self.lfo_midictl_3 = Midictl(ctl, mini, maxi+.1, value)
+                self.lfo_midictl_3 = Midictl(ctl, mini, maxi, value)
+                self.lfo_midictl_3.setInterpolation(False)
             self.lfo_trigFunc_3 = TrigFunc(self._midi_metro, self.valToWidget3)
 
     def __del__(self):
@@ -415,7 +425,8 @@ class ParamTranspo:
     
     def assignMidiCtl(self, ctl, widget):
         self.widget = widget
-        self.midictl = Midictl(ctl, -36.5, 36.5, widget.GetValue())
+        self.midictl = Midictl(ctl, -36, 36, widget.GetValue())
+        self.midictl.setInterpolation(False)
         self.trigFunc = TrigFunc(self._midi_metro, self.valToWidget)
     
     def __del__(self):
