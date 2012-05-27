@@ -326,11 +326,13 @@ class ZyneFrame(wx.Frame):
         audio.checkForCustomModules()
         self.buildAddModuleMenu()
         modules, params, lfo_params, ctl_params = self.getModulesAndParams()
+        postProcSettings = self.serverPanel.getPostProcSettings()
         self.deleteAllModules()
         self.serverPanel.shutdown()
         self.serverPanel.boot()
         self.setModulesAndParams(modules, params, lfo_params, ctl_params)
-    
+        self.serverPanel.setPostProcSettings(postProcSettings)
+
     def buildAddModuleMenu(self):
         self.moduleNames = sorted(MODULES.keys())
         id = vars.constants["ID"]["Modules"]
@@ -613,6 +615,7 @@ class ZyneFrame(wx.Frame):
                     vars.vars["MIDIVELOCITY"] = amp_factors
                 if mode in ["Samples", "Chords"]:
                     self.setModulesAndParams(modules, params, lfo_params, ctl_params, True)
+                    self.serverPanel.setPostProcSettings(postProcSettings)
                     name = "%03d_%s.%s" % (i, filename, ext)
                     path = vars.vars["toSysEncoding"](os.path.join(subrootpath, name))
                     count += 1
@@ -625,6 +628,7 @@ class ZyneFrame(wx.Frame):
                 else:
                     for j in range(num_modules):
                         self.setModulesAndParams(modules, params, lfo_params, ctl_params, True)
+                        self.serverPanel.setPostProcSettings(postProcSettings)
                         self.modules[j].setMute(2)
                         name = "%03d_%s_track_%02d_%s.%s" % (i, filename, j, self.modules[j].name, ext)
                         path = vars.vars["toSysEncoding"](os.path.join(subrootpath, name))

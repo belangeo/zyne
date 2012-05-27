@@ -649,11 +649,13 @@ class ServerPanel(wx.Panel):
         if vars.vars["VIRTUAL"]:
             self.resetVirtualKeyboard()
         modules, params, lfo_params, ctl_params = self.GetTopLevelParent().getModulesAndParams()
+        postProcSettings = self.getPostProcSettings()
         self.GetTopLevelParent().deleteAllModules()
         self.fsserver.shutdown()
         if func != None: func(val)
         self.fsserver.boot()
         self.GetTopLevelParent().setModulesAndParams(modules, params, lfo_params, ctl_params)
+        self.setPostProcSettings(postProcSettings)
     
     def changeDriver(self, evt):
         if vars.vars["AUDIO_HOST"] != "Jack":
