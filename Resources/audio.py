@@ -74,7 +74,7 @@ class FSServer:
         self._outComp.stop()
     
     def reinit(self, audio):
-        self.server.reinit(audio=audio.lower())
+        self.server.reinit(duplex=0, audio=audio.lower())
     
     def setAmpCallable(self, callable):
         self.server._server.setAmpCallable(callable)
