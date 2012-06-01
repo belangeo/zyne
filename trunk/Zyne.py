@@ -155,9 +155,10 @@ class ZyneFrame(wx.Frame):
         pref_item = self.fileMenu.Append(vars.constants["ID"]["Prefs"], 'Preferences...\tCtrl+,', 'Open Cecilia preferences pane', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=vars.constants["ID"]["Prefs"])
         self.fileMenu.AppendSeparator()
-        self.fileMenu.Append(vars.constants["ID"]["Run"], 'Run\tCtrl+R', kind=wx.ITEM_NORMAL)
-        self.Bind(wx.EVT_MENU, self.onRun, id=vars.constants["ID"]["Run"])
-        self.fileMenu.AppendSeparator()
+        if vars.constants["PLATFORM"] != "win32":
+            self.fileMenu.Append(vars.constants["ID"]["Run"], 'Run\tCtrl+R', kind=wx.ITEM_NORMAL)
+            self.Bind(wx.EVT_MENU, self.onRun, id=vars.constants["ID"]["Run"])
+            self.fileMenu.AppendSeparator()
         quit_item = self.fileMenu.Append(vars.constants["ID"]["Quit"], 'Quit\tCtrl+Q', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onQuit, id=vars.constants["ID"]["Quit"])
         if wx.Platform=="__WXMAC__":
