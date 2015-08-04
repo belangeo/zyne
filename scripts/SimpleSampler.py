@@ -2,6 +2,11 @@
 # encoding: utf-8
 """
 Created by belangeo on 2010-11-25.
+
+Usage:
+
+python SimpleSampler.py path_to_sound_folder
+
 """
 from pyo import *
 import os, sys
