@@ -64,17 +64,18 @@ class ZyneSplashScreen(wx.Frame):
         dc.DrawBitmap(self.bmp, 0,0,True)
         dc.SetTextForeground("#000000")
         font = dc.GetFont()
+        ptsize = font.GetPointSize()
         if vars.constants["PLATFORM"] == "win32":
             pass
         else:
             font.SetFaceName("Monaco")
-            font.SetPixelSize((18,18))
+            font.SetPointSize(ptsize+3)
         dc.SetFont(font)
         dc.DrawLabel("Modular Soft Synthesizer", wx.Rect(20, 230, 400, 18), wx.ALIGN_LEFT)
         if vars.constants["PLATFORM"] == "win32":
             pass
         else:
-            font.SetPixelSize((15,15))
+            font.SetPointSize(ptsize+1)
         dc.SetFont(font)
         dc.DrawLabel(u"Olivier Bélanger", wx.Rect(0, 345, 400, 15), wx.ALIGN_CENTER)
         dc.DrawLabel("iACT, %s" % vars.constants["YEAR"], wx.Rect(0, 360, 400, 15), wx.ALIGN_CENTER)

@@ -305,6 +305,15 @@ class LFOButtons(GenStaticText):
     def __del__(self):
         del self.synth
 
+# One vertical box per popup
+# -----------------
+# |    label      |
+# |    popup      |
+# -----------------
+# Function to create the popup box needs to receive
+# - label, popup choices, function callback
+# Remove all hard-coded positions
+
 class ServerPanel(wx.Panel):
     def __init__(self, parent, colour="#DDDDE7"):
         wx.Panel.__init__(self, parent, style=wx.SUNKEN_BORDER)
@@ -415,7 +424,7 @@ class ServerPanel(wx.Panel):
         else: 
             togWidth = 30
             togHeight = 20
-        self.ppEqTitle = wx.StaticText(self, id=-1, label="--- 4 bands equalizer", pos=(50,245))
+        self.ppEqTitle = wx.StaticText(self, id=-1, label="- 4 bands equalizer -", pos=(50,245))
         self.onOffEq = wx.ToggleButton(self, id=-1, label="On", pos=(15,245), size=(togWidth, togHeight))
         tog_font, tog_psize = self.onOffEq.GetFont(), self.onOffEq.GetFont().GetPointSize()
         if vars.constants["PLATFORM"] == "linux2":
@@ -441,7 +450,7 @@ class ServerPanel(wx.Panel):
         self.knobEqA4 = ControlKnob(self, -40, 18, 0, label='B4 gain', backColour=colour, outFunction=self.changeEqA4)
         self.knobEqA4.SetPosition((168, 335))
     
-        self.ppCompTitle = wx.StaticText(self, id=-1, label="--- Dyn. compressor", pos=(50,408))
+        self.ppCompTitle = wx.StaticText(self, id=-1, label="- Dynamic compressor -", pos=(50,408))
         self.onOffComp = wx.ToggleButton(self, id=-1, label="On", pos=(15,408), size=(togWidth, togHeight))
         self.onOffComp.SetFont(tog_font)
         self.onOffComp.Bind(wx.EVT_TOGGLEBUTTON, self.handleOnOffComp)

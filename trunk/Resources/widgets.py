@@ -847,9 +847,9 @@ class ControlKnob(wx.Panel):
         dc.DrawRectangle(0, 0, w, h)
     
         if vars.constants["PLATFORM"] == "darwin":
-            dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+            dc.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
         else:
-            dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+            dc.SetFont(wx.Font(7, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
         dc.SetTextForeground("#000000")
     
         # Draw text label
@@ -1095,9 +1095,9 @@ class Keyboard(wx.Panel):
         dc.DrawRectangle(0, 0, w, h)
 
         if vars.constants["PLATFORM"] == "darwin":
-            dc.SetFont(wx.Font(12, wx.ROMAN, wx.NORMAL, wx.BOLD))
+            dc.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
         else:
-            dc.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.BOLD))
+            dc.SetFont(wx.Font(8, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
 
         for i, rec in enumerate(self.whiteKeys):
             if i in self.whiteSelected:
