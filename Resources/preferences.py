@@ -11,7 +11,8 @@ class PreferencesDialog(wx.Dialog):
         
         self.paths = ["CUSTOM_MODULES_PATH", "EXPORT_PATH"]
         self.drivers = ["OUTPUT_DRIVER", "MIDI_INTERFACE"]
-        self.ids = {"CUSTOM_MODULES_PATH": 10001, "EXPORT_PATH": 10002, "OUTPUT_DRIVER": 20001, "MIDI_INTERFACE": 20002}
+        self.ids = {"CUSTOM_MODULES_PATH": 10001, "EXPORT_PATH": 10002, 
+                    "OUTPUT_DRIVER": 20001, "MIDI_INTERFACE": 20002}
         
         self.prefs = dict()
         self.checkForPreferencesFile()
@@ -19,7 +20,7 @@ class PreferencesDialog(wx.Dialog):
  
     def createWidgets(self):
         btnSizer = wx.StdDialogButtonSizer()
-        itemSizer = wx.FlexGridSizer(2,2,0,50)
+        itemSizer = wx.FlexGridSizer(0,2,0,50)
         driverSizer = wx.BoxSizer(wx.VERTICAL)
         pathSizer = wx.BoxSizer(wx.VERTICAL)
         rowSizer = wx.BoxSizer(wx.HORIZONTAL)

@@ -357,11 +357,12 @@ class ZyneFrame(wx.Frame):
             self.addMenu.AppendSeparator()
             self.addMenu.Append(vars.constants["ID"]["UpdateModules"], "Update Modules\tCtrl+U", kind=wx.ITEM_NORMAL)
             self.Bind(wx.EVT_MENU, self.updateAddModuleMenu, id=vars.constants["ID"]["UpdateModules"])
-            self.addMenu.AppendSeparator()
-        self.addMenu.Append(vars.constants["ID"]["CheckoutModules"], "Checkout external module repository", kind=wx.ITEM_NORMAL)
-        self.Bind(wx.EVT_MENU, self.checkoutExternalModules, id=vars.constants["ID"]["CheckoutModules"])
+            #self.addMenu.AppendSeparator()
+        #self.addMenu.Append(vars.constants["ID"]["CheckoutModules"], "Checkout external module repository")
+        #self.Bind(wx.EVT_MENU, self.checkoutExternalModules, id=vars.constants["ID"]["CheckoutModules"])
 
     def checkoutExternalModules(self, evt):
+        ### This server doesn't exist anymore
         if not os.path.isdir(vars.vars["CUSTOM_MODULES_PATH"]):
             wx.LogMessage("You must define a custom module path in the preferences panel to be able to checkout the server repository!")
             return
