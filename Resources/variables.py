@@ -104,7 +104,7 @@ def ensureNFD(unistr):
                 continue
             except:
                 unistr = "UnableToDecodeString"
-                print "Unicode encoding not in a recognized format..."
+                print("Unicode encoding not in a recognized format...")
                 break
     return unicodedata.normalize(format, unistr)
 
@@ -130,10 +130,10 @@ def checkForPreferencesFile():
             cur_rel_version = int(constants["VERSION"].split(".")[1])
             if lines[0].startswith("### Zyne"):
                 if pref_rel_version != cur_rel_version: 
-                    print "Zyne preferences out-of-date, using default values."
+                    print("Zyne preferences out-of-date, using default values.")
                     lines = constants["DEFAULT_PREFS"].splitlines()
             else:
-                print "Zyne preferences out-of-date, using default values."
+                print("Zyne preferences out-of-date, using default values.")
                 lines = constants["DEFAULT_PREFS"].splitlines()
         prefs = dict()
         for line in lines[1:]:

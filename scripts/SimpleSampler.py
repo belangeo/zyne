@@ -12,7 +12,7 @@ from pyo import *
 import os, sys
 
 if len(sys.argv) < 2:
-    print "SimpleSampler must be called with a sound folder path in argument!"
+    print("SimpleSampler must be called with a sound folder path in argument!")
     sys.exit()
 else:
     path = sys.argv[1]
@@ -26,7 +26,7 @@ s.boot()
 
 snds = sorted([f for f in os.listdir(path) if f[-4:].lower() in [".wav", ".aif"]])
 
-print "loading soundfiles..."
+print("loading soundfiles...")
 
 objs = []
 for i, f in enumerate(snds):
@@ -35,6 +35,6 @@ for i, f in enumerate(snds):
     pl = TrigEnv(Thresh(n["velocity"]), t, t.getDur(), mul=Port(n["velocity"],.001,1)).out()
     objs.extend([t,n,pl])
 
-print "Done."
+print("Done.")
 
 s.gui(locals())

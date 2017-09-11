@@ -168,10 +168,10 @@ class PreferencesDialog(wx.Dialog):
                 cur_rel_version = int(vars.constants["VERSION"].split(".")[1])
                 if lines[0].startswith("### Zyne"):
                     if pref_rel_version != cur_rel_version: 
-                        print "Zyne preferences out-of-date, using default values."
+                        print("Zyne preferences out-of-date, using default values.")
                         lines = vars.constants["DEFAULT_PREFS"].splitlines()
                 else:
-                    print "Zyne preferences out-of-date, using default values."
+                    print("Zyne preferences out-of-date, using default values.")
                     lines = vars.constants["DEFAULT_PREFS"].splitlines()
         else:
             lines = vars.constants["DEFAULT_PREFS"].splitlines()
