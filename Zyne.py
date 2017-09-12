@@ -122,7 +122,7 @@ class SamplingDialog(wx.Dialog):
         self.filename.SetFocus()
 
 class ZyneFrame(wx.Frame):
-    def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(920,522)):
+    def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(900, 710)):
         wx.Frame.__init__(self, parent, id=-1, title=title, size=size)
         self.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, ord("\t"), vars.constants["ID"]["Select"]),
                                                      (wx.ACCEL_SHIFT, ord("\t"), vars.constants["ID"]["DeSelect"])]))
@@ -221,7 +221,7 @@ class ZyneFrame(wx.Frame):
         self.panel = wx.Panel(self.splitWindow)
         self.serverPanel = ServerPanel(self.panel)
         self.sizer.Add(self.serverPanel, (0,0), (2,1))
-        self.panel.SetSizer(self.sizer)
+        self.panel.SetSizerAndFit(self.sizer)
     
         self.keyboard = Keyboard(self.splitWindow, outFunction=self.serverPanel.onKeyboard)
         self.serverPanel.keyboard = self.keyboard

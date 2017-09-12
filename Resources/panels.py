@@ -305,15 +305,6 @@ class LFOButtons(GenStaticText):
     def __del__(self):
         del self.synth
 
-# One vertical box per popup
-# -----------------
-# |    label      |
-# |    popup      |
-# -----------------
-# Function to create the popup box needs to receive
-# - label, popup choices, function callback
-# Remove all hard-coded positions
-
 class ServerPanel(wx.Panel):
     def __init__(self, parent, colour="#DDDDE7"):
         wx.Panel.__init__(self, parent, style=wx.SUNKEN_BORDER)
@@ -326,21 +317,29 @@ class ServerPanel(wx.Panel):
         self.virtualvoice = 0
         self.keyboardShown = 0
         self.serverSettings = []
-    
+
+        self.mainBox = wx.BoxSizer(wx.VERTICAL)
+
+        self.font, psize = self.GetFont(), self.GetFont().GetPointSize()
+        if vars.constants["PLATFORM"] != "win32":
+            self.font.SetPointSize(psize-1)
+
         self.fsserver = FSServer()
-    
+
         dropTarget = MyFileDropTarget(self)
         self.SetDropTarget(dropTarget)
     
-        self.title = wx.StaticText(self, id=-1, label="--- Server Controls ---", pos=(40,5))
-   
-        self.driverText = wx.StaticText(self, id=-1, label="Output Driver", pos=(15,25))
+        self.title = wx.StaticText(self, id=-1, label="--- Server Controls ---")
+        self.mainBox.Add(self.title, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.BOTTOM, 4)
+
+        self.driverText = wx.StaticText(self, id=-1, label="Output Driver")
+        self.mainBox.Add(self.driverText, 0, wx.LEFT, 4)
         if vars.vars["AUDIO_HOST"] != "Jack":
             preferedDriver = vars.vars["OUTPUT_DRIVER"]
             self.driverList, self.driverIndexes = get_output_devices()
             self.driverList = [vars.vars["ensureNFD"](driver) for driver in self.driverList]
             self.defaultDriver = get_default_output()
-            self.popupDriver = wx.Choice(self, id=-1, pos=(13,40), size=(95, 20), choices=self.driverList)
+            self.popupDriver = wx.Choice(self, id=-1, choices=self.driverList)
             if preferedDriver and preferedDriver in self.driverList:
                 driverIndex = self.driverIndexes[self.driverList.index(preferedDriver)]
                 self.fsserver.shutdown()
@@ -351,17 +350,19 @@ class ServerPanel(wx.Panel):
                 self.popupDriver.SetSelection(self.driverIndexes.index(self.defaultDriver))
             self.popupDriver.Bind(wx.EVT_CHOICE, self.changeDriver)
         else:
-            self.popupDriver = wx.Choice(self, id=-1, pos=(13,40), size=(95, 20), choices=[])
+            self.popupDriver = wx.Choice(self, id=-1, choices=[])
             self.popupDriver.Disable()
+        self.mainBox.Add(self.popupDriver, 0, wx.EXPAND | wx.ALL, 2)
 
         preferedInterface = vars.vars["MIDI_INTERFACE"]
-        self.interfaceText = wx.StaticText(self, id=-1, label="Midi interface", pos=(120,25))
+        self.interfaceText = wx.StaticText(self, id=-1, label="Midi interface")
+        self.mainBox.Add(self.interfaceText, 0, wx.TOP | wx.LEFT, 4)
         self.interfaceList, self.interfaceIndexes = get_midi_input_devices()
         self.interfaceList = [vars.vars["ensureNFD"](interface) for interface in self.interfaceList]
         if self.interfaceList != []:
             self.interfaceList.append("Virtual Keyboard")
             self.defaultInterface = get_midi_default_input()
-            self.popupInterface = wx.Choice(self, id=-1, pos=(118,40), size=(95, 20), choices=self.interfaceList)
+            self.popupInterface = wx.Choice(self, id=-1, choices=self.interfaceList)
             if preferedInterface and preferedInterface in self.interfaceList:
                 if preferedInterface != "Virtual Keyboard":
                     interfaceIndex = self.interfaceIndexes[self.interfaceList.index(preferedInterface)]
@@ -377,95 +378,143 @@ class ServerPanel(wx.Panel):
                 self.fsserver.boot()
                 self.popupInterface.SetSelection(self.interfaceIndexes.index(self.defaultInterface))
         else:    
-            self.popupInterface = wx.Choice(self, id=-1, pos=(118,40), size=(95, -1), choices=["No interface", "Virtual Keyboard"])
+            self.popupInterface = wx.Choice(self, id=-1, choices=["No interface", "Virtual Keyboard"])
             self.popupInterface.SetSelection(1)
             wx.CallAfter(self.prepareForVirtualKeyboard)
         self.popupInterface.Bind(wx.EVT_CHOICE, self.changeInterface)
-    
-        self.srText = wx.StaticText(self, id=-1, label="Sample Rate", pos=(15,65))
-        self.popupSr = wx.Choice(self, id=-1, pos=(13,80), size=(95,20), choices=["44100","48000","96000"])
+        self.mainBox.Add(self.popupInterface, 0, wx.EXPAND | wx.ALL, 2)
+
+        row1Box = wx.BoxSizer(wx.HORIZONTAL)
+
+        srBox = wx.BoxSizer(wx.VERTICAL)
+        self.srText = wx.StaticText(self, id=-1, label="Sample Rate")
+        srBox.Add(self.srText, 0, wx.TOP | wx.LEFT, 4)
+        self.popupSr = wx.Choice(self, id=-1, choices=["44100","48000","96000"])
+        srBox.Add(self.popupSr, 0, wx.EXPAND | wx.ALL, 2)
         self.popupSr.SetStringSelection(str(vars.vars["SR"]))
         self.serverSettings.append(self.popupSr.GetSelection())
         self.popupSr.Bind(wx.EVT_CHOICE, self.changeSr)
-        self.polyText = wx.StaticText(self, id=-1, label="Polyphony", pos=(120,65))
-        self.popupPoly = wx.Choice(self, id=-1, pos=(118,80), size=(95,20), choices=[str(i) for i in range(1,21)])
+        polyBox = wx.BoxSizer(wx.VERTICAL)
+        self.polyText = wx.StaticText(self, id=-1, label="Polyphony")
+        polyBox.Add(self.polyText, 0, wx.TOP | wx.LEFT, 4)
+        self.popupPoly = wx.Choice(self, id=-1, choices=[str(i) for i in range(1,21)])
+        polyBox.Add(self.popupPoly, 0, wx.EXPAND | wx.ALL, 2)
         self.popupPoly.SetStringSelection(str(vars.vars["POLY"]))
         self.serverSettings.append(self.popupPoly.GetSelection())
         self.popupPoly.Bind(wx.EVT_CHOICE, self.changePoly)
-    
-        self.bitText = wx.StaticText(self, id=-1, label="Bits", pos=(15,105))
-        self.popupBit = wx.Choice(self, id=-1, pos=(13,120), size=(95,20), choices=["16","24","32"])
+
+        row1Box.Add(srBox, 1)
+        row1Box.Add(polyBox, 1)        
+        self.mainBox.Add(row1Box, 0, wx.EXPAND | wx.TOP, 2)
+
+        row2Box = wx.BoxSizer(wx.HORIZONTAL)
+
+        bitBox = wx.BoxSizer(wx.VERTICAL)
+        self.bitText = wx.StaticText(self, id=-1, label="Bits")
+        bitBox.Add(self.bitText, 0, wx.TOP | wx.LEFT, 4)
+        self.popupBit = wx.Choice(self, id=-1, choices=["16","24","32"], size=(125, -1))
+        bitBox.Add(self.popupBit, 0, wx.EXPAND | wx.ALL, 2)
         self.popupBit.SetStringSelection(str(vars.vars["BITS"]))
         self.serverSettings.append(self.popupBit.GetSelection())
         self.popupBit.Bind(wx.EVT_CHOICE, self.changeBit)
-        self.formatText = wx.StaticText(self, id=-1, label="Format", pos=(120,105))
-        self.popupFormat = wx.Choice(self, id=-1, pos=(118,120), size=(95,20), choices=["wav","aif"])
+        formatBox = wx.BoxSizer(wx.VERTICAL)
+        self.formatText = wx.StaticText(self, id=-1, label="Format")
+        formatBox.Add(self.formatText, 0, wx.TOP | wx.LEFT, 4)
+        self.popupFormat = wx.Choice(self, id=-1, choices=["wav","aif"], size=(125, -1))
+        formatBox.Add(self.popupFormat, 0, wx.EXPAND | wx.ALL, 2)
         self.popupFormat.SetStringSelection(vars.vars["FORMAT"])
         self.serverSettings.append(self.popupFormat.GetSelection())
         self.popupFormat.Bind(wx.EVT_CHOICE, self.changeFormat)
-    
-        self.onOffText = wx.StaticText(self, id=-1, label="Audio", pos=(15,145))
-        self.onOff = wx.ToggleButton(self, id=-1, label="on / off", pos=(14,160), size=(95,20))
+
+        row2Box.Add(bitBox, 1)
+        row2Box.Add(formatBox, 1)        
+        self.mainBox.Add(row2Box, 0, wx.EXPAND | wx.TOP, 2)
+
+        row3Box = wx.BoxSizer(wx.HORIZONTAL)
+            
+        onBox = wx.BoxSizer(wx.VERTICAL)
+        self.onOffText = wx.StaticText(self, id=-1, label="Audio")
+        onBox.Add(self.onOffText, 0, wx.TOP | wx.LEFT, 4)
+        self.onOff = wx.ToggleButton(self, id=-1, label="on / off", size=(125, -1))
+        onBox.Add(self.onOff, 0, wx.EXPAND | wx.ALL, 2)
         self.onOff.Bind(wx.EVT_TOGGLEBUTTON, self.handleAudio)
-        self.recText = wx.StaticText(self, id=-1, label="Record to disk", pos=(120,145))
-        self.rec = wx.ToggleButton(self, id=-1, label="start / stop", pos=(119,160), size=(95,20))
+        recBox = wx.BoxSizer(wx.VERTICAL)
+        self.recText = wx.StaticText(self, id=-1, label="Record to disk")
+        recBox.Add(self.recText, 0, wx.TOP | wx.LEFT, 4)
+        self.rec = wx.ToggleButton(self, id=-1, label="start / stop", size=(125, -1))
+        recBox.Add(self.rec, 0, wx.EXPAND | wx.ALL, 2)
         self.rec.Bind(wx.EVT_TOGGLEBUTTON, self.handleRec)
+
+        row3Box.Add(onBox, 1)
+        row3Box.Add(recBox, 1)        
+        self.mainBox.Add(row3Box, 0, wx.EXPAND | wx.TOP | wx.BOTTOM, 2)
     
-        self.textAmp = wx.StaticText(self, id=-1, label="Global Amplitude (dB)", pos=(15, 185), size=(200,20))
-        self.sliderAmp = ZyneControlSlider(self, -60, 18, 0, pos=(15,200), outFunction=self.changeAmp, backColour=colour)
+        self.textAmp = wx.StaticText(self, id=-1, label="Global Amplitude (dB)")
+        self.mainBox.Add(self.textAmp, 0, wx.TOP | wx.LEFT, 4)
+        self.sliderAmp = ZyneControlSlider(self, -60, 18, 0, outFunction=self.changeAmp, backColour=colour)
+        self.mainBox.Add(self.sliderAmp, 0, wx.EXPAND | wx.ALL, 2)
         self.serverSettings.append(1.0)
         self.meter = VuMeter(self)
-        self.meter.SetPosition((15, 225))
+        self.mainBox.Add(self.meter, 0, wx.EXPAND | wx.ALL, 2)
         self.setAmpCallable()
-    
-        if vars.constants["PLATFORM"] == "darwin": 
-            togWidth = 26
-            togHeight = 16
-        else: 
-            togWidth = 30
-            togHeight = 20
-        self.ppEqTitle = wx.StaticText(self, id=-1, label="- 4 bands equalizer -", pos=(50,245))
-        self.onOffEq = wx.ToggleButton(self, id=-1, label="On", pos=(15,245), size=(togWidth, togHeight))
-        tog_font, tog_psize = self.onOffEq.GetFont(), self.onOffEq.GetFont().GetPointSize()
-        if vars.constants["PLATFORM"] == "linux2":
-            tog_font.SetPointSize(tog_psize-1)
-        self.onOffEq.SetFont(tog_font)
-        self.onOffEq.Bind(wx.EVT_TOGGLEBUTTON, self.handleOnOffEq)
+
+        eqTitleBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.onOffEq = wx.CheckBox(self, id=-1)
+        eqTitleBox.Add(self.onOffEq, 0, wx.ALL, 4)
+        self.ppEqTitle = wx.StaticText(self, id=-1, label=" - 4 bands equalizer -")
+        eqTitleBox.Add(self.ppEqTitle, 0, wx.CENTER)
+        self.onOffEq.Bind(wx.EVT_CHECKBOX, self.handleOnOffEq)
+
+        self.mainBox.Add(eqTitleBox)
+
+        eqFreqBox = wx.BoxSizer(wx.HORIZONTAL)
         self.knobEqF1 = ControlKnob(self, 40, 250, 100, label='Freq 1', backColour=colour, outFunction=self.changeEqF1)
-        self.knobEqF1.SetPosition((35, 265))
+        eqFreqBox.Add(self.knobEqF1, 0, wx.LEFT | wx.RIGHT, 20)
         self.knobEqF1.setFloatPrecision(2)
         self.knobEqF2 = ControlKnob(self, 300, 1000, 500, label='Freq 2', backColour=colour, outFunction=self.changeEqF2)
-        self.knobEqF2.SetPosition((89, 265))
+        eqFreqBox.Add(self.knobEqF2, 0, wx.LEFT | wx.RIGHT, 20)
         self.knobEqF2.setFloatPrecision(2)
         self.knobEqF3 = ControlKnob(self, 1200, 5000, 2000, label='Freq 3', backColour=colour, outFunction=self.changeEqF3)
-        self.knobEqF3.SetPosition((143, 265))
+        eqFreqBox.Add(self.knobEqF3, 0, wx.LEFT | wx.RIGHT, 20)
         self.knobEqF3.setFloatPrecision(2)
-    
+
+        self.mainBox.Add(eqFreqBox)
+
+        eqGainBox = wx.BoxSizer(wx.HORIZONTAL)
         self.knobEqA1 = ControlKnob(self, -40, 18, 0, label='B1 gain', backColour=colour, outFunction=self.changeEqA1)
-        self.knobEqA1.SetPosition((12, 335))
+        eqGainBox.Add(self.knobEqA1, 0, wx.LEFT | wx.RIGHT, 10)
         self.knobEqA2 = ControlKnob(self, -40, 18, 0, label='B2 gain', backColour=colour, outFunction=self.changeEqA2)
-        self.knobEqA2.SetPosition((64, 335))
+        eqGainBox.Add(self.knobEqA2, 0, wx.LEFT | wx.RIGHT, 10)
         self.knobEqA3 = ControlKnob(self, -40, 18, 0, label='B3 gain', backColour=colour, outFunction=self.changeEqA3)
-        self.knobEqA3.SetPosition((116, 335))
+        eqGainBox.Add(self.knobEqA3, 0, wx.LEFT | wx.RIGHT, 10)
         self.knobEqA4 = ControlKnob(self, -40, 18, 0, label='B4 gain', backColour=colour, outFunction=self.changeEqA4)
-        self.knobEqA4.SetPosition((168, 335))
+        eqGainBox.Add(self.knobEqA4, 0, wx.LEFT | wx.RIGHT, 10)
+
+        self.mainBox.Add(eqGainBox)
     
-        self.ppCompTitle = wx.StaticText(self, id=-1, label="- Dynamic compressor -", pos=(50,408))
-        self.onOffComp = wx.ToggleButton(self, id=-1, label="On", pos=(15,408), size=(togWidth, togHeight))
-        self.onOffComp.SetFont(tog_font)
-        self.onOffComp.Bind(wx.EVT_TOGGLEBUTTON, self.handleOnOffComp)
+        cpTitleBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.onOffComp = wx.CheckBox(self, id=-1)
+        cpTitleBox.Add(self.onOffComp, 0, wx.ALL, 4)
+        self.ppCompTitle = wx.StaticText(self, id=-1, label=" - Dynamic compressor -")
+        cpTitleBox.Add(self.ppCompTitle, 0, wx.CENTER)
+        self.onOffComp.Bind(wx.EVT_CHECKBOX, self.handleOnOffComp)
+
+        self.mainBox.Add(cpTitleBox)
     
+        cpKnobBox = wx.BoxSizer(wx.HORIZONTAL)
         self.knobComp1 = ControlKnob(self, -60, 0, -3, label='Threshold', backColour=colour, outFunction=self.changeComp1)
-        self.knobComp1.SetPosition((12, 428))
+        cpKnobBox.Add(self.knobComp1, 0, wx.LEFT | wx.RIGHT, 10)
         self.knobComp2 = ControlKnob(self, 1, 10, 2, label='Ratio', backColour=colour, outFunction=self.changeComp2)
-        self.knobComp2.SetPosition((64, 428))
+        cpKnobBox.Add(self.knobComp2, 0, wx.LEFT | wx.RIGHT, 10)
         self.knobComp3 = ControlKnob(self, 0.001, 0.5, 0.01, label='Risetime', backColour=colour, outFunction=self.changeComp3)
-        self.knobComp3.SetPosition((116, 428))
+        cpKnobBox.Add(self.knobComp3, 0, wx.LEFT | wx.RIGHT, 10)
         self.knobComp4 = ControlKnob(self, 0.01, 1, .1, label='Falltime', backColour=colour, outFunction=self.changeComp4)
-        self.knobComp4.SetPosition((168, 428))
+        cpKnobBox.Add(self.knobComp4, 0, wx.LEFT | wx.RIGHT, 10)
+
+        self.mainBox.Add(cpKnobBox)
     
-        if vars.constants["PLATFORM"] == "darwin":
-            # reduce font for OSX display
+        if vars.constants["PLATFORM"] != "win32":
+            # reduce font for OSX and linux display
             objs = [self.driverText, self.popupDriver, self.interfaceText, self.popupInterface, self.srText, self.popupSr, 
                     self.polyText, self.popupPoly, self.bitText, self.popupBit, self.formatText, self.popupFormat, 
                     self.onOffText, self.onOff, self.recText, self.rec, self.textAmp]
@@ -473,16 +522,9 @@ class ServerPanel(wx.Panel):
             font.SetPointSize(psize-2)
             for obj in objs:
                 obj.SetFont(font)
-        elif vars.constants["PLATFORM"] == "linux2":
-            # leave StaticText font as is on linux
-            objs = [self.popupDriver, self.popupInterface, self.popupSr, 
-                    self.popupPoly, self.popupBit, self.popupFormat, 
-                    self.onOff, self.rec]
-            font, psize = self.title.GetFont(), self.title.GetFont().GetPointSize()
-            font.SetPointSize(psize-1)
-            for obj in objs:
-                obj.SetFont(font)
-    
+
+        self.SetSizerAndFit(self.mainBox)
+
     def start(self):
         self.fsserver.start()
     
@@ -719,10 +761,8 @@ class ServerPanel(wx.Panel):
     ### EQ controls ###
     def handleOnOffEq(self, evt):
         if evt.GetInt() == 1:
-            self.onOffEq.SetLabel("Off")
             self.fsserver.onOffEq(1)
         else:
-            self.onOffEq.SetLabel("On")
             self.fsserver.onOffEq(0)
     
     def changeEqF1(self, x):
@@ -749,10 +789,8 @@ class ServerPanel(wx.Panel):
     ### Compressor controls ###
     def handleOnOffComp(self, evt):
         if evt.GetInt() == 1:
-            self.onOffComp.SetLabel("Off")
             self.fsserver.onOffComp(1)
         else:
-            self.onOffComp.SetLabel("On")
             self.fsserver.onOffComp(0)
     
     def changeComp1(self, x):

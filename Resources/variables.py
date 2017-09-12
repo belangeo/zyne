@@ -1,8 +1,9 @@
 import os, sys, unicodedata, codecs
-from types import UnicodeType
 
-reload(sys)
-sys.setdefaultencoding("utf-8")
+if sys.version_info[0] < 3:
+    unicode_t = unicode
+else:
+    unicode_t = str
 
 constants = dict()
 constants["VERSION"] = "0.1.2"
@@ -95,7 +96,7 @@ def ensureNFD(unistr):
         encodings = [constants["DEFAULT_ENCODING"], constants["SYSTEM_ENCODING"],
                      'macroman', 'iso-8859-1', 'utf-16']
         format = 'NFD'
-    if type(unistr) != UnicodeType:
+    if type(unistr) != unicode_t:
         for encoding in encodings:
             try:
                 unistr = unistr.decode(encoding)

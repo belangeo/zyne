@@ -1,7 +1,6 @@
 # encoding: utf-8
 import random, os, time, math, codecs
 import Resources.variables as vars
-from types import ListType
 
 if vars.vars["PYO_PRECISION"] == "single":
     from pyo import *
@@ -451,13 +450,13 @@ class BaseSynth:
                 self._transpo = Sig(value=0)
                 self.pitch = Snap(self._note+self._transpo, choice=[0,1,2,3,4,5,6,7,8,9,10,11], scale=scaling)
             elif mode == 1:
-                if type(vars.vars["MIDIPITCH"]) == ListType:
+                if type(vars.vars["MIDIPITCH"]) is list:
                     _tmp_hz = [midiToHz(x) for x in vars.vars["MIDIPITCH"]]
                 else:
                     _tmp_hz = midiToHz(vars.vars["MIDIPITCH"])
                 self.pitch = Sig(_tmp_hz)
             elif mode == 2:
-                if type(vars.vars["MIDIPITCH"]) == ListType:
+                if type(vars.vars["MIDIPITCH"]) is list:
                     _tmp_tr = [midiToTranspo(x) for x in vars.vars["MIDIPITCH"]]
                 else:
                     _tmp_tr = midiToTranspo(vars.vars["MIDIPITCH"])

@@ -949,14 +949,14 @@ class Keyboard(wx.Panel):
         w,h = self.GetSize()
         self.offRec = wx.Rect(w-55, 0, 21, h)
         self.holdRec = wx.Rect(w-34, 0, 21, h)
-        num = w / self.w1
+        num = int(w / self.w1)
         self.gap = w - num * self.w1
         self.whiteKeys = [wx.Rect(i*self.w1, 0, self.w1-1, h) for i in range(num)]
         self.blackKeys = []
         height2 = h * 4 / 7
-        for i in range(num/7+1):
+        for i in range(int(num/7)+1):
             space2 = self.w1 * 7 * i
-            off = self.w1 / 2 + space2 + 3
+            off = int(self.w1 / 2) + space2 + 3
             self.blackKeys.append(wx.Rect(off, 0, self.w2, height2))
             off += self.w1
             self.blackKeys.append(wx.Rect(off, 0, self.w2, height2))
