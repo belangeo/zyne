@@ -566,7 +566,7 @@ class AddSynth(BaseSynth):
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
-        self.fac = Pow(range(1,6), self.p2, mul=[random.uniform(.995,1.005) for i in range(4)])
+        self.fac = Pow(list(range(1,6)), self.p2, mul=[random.uniform(.995,1.005) for i in range(4)])
         self.feedrnd = Randi(min=.15, max=.25, freq=[random.uniform(.5,2) for i in range(4)])
         self.norm_amp = self.amp * 0.1
         self.leftamp = self.norm_amp*self.panL

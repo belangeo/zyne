@@ -868,7 +868,7 @@ class BasePanel(wx.Panel):
         else: height = 13
         text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,height))
         self.labels.append(text)
-        if vars.constants["PLATFORM"] == "darwin":
+        if vars.constants["PLATFORM"] != "win32":
             font, psize = text.GetFont(), text.GetFont().GetPointSize()
             font.SetPointSize(psize-2)
             text.SetFont(font)
@@ -966,7 +966,7 @@ class GenericPanel(BasePanel):
         self.sizer.Add(self.separator, 0, wx.BOTTOM, 3)
 
         self.font = self.close.GetFont()
-        if vars.constants["PLATFORM"] == "darwin":
+        if vars.constants["PLATFORM"] != "win32":
             ptsize = self.font.GetPointSize()
             self.font.SetPointSize(ptsize - 2)
         for obj in [self.close, self.info, self.title, self.corner]:
@@ -1343,7 +1343,7 @@ class LFOPanel(BasePanel):
         self.sizer.Add(ZyneStaticLine(self, size=(226, 2)), 0, wx.BOTTOM, 3)
 
         self.font = self.close.GetFont()
-        if vars.constants["PLATFORM"] == "darwin":
+        if vars.constants["PLATFORM"] != "win32":
             ptsize = self.font.GetPointSize()
             self.font.SetPointSize(ptsize - 2)
         for obj in [self.close, self.title]:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import wx, os, sys, urllib
+from pyo import *
 import Resources.variables as vars
 from Resources.panels import *
 from Resources.preferences import PreferencesDialog
@@ -8,7 +9,6 @@ from Resources.splash import ZyneSplashScreen
 import wx.richtext as rt
 import Resources.audio as audio
 import Resources.tutorial as tutorial
-from pyo import *
 
 class TutorialFrame(wx.Frame):
     def __init__(self, *args, **kw):
