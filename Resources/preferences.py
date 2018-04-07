@@ -20,7 +20,7 @@ class PreferencesDialog(wx.Dialog):
  
     def createWidgets(self):
         btnSizer = wx.StdDialogButtonSizer()
-        itemSizer = wx.FlexGridSizer(0,2,0,50)
+        itemSizer = wx.FlexGridSizer(0, 2, 0, 50)
         driverSizer = wx.BoxSizer(wx.VERTICAL)
         pathSizer = wx.BoxSizer(wx.VERTICAL)
         rowSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -31,13 +31,13 @@ class PreferencesDialog(wx.Dialog):
         font, entryfont, pointsize = message.GetFont(), message.GetFont(), message.GetFont().GetPointSize()
         
         font.SetWeight(wx.BOLD)
-        if vars.constants["PLATFORM"] in ["win32", "linux2"]:
+        if vars.constants["PLATFORM"] == "win32" or vars.constants["PLATFORM"].startswith("linux"):
             entryfont.SetPointSize(pointsize-1)
         else:
             font.SetPointSize(pointsize-1)
             entryfont.SetPointSize(pointsize-2)
 
-        if vars.constants["PLATFORM"] == "linux2":
+        if vars.constants["PLATFORM"].startswith("linux"):
             host_choices = ["Portaudio", "Jack"]
         elif vars.constants["PLATFORM"] == "darwin":
             if vars.constants["OSX_BUILD_WITH_JACK_SUPPORT"]:
@@ -52,20 +52,20 @@ class PreferencesDialog(wx.Dialog):
         driverSizer.Add(lbl, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT, 10)
         cbo = wx.ComboBox(self, value=host ,size=(100,-1), choices=host_choices,
                                   style=wx.CB_DROPDOWN|wx.CB_READONLY, name="AUDIO_HOST")
-        driverSizer.AddSpacer((-1,5))
-        driverSizer.Add(cbo, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 8)
+        driverSizer.AddSpacer(5)
+        driverSizer.Add(cbo, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 10)
  
         for key in self.drivers:
             lbl = wx.StaticText(self, label=vars.constants["VAR_PREF_LABELS"][key])
             lbl.SetFont(font)
-            driverSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
+            driverSizer.Add(lbl, 0, wx.LEFT, 10)
             ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-            txt = wx.TextCtrl(self, size=(360,-1), value=self.prefs[key], name=key)
-            ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
+            txt = wx.TextCtrl(self, value=self.prefs[key], name=key)
+            ctrlSizer.Add(txt, 4, wx.ALL|wx.EXPAND, 5)
             but = wx.Button(self, id=self.ids[key], label="Choose...")
             but.Bind(wx.EVT_BUTTON, self.getDriver, id=self.ids[key])
-            ctrlSizer.Add(but, 0, wx.ALL, 5)            
-            driverSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+            ctrlSizer.Add(but, 1, wx.ALL, 5)            
+            driverSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
  
         for key in vars.constants["VARIABLE_NAMES"]:
             val = self.prefs[key]
@@ -74,7 +74,7 @@ class PreferencesDialog(wx.Dialog):
                 lbl.SetFont(font)
                 itemSizer.Add(lbl, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT, 10)
  
-                if vars.constants["VAR_CHOICES"].has_key(key):
+                if key in vars.constants["VAR_CHOICES"]:
                     default = val
                     choices = vars.constants["VAR_CHOICES"][key]
                     cbo = wx.ComboBox(self, value=val,size=(100,-1), choices=choices,
@@ -108,10 +108,10 @@ class PreferencesDialog(wx.Dialog):
         btnSizer.AddButton(cancelBtn)
         btnSizer.Realize()
  
-        mainSizer.AddSpacer((-1,5))
+        mainSizer.AddSpacer(5)
         mainSizer.Add(driverSizer, 0, wx.EXPAND)
         mainSizer.Add(itemSizer, 0, wx.EXPAND)
-        mainSizer.AddSpacer((-1,5))
+        mainSizer.AddSpacer(5)
         mainSizer.Add(pathSizer, 0, wx.EXPAND)
         mainSizer.Add(wx.StaticLine(self, size=(480,1)), 0, wx.TOP|wx.BOTTOM, 2)
         mainSizer.Add(btnSizer, 0, wx.ALL | wx.ALIGN_RIGHT, 5)

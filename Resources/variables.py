@@ -6,8 +6,8 @@ else:
     unicode_t = str
 
 constants = dict()
-constants["VERSION"] = "0.1.2"
-constants["YEAR"] = "2012"
+constants["VERSION"] = "1.0.0"
+constants["YEAR"] = "2018"
 constants["PLATFORM"] = sys.platform
 constants["OSX_BUILD_WITH_JACK_SUPPORT"] = False
 constants["DEFAULT_ENCODING"] = sys.getdefaultencoding()
@@ -88,7 +88,7 @@ vars["VIRTUAL"] = False
 vars["MIDI_ACTIVE"] = 0
 
 def ensureNFD(unistr):
-    if constants["PLATFORM"] in ['linux2', 'win32']:
+    if constants["PLATFORM"] == "win32" or constants["PLATFORM"].startswith("linux"):
         encodings = [constants["DEFAULT_ENCODING"], constants["SYSTEM_ENCODING"],
                      'cp1252', 'iso-8859-1', 'utf-16']
         format = 'NFC'

@@ -298,7 +298,7 @@ class CtlBind:
             self.lfo_trigFunc_3 = TrigFunc(self._midi_metro, self.valToWidget3)
 
     def __del__(self):
-        for key in self.__dict__.keys():
+        for key in list(self.__dict__.keys()):
             del self.__dict__[key]
         if hasattr(self, "trigFunc"):
             del self.trigFunc
@@ -407,7 +407,7 @@ class Panner(CtlBind):
             self.lfo.play()
 
     def __del__(self):
-        for key in self.__dict__.keys():
+        for key in list(self.__dict__.keys()):
             del self.__dict__[key]
 
 class ParamTranspo:
@@ -512,7 +512,7 @@ class BaseSynth:
         self._params[which].set(x)
     
     def __del__(self):
-        for key in self.__dict__.keys():
+        for key in list(self.__dict__.keys()):
             del self.__dict__[key]
 
 class FmSynth(BaseSynth):

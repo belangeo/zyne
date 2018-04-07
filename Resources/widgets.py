@@ -1,5 +1,5 @@
 # encoding: utf-8
-import wx, math, sys, copy
+import wx, math, copy
 from wx.lib.embeddedimage import PyEmbeddedImage
 from pyolib._wxwidgets import ControlSlider, BACKGROUND_COLOUR
 import Resources.variables as vars
@@ -599,23 +599,6 @@ KNOB = PyEmbeddedImage(
     "IdJQSRGuroF5BVDjCp6Eiy0NuZKvCHbVgAlIUqDp4+TvSbj4WLEUuPb7kpCm2tX/BV0HrAK/"
     "xpabAAAAAElFTkSuQmCC")
 
-MOVE = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAAAXNSR0IArs4c6QAAAr5JREFU"
-    "eJy0lDtP6mAYx8skoRE64SWQnMVE6CdAHJjP3lnDJaALO6CcURcTAqjgQCKDcg0rLH4ICkQ2"
-    "IAyAWjVNUJee52lOT1qoJ+0Bhn/K+9L3/fX/3AhBEAg9en19JRqNBqP3HEr3gfv7+wOn0zl4"
-    "f383rRT2+flJulwujoBjl5eX8ZXCqtXqMYJQu7u7PLizrQQGroi9vb2WBENdX1//WgmsUql4"
-    "DAaDIIc5HI7W29vbcmHgygS5YuUgSVdXVwdLhd3e3sbVQCibzcaNx2NqaTDoq5/pdJpBnZ2d"
-    "MV6v90Jap1IpZjAY/FgY1u12PdPpVLHH8zxRq9XmmhqBk8nknw5VN1mWpfx+f85utwuj0Ujx"
-    "H66hsedgyWSS2dnZ4SCHh98VjWLRarU8R0dHRYvFwmM+1tfXBfhaTTAMqZRHmDAsNj2MNtsc"
-    "rNls0oFA4AEvlyefoiiB4zjFpc/Pz0SpVJqDgSNmtnhomuYRCs1PirBQKJQzGo0fapVGkqRw"
-    "c3PDFAoFBt3gM5vNMuFw+KJYLIp7qHK5LBbNdxUL/Tio1+uMmJ9IJJLb2tqaewnCKXQ6HTF0"
-    "kiDURCaTYeR7UPoEVqkayO12c3d3d4cYkb9h6Pf7zpOTk/T29jYvDyO+JA8X5hBdzYYRwqWA"
-    "7e/vs+D4+Ovry6TI2UwJUwCNg1N+bW1NwK/WUiCJRIL544SFnHpwlmrus16vR5+fnz+8vLwo"
-    "9p+enlSdYePn8/k4OCEXmiAIxPCh2u02gUUjrdHpbOMvBEOHZrNZzCE+TSaT+BuFjf/4+OhZ"
-    "GgyLx2q18mrV5vP5clru0AxDxWKxuckPQ4CHsGqa+Lpgw+GQ2tzcVLgLBoNFred1wVCnp6dp"
-    "mSsBXGnK1X/BwB29sbEhwnCW6jmrG4aKRqM5mJkf4Mq5chgWBA5vvedQvwEAAP//AwAd2Wky"
-    "Dk2mEgAAAABJRU5ErkJggg==")
-
 def interpFloat(t, v1, v2):
     "interpolator for a single value; interprets t in [0-1] between v1 and v2"
     return (v2-v1)*t + v1
@@ -635,6 +618,26 @@ def toLog(t, v1, v2):
 
 def toExp(t, v1, v2):
     return math.pow(10, t * (math.log10(v2) - math.log10(v1)) + math.log10(v1))
+
+HEADTITLE_BACK_COLOUR = "#9999A0"
+
+class HeadTitle(wx.Panel):
+    def __init__(self, parent, title, font=None, togcall=None):
+        wx.Panel.__init__(self, parent, -1)
+        self.SetBackgroundColour(HEADTITLE_BACK_COLOUR)
+        mainsizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        if togcall is not None:
+            self.toggle = wx.CheckBox(self, id=-1)
+            mainsizer.Add(self.toggle, 0, wx.LEFT|wx.RIGHT|wx.CENTER, 2)
+            self.toggle.Bind(wx.EVT_CHECKBOX, togcall)
+        label = wx.StaticText(self, -1, title)
+        if font is not None:
+            label.SetFont(font)
+        label.SetForegroundColour("white")
+        sizer.Add(label, 0, wx.CENTER|wx.ALL, 2)
+        mainsizer.Add(sizer, 1)
+        self.SetSizerAndFit(mainsizer)
 
 class ZyneControlSlider(ControlSlider):
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False, outFunction=None, integer=False, powoftwo=False, backColour=None):
@@ -882,7 +885,7 @@ class ControlKnob(wx.Panel):
                 val = '%d' % self.GetValue()
             else:
                 val = self.floatPrecision % self.GetValue()
-        if sys.platform == 'linux2':
+        if vars.constants["PLATFORM"].startswith('linux'):
             width = len(val) * (dc.GetCharWidth() - 3)
         else:
             width = len(val) * dc.GetCharWidth()
@@ -924,6 +927,10 @@ class Keyboard(wx.Panel):
         self.blackVelocities = {}
         self.whiteKeys = []
         self.blackKeys = []
+        if vars.constants["PLATFORM"] == "win32":
+            self.dcref = wx.BufferedPaintDC
+        else:
+            self.dcref = wx.PaintDC
         wx.CallAfter(self.setRects)
    
     def getNotes(self):
@@ -1088,7 +1095,7 @@ class Keyboard(wx.Panel):
     
     def OnPaint(self, evt):
         w,h = self.GetSize()
-        dc = wx.AutoBufferedPaintDC(self)
+        dc = self.dcref(self)
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
         dc.Clear()
         dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
@@ -1108,7 +1115,7 @@ class Keyboard(wx.Panel):
             else:
                 dc.SetBrush(wx.Brush("#FFFFFF", wx.SOLID))
                 dc.SetPen(wx.Pen("#FFFFFF", width=1, style=wx.SOLID))
-                dc.DrawRectangleRect(rec)
+                dc.DrawRectangle(rec)
             if i == (35 - (7 * (self.offset / 12))):
                 if i in self.whiteSelected:
                     dc.SetTextForeground("#FFFFFF")
@@ -1128,13 +1135,13 @@ class Keyboard(wx.Panel):
             else:
                 dc.SetBrush(wx.Brush("#000000", wx.SOLID))
                 dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
-                dc.DrawRectangleRect(rec)
+                dc.DrawRectangle(rec)
     
         dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
         dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
-        dc.DrawRectangleRect(self.offRec)
-        dc.DrawRectangleRect(self.holdRec)
-        dc.DrawRectangleRect(wx.Rect(w-14, 0, 14, h))
+        dc.DrawRectangle(self.offRec)
+        dc.DrawRectangle(self.holdRec)
+        dc.DrawRectangle(wx.Rect(w-14, 0, 14, h))
         
         dc.SetTextForeground("#000000")
         dc.DrawText("off", self.offRec[0]+3, 15)
@@ -1171,51 +1178,3 @@ class Keyboard(wx.Panel):
         dc.DrawLine(0,1,w,1)
         dc.SetPen(wx.Pen("#CCCCCC", width=1, style=wx.SOLID))
         dc.DrawLine(0,0,w,0)
-
-class ZyneStaticLine(wx.Panel):
-    def __init__(self, parent, pos=wx.DefaultPosition, size=(230,2)):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
-        self.SetBackgroundColour(BACKGROUND_COLOUR)
-        self.backColour = BACKGROUND_COLOUR
-        self.SetSize(size)
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        
-    def setBackgroundColour(self, col):
-        self.backColour = col
-        self.Refresh()
-
-    def OnPaint(self, evt):
-        w,h = self.GetSize()
-        dc = wx.AutoBufferedPaintDC(self)
-        dc.SetBrush(wx.Brush(self.backColour, wx.SOLID))
-        dc.Clear()
-        dc.SetPen(wx.Pen(self.backColour, width=1, style=wx.SOLID))
-        dc.DrawRectangle(0, 0, w, h)
-        dc.SetPen(wx.Pen("#CCCCCC", width=1, style=wx.SOLID))
-        dc.DrawLine(4, 0, w-8, 0)
-        dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
-        dc.DrawLine(4, 1, w-8, 1)
-
-class ZyneStaticBitmap(wx.Panel):
-    def __init__(self, parent, bitmap, pos=wx.DefaultPosition, size=(16,16)):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
-        self.SetBackgroundColour(BACKGROUND_COLOUR)
-        self.bitmap = bitmap
-        self.backColour = BACKGROUND_COLOUR
-        self.SetSize(size)
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        
-    def setBackgroundColour(self, col):
-        self.backColour = col
-        self.Refresh()
-
-    def OnPaint(self, evt):
-        w,h = self.GetSize()
-        dc = wx.AutoBufferedPaintDC(self)
-        dc.SetBrush(wx.Brush(self.backColour, wx.SOLID))
-        dc.Clear()
-        dc.SetPen(wx.Pen(self.backColour, width=1, style=wx.SOLID))
-        dc.DrawRectangle(0, 0, w, h)
-        dc.DrawBitmap(self.bitmap, 0, 0, True)

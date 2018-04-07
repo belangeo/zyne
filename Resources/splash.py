@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 import wx, sys, os
 import Resources.variables as vars
 
@@ -80,15 +77,10 @@ class ZyneSplashScreen(wx.Frame):
         else:
             font.SetPointSize(ptsize+1)
         dc.SetFont(font)
-        dc.DrawLabel(u"Olivier Bélanger", wx.Rect(0, 345, 400, 15), wx.ALIGN_CENTER)
-        dc.DrawLabel("iACT, %s" % vars.constants["YEAR"], wx.Rect(0, 360, 400, 15), wx.ALIGN_CENTER)
-        dc.DrawLabel("v. %s" % vars.constants["VERSION"], wx.Rect(0, 375, 400, 15), wx.ALIGN_CENTER)
+        dc.DrawLabel(u"Olivier Bélanger", wx.Rect(0, 305, 400, 15), wx.ALIGN_CENTER)
+        dc.DrawLabel("ajaxsoundstudio, %s" % vars.constants["YEAR"], wx.Rect(0, 340, 400, 15), wx.ALIGN_CENTER)
+        dc.DrawLabel("v. %s" % vars.constants["VERSION"], wx.Rect(0, 360, 400, 15), wx.ALIGN_CENTER)
      
     def OnClose(self):
         self.mainframe.Show()
         self.Destroy()
-
-if __name__ == '__main__':
-    app = wx.PySimpleApp()
-    frame = ZyneSplashScreen(None, img="ZyneSplash.png")
-    app.MainLoop()

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 import wx, os, sys, urllib
 from pyo import *
 import Resources.variables as vars
@@ -7,6 +6,7 @@ from Resources.panels import *
 from Resources.preferences import PreferencesDialog
 from Resources.splash import ZyneSplashScreen
 import wx.richtext as rt
+from wx.adv import AboutDialogInfo, AboutBox
 import Resources.audio as audio
 import Resources.tutorial as tutorial
 
@@ -30,7 +30,7 @@ class TutorialFrame(wx.Frame):
         self.rtc.BeginSuppressUndo()
         self.rtc.BeginParagraphSpacing(0, 20)
         self.rtc.BeginBold()
-        if vars.constants["PLATFORM"] in ["win32", "linux2"]:
+        if vars.constants["PLATFORM"] == "win32" or vars.constants["PLATFORM"].startswith("linux"):
             self.rtc.BeginFontSize(12)
         else:
             self.rtc.BeginFontSize(16)
@@ -43,7 +43,7 @@ class TutorialFrame(wx.Frame):
         for line in lines:
             if line.count("----") == 2:
                 self.rtc.BeginBold()
-                if vars.constants["PLATFORM"] in ["win32", "linux2"]:
+                if vars.constants["PLATFORM"] == "win32" or vars.constants["PLATFORM"].startswith("linux"):
                     self.rtc.BeginFontSize(12)
                 else:
                     self.rtc.BeginFontSize(16)
@@ -53,7 +53,7 @@ class TutorialFrame(wx.Frame):
                 section_count += 1
             elif not self.code and line.startswith("class") or line.startswith("MODULES"):
                 self.code = True
-                if vars.constants["PLATFORM"] in ["win32", "linux2"]:
+                if vars.constants["PLATFORM"] == "win32" or vars.constants["PLATFORM"].startswith("linux"):
                     self.rtc.BeginFontSize(8)
                 else:
                     self.rtc.BeginFontSize(12)
@@ -122,7 +122,7 @@ class SamplingDialog(wx.Dialog):
         self.filename.SetFocus()
 
 class ZyneFrame(wx.Frame):
-    def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(900, 710)):
+    def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(966, 660)):
         wx.Frame.__init__(self, parent, id=-1, title=title, size=size)
         self.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, ord("\t"), vars.constants["ID"]["Select"]),
                                                      (wx.ACCEL_SHIFT, ord("\t"), vars.constants["ID"]["DeSelect"])]))
@@ -216,12 +216,14 @@ class ZyneFrame(wx.Frame):
 
         self.splitWindow = wx.SplitterWindow(self, -1, style = wx.SP_LIVE_UPDATE|wx.SP_PERMIT_UNSPLIT)
         self.splitWindow.SetSashSize(0)
-    
-        self.sizer = wx.GridBagSizer(0,0)        
+
+        mainSizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer = wx.WrapSizer()
         self.panel = wx.Panel(self.splitWindow)
         self.serverPanel = ServerPanel(self.panel)
-        self.sizer.Add(self.serverPanel, (0,0), (2,1))
-        self.panel.SetSizerAndFit(self.sizer)
+        mainSizer.Add(self.serverPanel)
+        mainSizer.Add(self.sizer, 1, wx.EXPAND)
+        self.panel.SetSizerAndFit(mainSizer)
     
         self.keyboard = Keyboard(self.splitWindow, outFunction=self.serverPanel.onKeyboard)
         self.serverPanel.keyboard = self.keyboard
@@ -241,7 +243,7 @@ class ZyneFrame(wx.Frame):
                 self.openfile(path)
             except:
                 pass
-  
+
     def tabulate(self, evt):
         num = len(self.modules)
         old = self.selected
@@ -317,7 +319,7 @@ class ZyneFrame(wx.Frame):
                 module.jitterize()
 
     def updateAddModuleMenu(self, evt):
-        for mod in MODULES.keys():
+        for mod in list(MODULES.keys()):
              if mod in vars.vars["EXTERNAL_MODULES"]:
                  del MODULES[mod]["synth"]
                  del MODULES[mod]
@@ -397,10 +399,10 @@ class ZyneFrame(wx.Frame):
         self.updateAddModuleMenu(None)
 
     def openMidiLearnHelp(self, evt):
-        if vars.constants["PLATFORM"] != "linux2":
-            size = (400, 370)
+        if vars.constants["PLATFORM"].startswith("linux"):
+            size = (700, 400)
         else:
-            size = (400, 300)
+            size = (700, 400)
         lines = []
         lines.append("To assign midi controllers to module's sliders, user can use the midi learn mode.\n")
         lines.append("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
@@ -413,10 +415,10 @@ class ZyneFrame(wx.Frame):
         win.Show(True)
 
     def openExportHelp(self, evt):
-        if vars.constants["PLATFORM"] != "linux2":
-            size = (400, 420)
+        if vars.constants["PLATFORM"].startswith("linux"):
+            size = (700, 400)
         else:
-            size = (400, 300)
+            size = (700, 400)
         lines = []
         lines.append("The export samples window allows the user to create a bank of samples, mapped on a range of midi keys, from the actual state of the current synth.\n")
         lines.append("The path where the exported samples will be saved can be defined in the preferences panel. If not, a folder named 'zyne_export' will be created on the Desktop. Inside this folder, a subfolder will be created according to the string given in the field 'Common file name'. Samples will be saved inside this subfolder with automatic name incrementation.\n")
@@ -427,7 +429,7 @@ class ZyneFrame(wx.Frame):
         win.Show(True)
 
     def openTutorialCreateModule(self, evt):
-        win = TutorialFrame(self, -1, "Zyne tutorial", size=(700, 500), style=wx.DEFAULT_FRAME_STYLE)
+        win = TutorialFrame(self, -1, "Zyne tutorial", size=(800, 500), style=wx.DEFAULT_FRAME_STYLE)
         win.CenterOnParent()
         win.Show(True)
 
@@ -445,7 +447,7 @@ class ZyneFrame(wx.Frame):
                 self.SetSize((-1, 522))
             else:
                 self.SetMinSize((460, 520))
-                self.SetSize((-1, 520))
+                self.SetSize((-1, 660))
    
     def onResetKeyboard(self, evt):
         self.serverPanel.resetVirtualKeyboard()
@@ -455,7 +457,6 @@ class ZyneFrame(wx.Frame):
 
     def OnSize(self, evt):
         self.splitWindow.SetSashPosition(-80)
-        self.setModulePostions()
         evt.Skip()
    
     def onMidiLearnModeFromLfoFrame(self):
@@ -705,25 +706,7 @@ class ZyneFrame(wx.Frame):
         else:
             self.openedFile = filename
         self.SetTitle("Zyne Synth - " + os.path.split(filename)[1])
-    
-    def setModulePostions(self):
-        w, h = self.GetSize()
-        mw, mh = self.serverPanel.GetSize()
-        cols = w / mw
-        try:
-            for i, mod in enumerate(self.modules):
-                num = i + 1
-                if num/cols != 0:
-                    num += 1                    
-                self.sizer.SetItemPosition(mod, (num/cols, num%cols))
-        except:
-            for i in range(len(self.modules)):
-                mod = len(self.modules) - i - 1
-                num = len(self.modules) - i
-                if num/cols != 0:
-                    num += 1                    
-                self.sizer.SetItemPosition(self.modules[mod], (num/cols, num%cols))
-    
+        
     def onAddModule(self, evt):
         name = self.moduleNames[evt.GetId()-vars.constants["ID"]["Modules"]]
         dic = MODULES[name]
@@ -732,15 +715,10 @@ class ZyneFrame(wx.Frame):
         wx.CallAfter(self.SetFocus)
     
     def addModule(self, mod):
-        w, h = self.GetSize()
-        mw, mh = self.serverPanel.GetSize()
-        cols = w / mw
-        num = len(self.modules)
         self.refreshOutputSignal()
-        if num/cols != 0:
-            num += 1
-        self.sizer.Add(mod, (num/cols, num%cols))
-        self.refresh()
+        self.sizer.Add(mod, 0, wx.ALL, 1)
+        self.sizer.Layout()
+        wx.CallAfter(self.refresh)
         
     def deleteModule(self, module):
         if self.selected == self.modules.index(module):
@@ -748,19 +726,17 @@ class ZyneFrame(wx.Frame):
         for frame in module.lfo_frames:
             if frame != None:
                 frame.Destroy()
-        self.sizer.Remove(module)
+        self.sizer.Detach(module)
         self.modules.remove(module)
         self.refreshOutputSignal()
-        self.setModulePostions()
-        self.refresh()
+        wx.CallAfter(self.refresh)
 
     def deleteAllModules(self):
         for module in self.modules:
             for frame in module.lfo_frames:
                 if frame != None:
                     frame.Destroy()
-            self.sizer.Remove(module)
-            module.Destroy()
+            self.sizer.Detach(module)
         self.modules = []
         self.refreshOutputSignal()
         self.serverPanel.resetVirtualKeyboard()
@@ -783,7 +759,7 @@ class ZyneFrame(wx.Frame):
         self.Refresh()   
     
     def showAbout(self, evt):
-        info = wx.AboutDialogInfo()
+        info = AboutDialogInfo()
     
         description = "Zyne is a simple soft synthesizer allowing the " \
         "user to create original sounds and export bank of samples.\n\n" \
@@ -794,8 +770,8 @@ class ZyneFrame(wx.Frame):
         info.Name = 'Zyne'
         info.Version = '%s' % vars.constants["VERSION"]
         info.Description = description
-        info.Copyright = u'(C) 2011 Olivier Bélanger'
-        wx.AboutBox(info)
+        info.Copyright = '(C) 2018 Olivier Bélanger'
+        AboutBox(info)
 
 class ZyneApp(wx.App):
     def OnInit(self):
