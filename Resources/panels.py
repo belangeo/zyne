@@ -1,4 +1,3 @@
-# encoding: utf-8
 import wx, os, math, copy, random, time
 from wx.lib.stattext import GenStaticText
 import Resources.variables as vars
@@ -10,72 +9,72 @@ import wx.richtext as rt
 HEADTITLE_BACK_COLOUR = "#9999A0"
 
 MODULES =   {
-            "FM": { "title": "- Frequency Modulation -", "synth": FmSynth, 
+            "FM": { "title": "Frequency Modulation", "synth": FmSynth, 
                     "p1": ["FM Ratio", .25, 0, 4, False, False],
                     "p2": ["FM Index", 5, 0, 40, False, False],
                     "p3": ["Lowpass Cutoff", 2000, 100, 18000, False, True]
                     },
-            "Additive": { "title": "- Additive Synthesis -", "synth": AddSynth, 
+            "Additive": { "title": "Additive Synthesis", "synth": AddSynth, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Spread", 1, 0, 2, False, False],
                     "p3": ["Feedback", 0, 0, 1, False, False]
                     },
-            "Wind": { "title": "- Wind Synthesis -", "synth": WindSynth, 
+            "Wind": { "title": "Wind Synthesis", "synth": WindSynth, 
                     "p1": ["Rand frequency", 1, 0.01, 20, False, True],
                     "p2": ["Rand Depth", .1, .001, .25, False, False],
                     "p3": ["Filter Q", 5, 1, 20, False, False]
                     },
-            "SquareMod": { "title": "- Square Modulation -", "synth": SquareMod, 
+            "SquareMod": { "title": "Square Modulation", "synth": SquareMod, 
                     "p1": ["Harmonics", 10, 1, 40, True, False],
                     "p2": ["LFO Frequency", 1, .001, 20, False, False],
                     "p3": ["LFO Amplitude", 1, 0, 1, False, False]
                     },
-            "SawMod": { "title": "- Sawtooth Modulation -", "synth": SawMod, 
+            "SawMod": { "title": "Sawtooth Modulation", "synth": SawMod, 
                     "p1": ["Harmonics", 10, 1, 40, True, False],
                     "p2": ["LFO Frequency", 1, .001, 20, False, False],
                     "p3": ["LFO Amplitude", 1, 0, 1, False, False]
                     },
-            "Pulsar": { "title": "- Pulsar Synthesis -", "synth": PulsarSynth, 
+            "Pulsar": { "title": "Pulsar Synthesis", "synth": PulsarSynth, 
                     "p1": ["Harmonics", 10, 1, 20, True, False],
                     "p2": ["Transposition", 0, -36, 36, True, False],
                     "p3": ["LFO Frequency", 1, .02, 200, False, True],
                     },
-            "Ross": { "title": "- Rossler Attractors -", "synth": Ross, 
+            "Ross": { "title": "Rossler Attractors", "synth": Ross, 
                     "p1": ["Chaos", 0.5, 0., 1., False, False],
                     "p2": ["Chorus Depth", .001, .001, .125, False, True],
                     "p3": ["Lowpass Cutoff", 5000, 100, 15000, False, True]
                     },
-            "Wave": { "title": "- Waveform Synthesis -", "synth": Wave, 
+            "Wave": { "title": "Waveform Synthesis", "synth": Wave, 
                     "p1": ["Waveform", 0, 0, 7, True, False],
                     "p2": ["Transposition", 0, -36, 36, True, False],
                     "p3": ["Sharpness", 0.5, 0., 1., False, False],
                     },
-            "PluckedString": { "title": "- Plucked String Synth -", "synth": PluckedString, 
+            "PluckedString": { "title": "Plucked String Synth", "synth": PluckedString, 
                     "p1": ["Transposition", 0, -48, 0, True, False],
                     "p2": ["Duration", 30, .25, 60, False, False],
                     "p3": ["Chorus Depth", .001, .001, .125, False, True]
                     },
-            "Reson": { "title": "-- Resonators Synthesis -", "synth": Reson, 
+            "Reson": { "title": "Resonators Synthesis", "synth": Reson, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Chorus Depth", .001, .001, .125, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
                     },
-            "CrossFM": { "title": "- Cross FM Modulation -", "synth": CrossFmSynth, 
+            "CrossFM": { "title": "Cross FM Modulation", "synth": CrossFmSynth, 
                     "p1": ["FM Ratio", .25, 0, 4, False, False],
                     "p2": ["FM Index 1", 2, 0, 40, False, False],
                     "p3": ["FM Index 2", 2, 0, 40, False, False],
                     },
-            "OTReson": { "title": "- Out of tune Resonators -", "synth": OTReson, 
+            "OTReson": { "title": "Out of tune Resonators", "synth": OTReson, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Detune", .01, .0001, 1, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
                     },
-            "InfiniteRev": { "title": "- Infinite Reverb -", "synth": InfiniteRev, 
+            "InfiniteRev": { "title": "Infinite Reverb", "synth": InfiniteRev, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Brightness", 5, 0, 100, True, False],
                     "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
                     },
-            "Degradation": { "title": "- Wave Degradation -", "synth": Degradation, 
+            "Degradation": { "title": "Wave Degradation", "synth": Degradation, 
                     "p1": ["Bit Depth", 6, 2, 16, False, True],
                     "p2": ["SR Scale", .1, 0.001, .5, False, True],
                     "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
@@ -301,9 +300,6 @@ class LFOButtons(GenStaticText):
             self.SetForegroundColour("#0000EE")
         self.Refresh()
         self.callback(self.which, self.state)
-
-    def __del__(self):
-        del self.synth
 
 class ServerPanel(wx.Panel):
     def __init__(self, parent, colour=BACKGROUND_COLOUR):
@@ -901,11 +897,10 @@ class BasePanel(wx.Panel):
     def MouseDown(self, evt):
         if not self.from_lfo:
             for frame in self.lfo_frames:
-                if frame != None:
+                if frame is not None:
                     if frame.IsShown():
                         frame.Hide()
             self.GetTopLevelParent().deleteModule(self)
-            self.Destroy()
         else:
             win = self.GetTopLevelParent()
             win.Hide()
@@ -1317,9 +1312,6 @@ class GenericPanel(BasePanel):
                         slider.SetValue(val)
                         slider.outFunction(val)
 
-    def __del__(self):
-        self.synth.__del__()
-
 class LFOPanel(BasePanel):
     def __init__(self, parent, name, title, synth, p1, p2, p3, p4, which):
         BasePanel.__init__(self, parent, name, title, synth, p1, p2, p3, from_lfo=True)
@@ -1361,9 +1353,6 @@ class LFOPanel(BasePanel):
         self.sliderP3 = self.createSlider(p3[0], p3[1], p3[2], p3[3], p3[4], p3[5], self.changeP3)
         self.sliderP4 = self.createSlider(p4[0], p4[1], p4[2], p4[3], p4[4], p4[5], self.changeP4)
         self.SetSizerAndFit(self.sizer) 
-    
-    def __del__(self):
-        del self.synth
 
     def changeP1(self, x):
         if self.which == 0:

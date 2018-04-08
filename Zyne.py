@@ -724,19 +724,23 @@ class ZyneFrame(wx.Frame):
         if self.selected == self.modules.index(module):
             self.selected = None
         for frame in module.lfo_frames:
-            if frame != None:
+            if frame is not None:
+                del frame.panel.synth
                 frame.Destroy()
-        self.sizer.Detach(module)
+        module.synth.__del__()
+        module.Destroy()
         self.modules.remove(module)
         self.refreshOutputSignal()
-        wx.CallAfter(self.refresh)
+        self.refresh()
 
     def deleteAllModules(self):
         for module in self.modules:
             for frame in module.lfo_frames:
-                if frame != None:
+                if frame is not None:
+                    del frame.panel.synth
                     frame.Destroy()
-            self.sizer.Detach(module)
+            module.synth.__del__()
+            module.Destroy()
         self.modules = []
         self.refreshOutputSignal()
         self.serverPanel.resetVirtualKeyboard()
@@ -755,7 +759,7 @@ class ZyneFrame(wx.Frame):
         self.serverPanel.fsserver._outSig.value = self.serverPanel.fsserver._modMix
 
     def refresh(self):
-        self.sizer.Layout()    
+        self.sizer.Layout()
         self.Refresh()   
     
     def showAbout(self, evt):

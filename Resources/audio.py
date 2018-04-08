@@ -360,6 +360,10 @@ class LFOSynth(CtlBind):
     def setAmp(self, x):
         self.rawamp.value = x
 
+    def __del__(self):
+        for key in list(self.__dict__.keys()):
+            del self.__dict__[key]
+
 class Param(CtlBind):
     def __init__(self, parent, i, conf, lfo_trigger, midi_metro):
         CtlBind.__init__(self)
@@ -384,6 +388,10 @@ class Param(CtlBind):
             self.lfo.stop()
         else:
             self.lfo.play()
+
+    def __del__(self):
+        for key in list(self.__dict__.keys()):
+            del self.__dict__[key]
 
 class Panner(CtlBind):
     def __init__(self, parent, lfo_trigger, midi_metro):
@@ -429,8 +437,8 @@ class ParamTranspo:
         self.trigFunc = TrigFunc(self._midi_metro, self.valToWidget)
     
     def __del__(self):
-        if hasattr(self, "trigFunc"):
-            del self.trigFunc
+        for key in list(self.__dict__.keys()):
+            del self.__dict__[key]
 
 class BaseSynth:
     def __init__(self, config,  mode=1):
