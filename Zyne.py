@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import wx, os, sys, urllib
+import wx, os, sys
 from pyo import *
 import Resources.variables as vars
 from Resources.panels import *
@@ -21,10 +21,15 @@ class TutorialFrame(wx.Frame):
         self.SetMenuBar(self.menubar)
     
         self.code = False
-    
+
         self.rtc = rt.RichTextCtrl(self, style=wx.VSCROLL|wx.HSCROLL|wx.NO_BORDER)
         self.rtc.SetEditable(False)
         wx.CallAfter(self.rtc.SetFocus)
+
+        font = self.rtc.GetFont()
+        newfont = wx.Font(font.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        if newfont.IsOk():
+            self.rtc.SetFont(newfont)
     
         self.rtc.Freeze()
         self.rtc.BeginSuppressUndo()
@@ -51,19 +56,17 @@ class TutorialFrame(wx.Frame):
                 self.rtc.EndFontSize()
                 self.rtc.EndBold()
                 section_count += 1
-            elif not self.code and line.startswith("class") or line.startswith("MODULES"):
+            elif not self.code and line.startswith("~~~"):
                 self.code = True
-                if vars.constants["PLATFORM"] == "win32" or vars.constants["PLATFORM"].startswith("linux"):
-                    self.rtc.BeginFontSize(8)
+                if vars.constants["PLATFORM"] == "win32":
+                    self.rtc.BeginFontSize(10)
                 else:
                     self.rtc.BeginFontSize(12)
                 self.rtc.BeginItalic()
-                self.rtc.WriteText(line)                
-            elif self.code and not line.startswith(" ") and not line.startswith("class") and not line.startswith("MODULES"):
+            elif self.code and line.startswith("~~~"):
                 self.code = False
                 self.rtc.EndItalic()
                 self.rtc.EndFontSize()
-                self.rtc.WriteText(line)                
             else:
                 self.rtc.WriteText(line)                
         self.rtc.Newline()
@@ -359,44 +362,6 @@ class ZyneFrame(wx.Frame):
             self.addMenu.AppendSeparator()
             self.addMenu.Append(vars.constants["ID"]["UpdateModules"], "Update Modules\tCtrl+U", kind=wx.ITEM_NORMAL)
             self.Bind(wx.EVT_MENU, self.updateAddModuleMenu, id=vars.constants["ID"]["UpdateModules"])
-            #self.addMenu.AppendSeparator()
-        #self.addMenu.Append(vars.constants["ID"]["CheckoutModules"], "Checkout external module repository")
-        #self.Bind(wx.EVT_MENU, self.checkoutExternalModules, id=vars.constants["ID"]["CheckoutModules"])
-
-    def checkoutExternalModules(self, evt):
-        ### This server doesn't exist anymore
-        if not os.path.isdir(vars.vars["CUSTOM_MODULES_PATH"]):
-            wx.LogMessage("You must define a custom module path in the preferences panel to be able to checkout the server repository!")
-            return
-        url = "http://www.iact.umontreal.ca/zyne/external_modules"
-        file_index = "files.txt"
-        path = os.path.join(url, file_index)
-        if vars.constants["PLATFORM"] == "win32":
-            path = path.replace("\\", "/")
-        (index, msg) = urllib.urlretrieve(path)
-        f = open(index, "r")
-        text = f.read()
-        f.close()
-        files = [line.strip() for line in text.splitlines() if line != ""]
-        if "<HTML>" in files[0]:
-            wx.LogMessage("Unable to download external modules...")
-            return
-        num_iter = len(files)
-        count = 0
-        dlg = wx.ProgressDialog("Downloading external modules", "", maximum = num_iter, parent=self,
-                                   style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
-        dlg.SetSize((300, 125))
-        for f in files:
-            (keepGoing, skip) = dlg.Update(count, "Downloading %s" % f)
-            path = os.path.join(url, f)
-            outpath = os.path.join(vars.vars["CUSTOM_MODULES_PATH"], f)
-            if vars.constants["PLATFORM"] == "win32":
-                path = path.replace("\\", "/")
-                outpath = outpath.replace("\\", "/")
-            urllib.urlretrieve(path, outpath)
-            count += 1
-        dlg.Destroy()
-        self.updateAddModuleMenu(None)
 
     def openMidiLearnHelp(self, evt):
         if vars.constants["PLATFORM"].startswith("linux"):
@@ -429,7 +394,7 @@ class ZyneFrame(wx.Frame):
         win.Show(True)
 
     def openTutorialCreateModule(self, evt):
-        win = TutorialFrame(self, -1, "Zyne tutorial", size=(800, 500), style=wx.DEFAULT_FRAME_STYLE)
+        win = TutorialFrame(self, -1, "Zyne tutorial", size=(1020, 650), style=wx.DEFAULT_FRAME_STYLE)
         win.CenterOnParent()
         win.Show(True)
 
