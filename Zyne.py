@@ -84,7 +84,7 @@ class SamplingDialog(wx.Dialog):
         sizer.Add(wx.StaticText(self, -1, "Export settings for sampled sounds."), 0, wx.ALIGN_CENTRE|wx.ALL, 5)
     
         box = wx.BoxSizer(wx.HORIZONTAL)
-        box.Add(wx.StaticText(self, -1, "Common file name :"), 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+        box.Add(wx.StaticText(self, -1, "Common file name:"), 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.filename = wx.TextCtrl(self, -1, "zyne", size=(80,-1))
         box.Add(self.filename, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
         sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
@@ -158,10 +158,9 @@ class ZyneFrame(wx.Frame):
         pref_item = self.fileMenu.Append(vars.constants["ID"]["Prefs"], 'Preferences...\tCtrl+,', 'Open Cecilia preferences pane', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=vars.constants["ID"]["Prefs"])
         self.fileMenu.AppendSeparator()
-        if vars.constants["PLATFORM"] != "win32":
-            self.fileMenu.Append(vars.constants["ID"]["Run"], 'Run\tCtrl+R', kind=wx.ITEM_NORMAL)
-            self.Bind(wx.EVT_MENU, self.onRun, id=vars.constants["ID"]["Run"])
-            self.fileMenu.AppendSeparator()
+        self.fileMenu.Append(vars.constants["ID"]["Run"], 'Run\tCtrl+R', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.onRun, id=vars.constants["ID"]["Run"])
+        self.fileMenu.AppendSeparator()
         quit_item = self.fileMenu.Append(vars.constants["ID"]["Quit"], 'Quit\tCtrl+Q', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onQuit, id=vars.constants["ID"]["Quit"])
         if wx.Platform=="__WXMAC__":
@@ -536,7 +535,7 @@ class ZyneFrame(wx.Frame):
             title = "Export samples as separated tracks..."
             title2 = "Exporting samples as separated tracks..."
             num_modules = len(self.modules)
-        dlg = SamplingDialog(self, title=title, size=(325,220))
+        dlg = SamplingDialog(self, title=title, size=(450,270))
         dlg.CenterOnParent()
         if dlg.ShowModal() == wx.ID_OK:
             if vars.vars["EXPORT_PATH"] and os.path.isdir(vars.vars["EXPORT_PATH"]):

@@ -907,12 +907,6 @@ class BasePanel(wx.Panel):
 
     def setBackgroundColour(self, col):
         self.SetBackgroundColour(col)
-        self.close.SetBackgroundColour(col)
-        if hasattr(self, "corner"):
-            self.corner.SetBackgroundColour(col)
-        self.separator.setBackgroundColour(col)
-        if not self.from_lfo:
-            self.info.SetBackgroundColour(col)
         for slider in self.sliders:
             try:
                 slider.setBackgroundColour(col)
@@ -1197,7 +1191,7 @@ class GenericPanel(BasePanel):
             if slider.integer:
                 v1 = random.randint(mini, maxi)
                 v2 = random.randint(mini, maxi)
-                val = (v1 + v2) / 2
+                val = int((v1 + v2) / 2)
             else:
                 if i == 5:
                     val = random.triangular(.25, 1.5)
@@ -1221,7 +1215,7 @@ class GenericPanel(BasePanel):
                         if slider.integer:
                             v1 = random.randint(mini, maxi)
                             v2 = random.randint(mini, maxi)
-                            val = (v1 + v2) / 2
+                            val = int((v1 + v2) / 2)
                         else:
                             if j == 6:
                                 val = random.triangular(0, 1)
