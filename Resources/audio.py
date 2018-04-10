@@ -1005,14 +1005,14 @@ def checkForCustomModules():
                         if line:
                             sline = line.split("=")
                             path = vars.vars["ensureNFD"](sline[1].strip())
-    
     if path != "":
         if os.path.isdir(path):
             files = [f for f in os.listdir(path) if f.endswith(".py")]
             for file in files:
                 try:
                     filepath = os.path.join(path, file)
-                    execfile(vars.vars["toSysEncoding"](filepath), globals())
+                    with open(filepath, "r") as f:
+                        exec(f.read(), globals())
                     vars.vars["EXTERNAL_MODULES"].update(MODULES)
                 except:
                     pass

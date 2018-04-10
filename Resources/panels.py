@@ -102,7 +102,7 @@ class MyFileDropTarget(wx.FileDropTarget):
         self.window.GetTopLevelParent().openfile(filename[0])
 
 class HelpFrame(wx.Frame):
-    def __init__(self, parent, id, title, size, subtitle, lines):
+    def __init__(self, parent, id, title, size, subtitle, lines, from_module=True):
         if vars.constants["PLATFORM"] == "win32":
             style = wx.DEFAULT_FRAME_STYLE | wx.FRAME_TOOL_WINDOW | wx.FRAME_FLOAT_ON_PARENT | wx.NO_BORDER
         else:
@@ -126,8 +126,9 @@ class HelpFrame(wx.Frame):
         caret.Hide()
     
         font = self.rtc.GetFont()
-        font.SetFamily(wx.FONTFAMILY_MODERN)
-        self.rtc.SetFont(font)
+        newfont = wx.Font(font.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        if newfont.IsOk():
+            self.rtc.SetFont(newfont)
 
         self.rtc.Freeze()
         self.rtc.BeginSuppressUndo()
@@ -138,11 +139,15 @@ class HelpFrame(wx.Frame):
         else:
             self.rtc.BeginFontSize(16)
         self.rtc.WriteText(subtitle)
+        if not from_module:
+            self.rtc.Newline()
         self.rtc.EndFontSize()
         self.rtc.EndBold()
         self.rtc.Newline()
         for line in lines:
             self.rtc.WriteText(line)
+            if not from_module:
+                self.rtc.Newline()
         self.rtc.Newline()
         self.rtc.EndParagraphSpacing()
         self.rtc.EndSuppressUndo()
@@ -799,7 +804,7 @@ class ServerPanel(wx.Panel):
         self.fsserver.setCompParam("falltime", x)
     
     def midiLearn(self, state):
-        learnColour = "#EAC1C1"
+        learnColour = "#EEEEFD"
         popups = [self.popupDriver, self.popupInterface, self.popupSr, self.popupPoly, self.popupBit, self.popupFormat, self.onOff, self.rec]
         widgets = [self.knobEqF1, self.knobEqF2, self.knobEqF3, self.knobEqA1, self.knobEqA2, 
                    self.knobEqA3, self.knobEqA4, self.knobComp1, self.knobComp2, self.knobComp3, self.knobComp4]

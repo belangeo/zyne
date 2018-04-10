@@ -155,6 +155,8 @@ class ZyneFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onResetKeyboard, id=vars.constants["ID"]["ResetKeyboard"])
         self.fileMenu.Append(vars.constants["ID"]["Retrig"], 'Retrig virtual notes\tCtrl+T', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onRetrig, id=vars.constants["ID"]["Retrig"])
+        if wx.Platform != "__WXMAC__":
+            self.fileMenu.AppendSeparator()
         pref_item = self.fileMenu.Append(vars.constants["ID"]["Prefs"], 'Preferences...\tCtrl+,', 'Open Cecilia preferences pane', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=vars.constants["ID"]["Prefs"])
         self.fileMenu.AppendSeparator()
@@ -163,7 +165,7 @@ class ZyneFrame(wx.Frame):
         self.fileMenu.AppendSeparator()
         quit_item = self.fileMenu.Append(vars.constants["ID"]["Quit"], 'Quit\tCtrl+Q', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.onQuit, id=vars.constants["ID"]["Quit"])
-        if wx.Platform=="__WXMAC__":
+        if wx.Platform == "__WXMAC__":
             wx.App.SetMacExitMenuItemId(quit_item.GetId())
             wx.App.SetMacPreferencesMenuItemId(pref_item.GetId())
         self.addMenu = wx.Menu()
@@ -364,9 +366,9 @@ class ZyneFrame(wx.Frame):
 
     def openMidiLearnHelp(self, evt):
         if vars.constants["PLATFORM"].startswith("linux"):
-            size = (700, 400)
+            size = (750, 500)
         else:
-            size = (700, 400)
+            size = (750, 500)
         lines = []
         lines.append("To assign midi controllers to module's sliders, user can use the midi learn mode.\n")
         lines.append("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
@@ -374,21 +376,21 @@ class ZyneFrame(wx.Frame):
         lines.append("To remove a midi assignation, click a second time on the selected slider without playing with a midi controller.\n")
         lines.append("Finally, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) again to leave midi learn mode. Next time you start the server, you will be able to control the sliders with your midi controller.\n\n")
         lines.append("Midi assignations are saved within the .zy file and will be automatically assigned at future launches of the synth.\n")
-        win = HelpFrame(self, -1, title="Midi Learn Help", size=size, subtitle="How to use the midi learn mode.", lines=lines)
+        win = HelpFrame(self, -1, title="Midi Learn Help", size=size, subtitle="How to use the midi learn mode.", lines=lines, from_module=False)
         win.CenterOnParent()
         win.Show(True)
 
     def openExportHelp(self, evt):
         if vars.constants["PLATFORM"].startswith("linux"):
-            size = (700, 400)
+            size = (750, 500)
         else:
-            size = (700, 400)
+            size = (750, 500)
         lines = []
         lines.append("The export samples window allows the user to create a bank of samples, mapped on a range of midi keys, from the actual state of the current synth.\n")
         lines.append("The path where the exported samples will be saved can be defined in the preferences panel. If not, a folder named 'zyne_export' will be created on the Desktop. Inside this folder, a subfolder will be created according to the string given in the field 'Common file name'. Samples will be saved inside this subfolder with automatic name incrementation.\n")
         lines.append("The fields 'First', 'Last' and 'Step' define which notes, in midi keys, will be sampled and exported. From 'First' to 'Last' in steps of 'Step'.\n")
         lines.append("The fields 'Noteon dur' and 'Release dur' define the duration, in seconds, of the note part and the release part, respectively. The value in 'Noteon dur' should be equal or higher than the addition of the attack and the decay of the longest module. The value in the 'Release part' should be equal or higher than the longest release.\n")
-        win = HelpFrame(self, -1, title="Export Samples Help", size=size, subtitle="How to use the export samples window.", lines=lines)
+        win = HelpFrame(self, -1, title="Export Samples Help", size=size, subtitle="How to use the export samples window.", lines=lines, from_module=False)
         win.CenterOnParent()
         win.Show(True)
 
