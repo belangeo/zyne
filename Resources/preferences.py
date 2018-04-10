@@ -20,7 +20,8 @@ class PreferencesDialog(wx.Dialog):
  
     def createWidgets(self):
         btnSizer = wx.StdDialogButtonSizer()
-        itemSizer = wx.FlexGridSizer(0, 2, 0, 50)
+        itemSizer = wx.FlexGridSizer(0, 2, 10, 5)
+        itemSizer.AddGrowableCol(0)
         driverSizer = wx.BoxSizer(wx.VERTICAL)
         pathSizer = wx.BoxSizer(wx.VERTICAL)
         rowSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -72,17 +73,16 @@ class PreferencesDialog(wx.Dialog):
             if key not in self.paths and key not in self.drivers and key != "AUDIO_HOST":
                 lbl = wx.StaticText(self, label=vars.constants["VAR_PREF_LABELS"][key])
                 lbl.SetFont(font)
-                itemSizer.Add(lbl, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT, 10)
- 
+                itemSizer.Add(lbl, 1, wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT, 5)
                 if key in vars.constants["VAR_CHOICES"]:
                     default = val
                     choices = vars.constants["VAR_CHOICES"][key]
-                    cbo = wx.ComboBox(self, value=val,size=(100,-1), choices=choices,
+                    cbo = wx.ComboBox(self, value=val,size=(200,-1), choices=choices,
                                   style=wx.CB_DROPDOWN|wx.CB_READONLY, name=key)
-                    itemSizer.Add(cbo, 0, wx.TOP|wx.LEFT|wx.RIGHT, 5)
+                    itemSizer.Add(cbo, 0, wx.LEFT|wx.RIGHT, 5)
                 else:
-                    txt = wx.TextCtrl(self, size=(100,-1), value=val, name=key)
-                    itemSizer.Add(txt, 0, wx.TOP|wx.LEFT|wx.RIGHT, 5)
+                    txt = wx.TextCtrl(self, size=(200,-1), value=val, name=key)
+                    itemSizer.Add(txt, 0, wx.LEFT|wx.RIGHT, 5)
  
         for key in self.paths:
             if key == "CUSTOM_MODULES_PATH": func = self.getPath
@@ -91,13 +91,13 @@ class PreferencesDialog(wx.Dialog):
             lbl.SetFont(font)
             pathSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
             ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-            txt = wx.TextCtrl(self, size=(360,-1), value=self.prefs[key], name=key)
+            txt = wx.TextCtrl(self, value=self.prefs[key], name=key)
             txt.SetFont(entryfont)
-            ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
+            ctrlSizer.Add(txt, 1, wx.ALL|wx.EXPAND, 5)
             but = wx.Button(self, id=self.ids[key], label="Choose...")
             but.Bind(wx.EVT_BUTTON, self.getPath, id=self.ids[key])
             ctrlSizer.Add(but, 0, wx.ALL, 5)            
-            pathSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+            pathSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
     
         saveBtn = wx.Button(self, wx.ID_OK, label="Save")
         saveBtn.SetDefault()
@@ -110,13 +110,12 @@ class PreferencesDialog(wx.Dialog):
  
         mainSizer.AddSpacer(5)
         mainSizer.Add(driverSizer, 0, wx.EXPAND)
-        mainSizer.Add(itemSizer, 0, wx.EXPAND)
+        mainSizer.Add(itemSizer, 0, wx.EXPAND|wx.LEFT|wx.RIGHT, 5)
         mainSizer.AddSpacer(5)
         mainSizer.Add(pathSizer, 0, wx.EXPAND)
-        mainSizer.Add(wx.StaticLine(self, size=(480,1)), 0, wx.TOP|wx.BOTTOM, 2)
-        mainSizer.Add(btnSizer, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
-        self.SetSizer(mainSizer)
-        self.SetClientSize(self.GetBestSize())
+        mainSizer.Add(wx.StaticLine(self, size=(-1,1)), 0, wx.ALL|wx.EXPAND, 2)
+        mainSizer.Add(btnSizer, 0, wx.TOP | wx.BOTTOM | wx.ALIGN_RIGHT, 5)
+        self.SetSizerAndFit(mainSizer)
 
     def getDriver(self, evt):
         id = evt.GetId()
