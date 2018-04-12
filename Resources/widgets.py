@@ -1027,7 +1027,7 @@ class Keyboard(wx.Panel):
         if self.hold:
             for i, rec in enumerate(self.blackKeys):
                 if rec.Contains(pos):
-                    pit = self.black[i%5] + i/5*12  + self.offset
+                    pit = self.black[i%5] + i//5*12  + self.offset
                     if i in self.blackSelected:
                         self.blackSelected.remove(i)
                         del self.blackVelocities[i]
@@ -1044,7 +1044,7 @@ class Keyboard(wx.Panel):
             if scanWhite:
                 for i, rec in enumerate(self.whiteKeys):
                     if rec.Contains(pos):
-                        pit = self.white[i%7] + i/7*12  + self.offset
+                        pit = self.white[i%7] + i//7*12  + self.offset
                         if i in self.whiteSelected:
                             self.whiteSelected.remove(i)
                             del self.whiteVelocities[i]
@@ -1065,7 +1065,7 @@ class Keyboard(wx.Panel):
             self.keyPressed = None
             for i, rec in enumerate(self.blackKeys):
                 if rec.Contains(pos):
-                    pit = self.black[i%5] + i/5*12  + self.offset
+                    pit = self.black[i%5] + i//5*12  + self.offset
                     if i not in self.blackSelected:
                         hb = h * 4 / 7
                         vel = (hb - pos[1]) * 127 / hb
@@ -1079,7 +1079,7 @@ class Keyboard(wx.Panel):
             if scanWhite:
                 for i, rec in enumerate(self.whiteKeys):
                     if rec.Contains(pos):
-                        pit = self.white[i%7] + i/7*12 + self.offset
+                        pit = self.white[i%7] + i//7*12 + self.offset
                         if i not in self.whiteSelected:
                             vel = (h - pos[1]) * 127 / h
                             if total < self.poly:
