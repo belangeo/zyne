@@ -77,7 +77,7 @@ class ZyneSplashScreen(wx.Frame):
         else:
             font.SetPointSize(ptsize+1)
         dc.SetFont(font)
-        dc.DrawLabel(u"Olivier Bélanger", wx.Rect(0, 305, 400, 15), wx.ALIGN_CENTER)
+        dc.DrawLabel("Olivier Bélanger", wx.Rect(0, 305, 400, 15), wx.ALIGN_CENTER)
         dc.DrawLabel("ajaxsoundstudio, %s" % vars.constants["YEAR"], wx.Rect(0, 340, 400, 15), wx.ALIGN_CENTER)
         dc.DrawLabel("v. %s" % vars.constants["VERSION"], wx.Rect(0, 360, 400, 15), wx.ALIGN_CENTER)
      

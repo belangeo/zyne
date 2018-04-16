@@ -1078,7 +1078,7 @@ def checkForCustomModules():
                         line = line.strip()
                         if line:
                             sline = line.split("=")
-                            path = vars.vars["ensureNFD"](sline[1].strip())
+                            path = sline[1].strip()
     if path != "":
         if os.path.isdir(path):
             files = [f for f in os.listdir(path) if f.endswith(".py")]

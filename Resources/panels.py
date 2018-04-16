@@ -355,7 +355,6 @@ class ServerPanel(wx.Panel):
         if vars.vars["AUDIO_HOST"] != "Jack":
             preferedDriver = vars.vars["OUTPUT_DRIVER"]
             self.driverList, self.driverIndexes = get_output_devices()
-            self.driverList = [vars.vars["ensureNFD"](driver) for driver in self.driverList]
             self.defaultDriver = get_default_output()
             self.popupDriver = wx.Choice(self, id=-1, choices=self.driverList, size=popsize)
             if preferedDriver and preferedDriver in self.driverList:
@@ -376,7 +375,6 @@ class ServerPanel(wx.Panel):
         self.interfaceText = wx.StaticText(self, id=-1, label="Midi interface")
         self.mainBox.Add(self.interfaceText, 0, wx.TOP | wx.LEFT, 4)
         self.interfaceList, self.interfaceIndexes = get_midi_input_devices()
-        self.interfaceList = [vars.vars["ensureNFD"](interface) for interface in self.interfaceList]
         if self.interfaceList != []:
             self.interfaceList.append("Virtual Keyboard")
             self.defaultInterface = get_midi_default_input()
@@ -874,7 +872,7 @@ class BasePanel(wx.Panel):
     def createSlider(self, label, value, minValue, maxValue, integer, log, callback, i=-1):
         if vars.constants["PLATFORM"] == "darwin": height = 14
         else: height = 13
-        text = wx.StaticText(self, id=-1, label=vars.vars["toSysEncoding"](label), size=(200,height))
+        text = wx.StaticText(self, id=-1, label=label, size=(200,height))
         self.labels.append(text)
         if vars.constants["PLATFORM"] != "win32":
             font, psize = text.GetFont(), text.GetFont().GetPointSize()
@@ -957,7 +955,7 @@ class GenericPanel(BasePanel):
         self.info.Bind(wx.EVT_LEAVE_WINDOW, self.leaveInfo)
         self.info.Bind(wx.EVT_LEFT_DOWN, self.MouseDownInfo)
         self.info.SetToolTip(wx.ToolTip("Show module's infos"))
-        self.title = wx.StaticText(self.headPanel, id=-1, label=vars.vars["toSysEncoding"](title))
+        self.title = wx.StaticText(self.headPanel, id=-1, label=title)
         self.corner = GenStaticText(self.headPanel, -1, label="m/s")
         self.corner.SetToolTip(wx.ToolTip("Mute / Solo. Click to mute, Shift+Click to solo"))
         self.corner.Bind(wx.EVT_LEFT_DOWN, self.MouseDownCorner)
@@ -1076,9 +1074,9 @@ class GenericPanel(BasePanel):
                 size = (850, 600)
             else:
                 size = (850, 600)
-            lines = [vars.vars["ensureNFD"](line) for line in self.synth.__doc__.splitlines(True)]
+            lines = self.synth.__doc__.splitlines(True)
             win = HelpFrame(self.GetTopLevelParent(), -1, title="Module info", size=size, 
-                            subtitle=vars.vars["ensureNFD"]("Info about %s module." % self.name), lines=lines)
+                            subtitle="Info about %s module." % self.name, lines=lines)
             win.CenterOnParent()
             win.Show(True)
         else:
@@ -1338,7 +1336,7 @@ class LFOPanel(BasePanel):
         self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
         self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.close.SetToolTip(wx.ToolTip("Close window"))
-        self.title = GenStaticText(self.headPanel, -1, label=vars.vars["toSysEncoding"](title))
+        self.title = GenStaticText(self.headPanel, -1, label=title)
         self.title.SetToolTip(wx.ToolTip("Move window"))
         self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 3), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 3)])
         self.headPanel.SetSizerAndFit(self.titleSizer)
@@ -1375,7 +1373,7 @@ class LFOPanel(BasePanel):
         else:
             self.synth._params[self.which].lfo.setType(x)
         wave = {0: "Ramp", 1: "Sawtooth", 2: "Square", 3: "Triangle", 4: "Pulse", 5: "Bipolar Pulse", 6: "Sample and Hold", 7: "Modulated Sine"}[x]
-        self.labels[2].SetLabel(vars.vars["ensureNFD"]("Waveform  -  %s" % wave))
+        self.labels[2].SetLabel("Waveform  -  %s" % wave)
 
     def changeP3(self, x):
         if self.which == 0:

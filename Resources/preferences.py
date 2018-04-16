@@ -129,7 +129,6 @@ class PreferencesDialog(wx.Dialog):
             driverList, driverIndexes = get_midi_input_devices()
             driverList.append("Virtual Keyboard")
             msg = "Choose a Midi interface..."
-        driverList = [vars.vars["ensureNFD"](driver) for driver in driverList]
         widget = wx.FindWindowByName(name)
         dlg = wx.SingleChoiceDialog(self, message=msg, caption="Driver Selector", 
                                     choices=driverList, style=wx.CHOICEDLG_STYLE)
@@ -179,14 +178,14 @@ class PreferencesDialog(wx.Dialog):
             if line:
                 sline = line.split("=")
                 if sline[0].strip() == "AUDIO_HOST" and vars.constants["PLATFORM"] == "darwin" and not vars.constants["OSX_BUILD_WITH_JACK_SUPPORT"] and sline[1].strip() in ["Jack", "Coreaudio"]:
-                    self.prefs[sline[0].strip()] = vars.vars["ensureNFD"]("Portaudio")
+                    self.prefs[sline[0].strip()] = "Portaudio"
                 else:
-                    self.prefs[sline[0].strip()] = vars.vars["ensureNFD"](sline[1].strip())
+                    self.prefs[sline[0].strip()] = sline[1].strip()
 
     def onSave(self, event):
         preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
         with codecs.open(preffile, "w", encoding="utf-8") as f:
-            f.write(u"### Zyne version %s preferences ###\n" % vars.constants["VERSION"])
+            f.write("### Zyne version %s preferences ###\n" % vars.constants["VERSION"])
             for name in vars.constants["VARIABLE_NAMES"]:
                 widget = wx.FindWindowByName(name)
                 if isinstance(widget, wx.ComboBox):
@@ -195,13 +194,13 @@ class PreferencesDialog(wx.Dialog):
                 else:
                     value = widget.GetValue()
                 try:
-                    f.write(u"%s = %s\n" % (name, value))
+                    f.write("%s = %s\n" % (name, value))
                 except UnicodeEncodeError:
                     try:
-                        f.write(u"%s = " % name + vars.vars["ensureNFD"](value) + u"\n")
+                        f.write("%s = " % name + value + "\n")
                     except:
-                        f.write(u'%s = ""\n' % name)
-            f.write(u"LAST_SAVED = %s\n" % vars.vars["LAST_SAVED"])
+                        f.write('%s = ""\n' % name)
+            f.write("LAST_SAVED = %s\n" % vars.vars["LAST_SAVED"])
         self.EndModal(0)
 
  

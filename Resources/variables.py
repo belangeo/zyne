@@ -10,8 +10,8 @@ constants["VERSION"] = "1.0.0"
 constants["YEAR"] = "2018"
 constants["PLATFORM"] = sys.platform
 constants["OSX_BUILD_WITH_JACK_SUPPORT"] = False
-constants["DEFAULT_ENCODING"] = sys.getdefaultencoding()
-constants["SYSTEM_ENCODING"] = sys.getfilesystemencoding()
+#constants["DEFAULT_ENCODING"] = sys.getdefaultencoding()
+#constants["SYSTEM_ENCODING"] = sys.getfilesystemencoding()
 
 if '/Zyne.app' in os.getcwd():
     constants["RESOURCES_PATH"] = os.getcwd()
@@ -87,41 +87,6 @@ vars["NOTEONDUR"] = 1.0
 vars["VIRTUAL"] = False
 vars["MIDI_ACTIVE"] = 0
 
-def ensureNFD(unistr):
-    if constants["PLATFORM"] == "win32" or constants["PLATFORM"].startswith("linux"):
-        encodings = [constants["DEFAULT_ENCODING"], constants["SYSTEM_ENCODING"],
-                     'cp1252', 'iso-8859-1', 'utf-16']
-        format = 'NFC'
-    else:
-        encodings = [constants["DEFAULT_ENCODING"], constants["SYSTEM_ENCODING"],
-                     'macroman', 'iso-8859-1', 'utf-16']
-        format = 'NFD'
-    if type(unistr) != unicode_t:
-        for encoding in encodings:
-            try:
-                unistr = unistr.decode(encoding)
-                break
-            except UnicodeDecodeError:
-                continue
-            except:
-                unistr = "UnableToDecodeString"
-                print("Unicode encoding not in a recognized format...")
-                break
-    return unicodedata.normalize(format, unistr)
-
-def toSysEncoding(unistr):
-    try:
-        if constants["PLATFORM"] == "win32":
-            unistr = unistr.encode(constants["SYSTEM_ENCODING"])
-        else:
-            unistr = unicode(unistr)
-    except:
-        pass
-    return unistr
-
-vars["ensureNFD"] = ensureNFD
-vars["toSysEncoding"] = toSysEncoding
-
 def checkForPreferencesFile():
     preffile = os.path.join(os.path.expanduser("~"), ".zynerc")
     if os.path.isfile(preffile):
@@ -141,14 +106,14 @@ def checkForPreferencesFile():
             line = line.strip()
             if line:
                 sline = line.split("=")
-                prefs[sline[0].strip()] = ensureNFD(sline[1].strip())
+                prefs[sline[0].strip()] = sline[1].strip()
         for key in prefs.keys():
             if key in ["SR", "POLY", "BITS"]:
                 vars[key] = int(prefs[key])
             elif key in ["SLIDERPORT"]:
                 vars[key] = float(prefs[key])
             elif key == "AUDIO_HOST" and constants["PLATFORM"] == "darwin" and not constants["OSX_BUILD_WITH_JACK_SUPPORT"] and prefs[key] in ["Jack", "Coreaudio"]:
-                vars[key] = ensureNFD("Portaudio")
+                vars[key] = "Portaudio"
             else:
                 vars[key] = prefs[key]
 

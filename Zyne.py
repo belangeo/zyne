@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import wx, os, sys
-#from pyo import *
 import Resources.audio as audio
 import Resources.tutorial as tutorial
 import Resources.variables as vars
@@ -44,7 +43,7 @@ class TutorialFrame(wx.Frame):
         self.rtc.EndFontSize()
         self.rtc.EndBold()
         self.rtc.Newline()
-        lines = [vars.vars["ensureNFD"](line) for line in tutorial.__doc__.splitlines(True)]
+        lines = tutorial.__doc__.splitlines(True)
         section_count = 1
         for line in lines:
             if line.count("----") == 2:
@@ -126,7 +125,7 @@ class SamplingDialog(wx.Dialog):
         self.filename.SetFocus()
 
 class ZyneFrame(wx.Frame):
-    def __init__(self, parent=None, title=u"Zyne Synth - Untitled", size=(966, 660)):
+    def __init__(self, parent=None, title="Zyne Synth - Untitled", size=(966, 660)):
         wx.Frame.__init__(self, parent, id=-1, title=title, size=size)
         self.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, ord("\t"), vars.constants["ID"]["Select"]),
                                                      (wx.ACCEL_SHIFT, ord("\t"), vars.constants["ID"]["DeSelect"])]))
@@ -356,7 +355,7 @@ class ZyneFrame(wx.Frame):
         if vars.vars["EXTERNAL_MODULES"] != {}:
             moduleNames = sorted(vars.vars["EXTERNAL_MODULES"].keys())
             for i, name in enumerate(moduleNames):
-                self.addMenu.Append(id, 'Add %s module' % vars.vars["toSysEncoding"](name), kind=wx.ITEM_NORMAL)
+                self.addMenu.Append(id, 'Add %s module' % name, kind=wx.ITEM_NORMAL)
                 self.Bind(wx.EVT_MENU, self.onAddModule, id=id)
                 self.moduleNames.append(name)
                 MODULES.update(vars.vars["EXTERNAL_MODULES"].items())
@@ -547,7 +546,7 @@ class ZyneFrame(wx.Frame):
                 rootpath = os.path.join(os.path.expanduser("~"), "Desktop", "zyne_export")
                 if not os.path.isdir(rootpath):
                     os.mkdir(rootpath)
-            filename = vars.vars["ensureNFD"](dlg.filename.GetValue())
+            filename = dlg.filename.GetValue()
             subrootpath = os.path.join(rootpath, filename)
             if not os.path.isdir(subrootpath):
                 os.mkdir(subrootpath)
@@ -587,7 +586,7 @@ class ZyneFrame(wx.Frame):
                     self.setModulesAndParams(modules, params, lfo_params, ctl_params, True)
                     self.serverPanel.setPostProcSettings(postProcSettings)
                     name = "%03d_%s.%s" % (i, filename, ext)
-                    path = vars.vars["toSysEncoding"](os.path.join(subrootpath, name))
+                    path = os.path.join(subrootpath, name)
                     count += 1
                     (keepGoing, skip) = dlg2.Update(count, "Exporting %s" % name)
                     self.serverPanel.setRecordOptions(dur=duration, filename=path)
@@ -601,7 +600,7 @@ class ZyneFrame(wx.Frame):
                         self.serverPanel.setPostProcSettings(postProcSettings)
                         self.modules[j].setMute(2)
                         name = "%03d_%s_track_%02d_%s.%s" % (i, filename, j, self.modules[j].name, ext)
-                        path = vars.vars["toSysEncoding"](os.path.join(subrootpath, name))
+                        path = os.path.join(subrootpath, name)
                         count += 1
                         (keepGoing, skip) = dlg2.Update(count, "Exporting %s" % name)
                         self.serverPanel.setRecordOptions(dur=duration, filename=path)
