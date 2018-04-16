@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 import wx, os, sys
-from pyo import *
+#from pyo import *
+import Resources.audio as audio
+import Resources.tutorial as tutorial
 import Resources.variables as vars
 from Resources.panels import *
 from Resources.preferences import PreferencesDialog
 from Resources.splash import ZyneSplashScreen
 import wx.richtext as rt
 from wx.adv import AboutDialogInfo, AboutBox
-import Resources.audio as audio
-import Resources.tutorial as tutorial
 
 class TutorialFrame(wx.Frame):
     def __init__(self, *args, **kw):
         wx.Frame.__init__(self, *args, **kw)
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
-        self.fileMenu.Append(vars.constants["ID"]["CloseTut"], 'Close...\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.fileMenu.Append(vars.constants["ID"]["CloseTut"], 'Close...\tCtrl+W')
         self.Bind(wx.EVT_MENU, self.onClose, id=vars.constants["ID"]["CloseTut"])
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
@@ -27,7 +27,8 @@ class TutorialFrame(wx.Frame):
         wx.CallAfter(self.rtc.SetFocus)
 
         font = self.rtc.GetFont()
-        newfont = wx.Font(font.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        newfont = wx.Font(font.GetPointSize(), wx.FONTFAMILY_TELETYPE,
+                          wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         if newfont.IsOk():
             self.rtc.SetFont(newfont)
     
@@ -297,14 +298,14 @@ class ZyneFrame(wx.Frame):
 
     def onRun(self, evt):
         state = self.serverPanel.onOff.GetValue()
-        evt = wx.CommandEvent(10127, self.serverPanel.onOff.GetId())
+        evt = wx.CommandEvent(wx.EVT_TOGGLEBUTTON.typeId, self.serverPanel.onOff.GetId())
         if state:
             evt.SetInt(0)
             self.serverPanel.onOff.SetValue(False)
         else:
             evt.SetInt(1)
             self.serverPanel.onOff.SetValue(True)
-        self.serverPanel.onOff.ProcessEvent(evt)
+        self.serverPanel.onOff.ProcessWindowEvent(evt)
         
     def onGenerateValues(self, evt):
         id = evt.GetId() - 10000

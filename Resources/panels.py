@@ -10,13 +10,13 @@ HEADTITLE_BACK_COLOUR = "#9999A0"
 
 MODULES =   {
             "FM": { "title": "Frequency Modulation", "synth": FmSynth, 
-                    "p1": ["FM Ratio", .25, 0, 4, False, False],
+                    "p1": ["FM Ratio", 2, 1, 12, False, False],
                     "p2": ["FM Index", 5, 0, 40, False, False],
                     "p3": ["Lowpass Cutoff", 2000, 100, 18000, False, True]
                     },
             "Additive": { "title": "Additive Synthesis", "synth": AddSynth, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
-                    "p2": ["Spread", 1, 0, 2, False, False],
+                    "p2": ["Spread", 1, 0.001, 2, False, True],
                     "p3": ["Feedback", 0, 0, 1, False, False]
                     },
             "Wind": { "title": "Wind Synthesis", "synth": WindSynth, 
@@ -57,28 +57,38 @@ MODULES =   {
             "Reson": { "title": "Resonators Synthesis", "synth": Reson, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Chorus Depth", .001, .001, .125, False, True],
-                    "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
+                    "p3": ["Lowpass Cutoff", 5000, 100, 10000, False, True]
                     },
             "CrossFM": { "title": "Cross FM Modulation", "synth": CrossFmSynth, 
-                    "p1": ["FM Ratio", .25, 0, 4, False, False],
+                    "p1": ["FM Ratio", 2, 1, 12, False, False],
                     "p2": ["FM Index 1", 2, 0, 40, False, False],
                     "p3": ["FM Index 2", 2, 0, 40, False, False],
                     },
             "OTReson": { "title": "Out of tune Resonators", "synth": OTReson, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Detune", .01, .0001, 1, False, True],
-                    "p3": ["Lowpass Cutoff", 2000, 100, 10000, False, True]
+                    "p3": ["Lowpass Cutoff", 5000, 100, 10000, False, True]
                     },
             "InfiniteRev": { "title": "Infinite Reverb", "synth": InfiniteRev, 
                     "p1": ["Transposition", 0, -36, 36, True, False],
                     "p2": ["Brightness", 5, 0, 100, True, False],
-                    "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
+                    "p3": ["Lowpass Cutoff", 10000, 100, 15000, False, True]
                     },
             "Degradation": { "title": "Wave Degradation", "synth": Degradation, 
-                    "p1": ["Bit Depth", 6, 2, 16, False, True],
+                    "p1": ["Bit Depth", 6, 2, 8, False, True],
                     "p2": ["SR Scale", .1, 0.001, .5, False, True],
-                    "p3": ["Lowpass Cutoff", 2000, 100, 15000, False, True]
+                    "p3": ["Lowpass Cutoff", 10000, 100, 15000, False, True]
                     },
+            "PulseWidthMod": { "title": "Pulse Width Modulation", "synth": PulseWidthModulation, 
+                    "p1": ["Detune", 0, 0, 1.0, False, False],
+                    "p2": ["Duty Cycle", 0.5, 0.01, 0.99, False, False],
+                    "p3": ["Lowpass Cutoff", 10000, 100, 15000, False, True]
+                   },
+            "VoltageControlledOsc": { "title": "Voltage Controlled Osc", "synth": VoltageControlledOsc, 
+                    "p1": ["Transposition", 0, -36, 36, True, False],
+                    "p2": ["Shape", 0.5, 0, 1, False, False],
+                    "p3": ["Lowpass Cutoff", 10000, 100, 15000, False, True]
+                   },
             }
 
 LFO_CONFIG =    {
@@ -563,7 +573,7 @@ class ServerPanel(wx.Panel):
         return {0: "wav", 1: "aif"}.get(self.fileformat, "wav")
     
     def prepareForVirtualKeyboard(self):
-        evt = wx.CommandEvent(10006, self.popupInterface.GetId())
+        evt = wx.CommandEvent(wx.EVT_CHOICE.typeId, self.popupInterface.GetId())
         evt.SetString("Virtual Keyboard")
         self.changeInterface(evt)
     
@@ -659,7 +669,7 @@ class ServerPanel(wx.Panel):
         for i, popup in enumerate(popups):
             val = serverSettings[i]
             popup.SetSelection(val)
-            evt = wx.CommandEvent(10006, popup.GetId())
+            evt = wx.CommandEvent(wx.EVT_CHOICE.typeId, popup.GetId())
             evt.SetInt(val)
             popup.ProcessEvent(evt)
         amp = serverSettings[4]
@@ -676,7 +686,7 @@ class ServerPanel(wx.Panel):
             if i == 0:
                 val = eq[i]
                 widget.SetValue(val)
-                evt = wx.CommandEvent(10127, widget.GetId())
+                evt = wx.CommandEvent(wx.EVT_CHECKBOX.typeId, widget.GetId())
                 evt.SetInt(val)
                 widget.ProcessEvent(evt)
             else:
@@ -687,7 +697,7 @@ class ServerPanel(wx.Panel):
             if i == 0:
                 val = comp[i]
                 widget.SetValue(val)
-                evt = wx.CommandEvent(10127, widget.GetId())
+                evt = wx.CommandEvent(wx.EVT_CHECKBOX.typeId, widget.GetId())
                 evt.SetInt(val)
                 widget.ProcessEvent(evt)
             else:
@@ -954,9 +964,9 @@ class GenericPanel(BasePanel):
         self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
         self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
         self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 3), (self.info, 0, wx.LEFT|wx.TOP, 3), 
-                                (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 3), (self.corner, 0, wx.RIGHT|wx.TOP, 3)])
+                                (self.title, 1, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 3), (self.corner, 0, wx.RIGHT|wx.TOP, 3)])
         self.headPanel.SetSizerAndFit(self.titleSizer)
-        self.sizer.Add(self.headPanel, 0, wx.BOTTOM, 3)
+        self.sizer.Add(self.headPanel, 0, wx.BOTTOM|wx.EXPAND, 3)
 
         self.font = self.close.GetFont()
         if vars.constants["PLATFORM"] != "win32":

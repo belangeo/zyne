@@ -7,6 +7,8 @@ if vars.vars["PYO_PRECISION"] == "single":
 else:
     from pyo64 import *
 
+from pyotools import PWM, VCO
+
 def get_output_devices():
     return pa_get_output_devices()
 def get_default_output():
@@ -523,6 +525,14 @@ class BaseSynth:
         for key in list(self.__dict__.keys()):
             del self.__dict__[key]
 
+class CustomFM:
+    def __init__(self, pitch, ratio, index, mul):
+        self.fcar = pitch * ratio
+        self.fmod = pitch
+        self.amod = self.fmod*index
+        self.mod = Sine(self.fmod, mul=self.amod)
+        self.out = Sine(self.fcar+self.mod, mul=mul)
+    
 class FmSynth(BaseSynth):
     """
     Simple frequency modulation synthesis.
@@ -537,9 +547,9 @@ class FmSynth(BaseSynth):
         FM Index : Represents the number of sidebands on each side of the carrier frequency.
         Lowpass Cutoff : Cutoff frequency of the lowpass filter.
     
-    ________________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    ________________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config,  mode=1)
@@ -548,12 +558,18 @@ class FmSynth(BaseSynth):
         self.norm_amp = self.amp * 0.1
         self.leftamp = self.norm_amp*self.panL
         self.rightamp = self.norm_amp*self.panR
-        self.fm1 = FM(carrier=self.pitch, ratio=self.p1, index=self.indexLine*self.indexrnd[0], mul=self.leftamp)
-        self.fm2 = FM(carrier=self.pitch*.997, ratio=self.p1, index=self.indexLine*self.indexrnd[1], mul=self.rightamp)
-        self.fm3 = FM(carrier=self.pitch*.995, ratio=self.p1, index=self.indexLine*self.indexrnd[2], mul=self.leftamp)
-        self.fm4 = FM(carrier=self.pitch*1.002, ratio=self.p1, index=self.indexLine*self.indexrnd[3], mul=self.rightamp)
-        self.filt1 = Biquadx(self.fm1+self.fm3, freq=self.p3, q=1, type=0, stages=2).mix()
-        self.filt2 = Biquadx(self.fm2+self.fm4, freq=self.p3, q=1, type=0, stages=2).mix()
+        self.fm1 = CustomFM(self.pitch, self.p1, self.indexLine*self.indexrnd[0], mul=self.leftamp)
+        self.fm2 = CustomFM(self.pitch*.997, self.p1, self.indexLine*self.indexrnd[1], mul=self.rightamp)
+        self.fm3 = CustomFM(self.pitch*.995, self.p1, self.indexLine*self.indexrnd[2], mul=self.leftamp)
+        self.fm4 = CustomFM(self.pitch*1.002, self.p1, self.indexLine*self.indexrnd[3], mul=self.rightamp)
+        
+        #self.fm1 = FM(carrier=self.pitch, ratio=self.p1, index=self.indexLine*self.indexrnd[0], mul=self.leftamp)
+        #self.fm2 = FM(carrier=self.pitch*.997, ratio=self.p1, index=self.indexLine*self.indexrnd[1], mul=self.rightamp)
+        #self.fm3 = FM(carrier=self.pitch*.995, ratio=self.p1, index=self.indexLine*self.indexrnd[2], mul=self.leftamp)
+        #self.fm4 = FM(carrier=self.pitch*1.002, ratio=self.p1, index=self.indexLine*self.indexrnd[3], mul=self.rightamp)
+
+        self.filt1 = Biquadx(self.fm1.out+self.fm3.out, freq=self.p3, q=1, type=0, stages=2).mix()
+        self.filt2 = Biquadx(self.fm2.out+self.fm4.out, freq=self.p3, q=1, type=0, stages=2).mix()
         self.out = Mix([self.filt1, self.filt2], voices=2)
 
 class AddSynth(BaseSynth):
@@ -568,9 +584,9 @@ class AddSynth(BaseSynth):
         Spread : Spreading factor of the sine wave frequencies.
         Feedback : Amount of output signal sent back in the waveform calculation.
     
-    _______________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _______________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -598,9 +614,9 @@ class WindSynth(BaseSynth):
         Rand depth : Depth of filter's frequency variations.
         Filter Q : Inverse of the filter's bandwidth. Amplitude of the whistling.
     
-    ______________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    ______________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -629,9 +645,9 @@ class SquareMod(BaseSynth):
         LFO frequency : Speed of the LFO modulating the amplitude.
         LFO Amplitude : Depth of the LFO modulating the amplitude.
     
-    _______________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _______________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -665,9 +681,9 @@ class SawMod(BaseSynth):
         LFO frequency : Speed of the LFO modulating the amplitude.
         LFO Amplitude : Depth of the LFO modulating the amplitude.
     
-    ________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    ________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -702,9 +718,9 @@ class PulsarSynth(BaseSynth):
         Transposition : Transposition, in semitones, of the pitches played on the keyboard.
         LFO Frequency : Speed of the LFO modulating the ratio waveform / silence.
     
-    ______________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    ______________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -740,9 +756,9 @@ class Ross(BaseSynth):
         Chorus depth : Depth of the deviation between the left and right channels.
         Lowpass Cutoff : Cutoff frequency of the lowpass filter.
     
-    _____________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _____________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -775,9 +791,9 @@ class Wave(BaseSynth):
         Transposition : Transposition, in semitones, of the pitches played on the keyboard.
         Sharpness : The sharpness factor allows more or less harmonics in the waveform.
     
-    _____________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _____________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -812,9 +828,9 @@ class PluckedString(BaseSynth):
         Duration : Length, in seconds, of the string resonance.
         Chorus depth : Depth of the frequency deviation between the left and right channels.
     
-    _______________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _______________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -840,9 +856,9 @@ class Reson(BaseSynth):
         Chorus depth : Depth of the frequency deviation between the left and right channels.
         Lowpass Cutoff : Cutoff frequency of the lowpass filter.
     
-    _______________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _______________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -871,9 +887,9 @@ class CrossFmSynth(BaseSynth):
         FM Index 2 : This value multiplied by the modulation frequency gives the modulation 
                      amplitude for modulating the carrier oscillator frequency.
     
-    __________________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    __________________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config,  mode=1)
@@ -884,13 +900,14 @@ class CrossFmSynth(BaseSynth):
         self.norm_amp = self.amp * 0.1
         self.leftamp = self.norm_amp*self.panL
         self.rightamp = self.norm_amp*self.panR
-        self.fm1 = CrossFM(carrier=self.pitch, ratio=self.p1, ind1=self.indexLine*self.indexrnd[0], 
+        self.ratio = 1 / self.p1
+        self.fm1 = CrossFM(carrier=self.pitch, ratio=self.ratio, ind1=self.indexLine*self.indexrnd[0], 
                             ind2=self.indexLine2*self.indexrnd2[0], mul=self.leftamp).mix()
-        self.fm2 = CrossFM(carrier=self.pitch*.997, ratio=self.p1, ind1=self.indexLine*self.indexrnd[1], 
+        self.fm2 = CrossFM(carrier=self.pitch*.997, ratio=self.ratio, ind1=self.indexLine*self.indexrnd[1], 
                             ind2=self.indexLine2*self.indexrnd2[1], mul=self.rightamp).mix()
-        self.fm3 = CrossFM(carrier=self.pitch*.995, ratio=self.p1, ind1=self.indexLine*self.indexrnd[2], 
+        self.fm3 = CrossFM(carrier=self.pitch*.995, ratio=self.ratio, ind1=self.indexLine*self.indexrnd[2], 
                             ind2=self.indexLine2*self.indexrnd2[2], mul=self.leftamp).mix()
-        self.fm4 = CrossFM(carrier=self.pitch*1.002, ratio=self.p1, ind1=self.indexLine*self.indexrnd[3], 
+        self.fm4 = CrossFM(carrier=self.pitch*1.002, ratio=self.ratio, ind1=self.indexLine*self.indexrnd[3], 
                             ind2=self.indexLine2*self.indexrnd2[3], mul=self.rightamp).mix()
         self.filt1 = Biquad(self.fm1+self.fm3, freq=5000, q=1, type=0)
         self.filt2 = Biquad(self.fm2+self.fm4, freq=5000, q=1, type=0)
@@ -909,9 +926,9 @@ class OTReson(BaseSynth):
         Detune : Control the depth of the allpass delay-line filter, i.e. the depth of the detuning.
         Lowpass Cutoff : Cutoff frequency of the lowpass filter.
     
-    _______________________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _______________________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -937,9 +954,9 @@ class InfiniteRev(BaseSynth):
         Brightness : Amount of feedback of the looped sine.
         Lowpass Cutoff : Cutoff frequency of the lowpass filter.
     
-    _____________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _____________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
@@ -970,13 +987,14 @@ class Degradation(BaseSynth):
         SR Scale : Sampling rate multiplier.
         Lowpass Cutoff : Cutoff frequency of the lowpass filter.
     
-    _____________________________________________________________________________________
+    ____________________________________________________________________________
     Author : Olivier Bélanger - 2011
-    _____________________________________________________________________________________
+    ____________________________________________________________________________
     """
     def __init__(self, config):
         BaseSynth.__init__(self, config, mode=1)
-        self.table = HarmTable([1,0,0,.2,0,0,.1,0,0,.07,0,0,0,.05]).normalize()
+        #self.table = HarmTable([1,0,0,.2,0,0,.1,0,0,.07,0,0,0,.05]).normalize()
+        self.table = HarmTable()
         self.leftamp = self.amp*self.panL
         self.rightamp = self.amp*self.panR
         self.src1 = Osc(table=self.table, freq=self.pitch, mul=.25)
@@ -987,6 +1005,62 @@ class Degradation(BaseSynth):
         self.deg2 = Degrade(self.src2+self.src4, bitdepth=self.p1, srscale=self.p2, mul=self.rightamp)
         self.filt1 = Biquad(self.deg1, freq=self.p3).mix()
         self.filt2 = Biquad(self.deg2, freq=self.p3).mix()
+        self.mix = Mix([self.filt1, self.filt2], voices=2)
+        self.out = DCBlock(self.mix)
+
+class PulseWidthModulation(BaseSynth):
+    """
+    Signal quality reducer.
+    
+    Reduces the sampling rate and/or bit-depth of a chorused complex waveform oscillator.
+    
+    Parameters:
+
+        Bit Depth : Signal quantization in bits.
+        SR Scale : Sampling rate multiplier.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    ____________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    ____________________________________________________________________________
+    """
+    def __init__(self, config):
+        BaseSynth.__init__(self, config, mode=1)
+        self.leftamp = self.amp*self.panL
+        self.rightamp = self.amp*self.panR
+        self.fac = 1 + (self.p1 * 0.05)
+        self.src1 = PWM(freq=self.pitch, duty=self.p2, damp=4, mul=.1)
+        self.src2 = PWM(freq=self.pitch*self.fac, duty=self.p2, damp=4, mul=.1)
+        self.filt1 = Biquad(self.src1+self.src2, freq=self.p3)
+        self.filt2 = Biquad(self.src1+self.src2, freq=self.p3)
+        self.sig1 = Sig(self.filt1, mul=self.leftamp).mix()
+        self.sig2 = Sig(self.filt2, mul=self.rightamp).mix()
+        self.mix = Mix([self.sig1, self.sig2], voices=2)
+        self.out = DCBlock(self.mix)
+
+class VoltageControlledOsc(BaseSynth):
+    """
+    Signal quality reducer.
+    
+    Reduces the sampling rate and/or bit-depth of a chorused complex waveform oscillator.
+    
+    Parameters:
+
+        Bit Depth : Signal quantization in bits.
+        SR Scale : Sampling rate multiplier.
+        Lowpass Cutoff : Cutoff frequency of the lowpass filter.
+    
+    ____________________________________________________________________________
+    Author : Olivier Bélanger - 2011
+    ____________________________________________________________________________
+    """
+    def __init__(self, config):
+        BaseSynth.__init__(self, config, mode=1)
+        self.leftamp = self.amp*self.panL
+        self.rightamp = self.amp*self.panR
+        self.src = VCO(freq=self.pitch, shape=self.p2, damp=4, mul=.1)
+        self.filt1 = Biquad(self.src, freq=self.p3, mul=self.leftamp).mix()
+        self.filt2 = Biquad(self.src, freq=self.p3, mul=self.rightamp).mix()
         self.mix = Mix([self.filt1, self.filt2], voices=2)
         self.out = DCBlock(self.mix)
 
