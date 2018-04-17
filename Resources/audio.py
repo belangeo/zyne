@@ -316,6 +316,8 @@ class CtlBind:
 class LFOSynth(CtlBind):
     def __init__(self, rng, trigger, midi_metro, lfo_config=None):
         CtlBind.__init__(self)
+        self.lfo_type = 0
+        self.last_sharp = 0.5
         self.trigger = trigger
         self._midi_metro = midi_metro
         self.rawamp = SigTo(.1, vars.vars["SLIDERPORT"], .1, mul=rng)
@@ -351,13 +353,20 @@ class LFOSynth(CtlBind):
         self.speed.value = x
     
     def setType(self, x):
-        self.lfo.type = x
+        self.lfo_type = (x - 1) % 8
+        if self.lfo_type == 7:
+            self.lfo.sharp = 0
+        else:
+            self.lfo.sharp = self.last_sharp
+        self.lfo.type = self.lfo_type
     
     def setJitter(self, x):
         self.jitter.value = x
 
     def setSharp(self, x):
-        self.lfo.sharp = x
+        if self.lfo_type != 7:
+            self.lfo.sharp = x
+        self.last_sharp = x
     
     def setAmp(self, x):
         self.rawamp.value = x
@@ -403,9 +412,9 @@ class Panner(CtlBind):
         self._midi_metro = midi_metro
         self.lfo = LFOSynth(0.5, self.lfo_trigger, midi_metro)
         self.slider = SigTo(0.5, vars.vars["SLIDERPORT"], 0.5, add=self.lfo.sig())
-        self.clip = Clip(self.slider, 0., 1.)
-        self.amp_L = Sqrt(1 - self.clip)
-        self.amp_R = Sqrt(self.clip)
+        self.clip = Clip(self.slider, 0., 1., mul=math.pi/2)
+        self.amp_L = Cos(self.clip)
+        self.amp_R = Sin(self.clip)
 
     def set(self, x):
         self.slider.value = x
@@ -442,6 +451,22 @@ class ParamTranspo:
         for key in list(self.__dict__.keys()):
             del self.__dict__[key]
 
+class Stereofy:
+    def __init__(self, sig):
+        self.sig = sig
+        self.outL = Delay(self.sig, delay=0, maxdelay=0.06)
+        self.outR = Delay(self.sig, delay=0, maxdelay=0.06)
+
+    def split(self):
+        if random.randint(0, 1):
+            self.outL.delay = 0.05
+        else:
+            self.outR.delay = 0.05
+
+    def unsplit(self):
+        self.outL.delay = 0
+        self.outR.delay = 0
+        
 class BaseSynth:
     def __init__(self, config,  mode=1):
         self.module_path = vars.vars["CUSTOM_MODULES_PATH"]
@@ -1028,15 +1053,26 @@ class PulseWidthModulation(BaseSynth):
         BaseSynth.__init__(self, config, mode=1)
         self.leftamp = self.amp*self.panL
         self.rightamp = self.amp*self.panR
-        self.fac = 1 + (self.p1 * 0.05)
-        self.src1 = PWM(freq=self.pitch, duty=self.p2, damp=4, mul=.1)
-        self.src2 = PWM(freq=self.pitch*self.fac, duty=self.p2, damp=4, mul=.1)
-        self.filt1 = Biquad(self.src1+self.src2, freq=self.p3)
-        self.filt2 = Biquad(self.src1+self.src2, freq=self.p3)
-        self.sig1 = Sig(self.filt1, mul=self.leftamp).mix()
-        self.sig2 = Sig(self.filt2, mul=self.rightamp).mix()
-        self.mix = Mix([self.sig1, self.sig2], voices=2)
+        self.change = Change(self.p1)
+        self.trigChange = TrigFunc(self.change, function=self.changeMode)
+        self.fac = SigTo(1, 0.02)
+        self.src = PWM(freq=self.pitch, duty=self.p2, damp=4, mul=.1)
+        #self.src2 = PWM(freq=self.pitch*self.fac, duty=self.p2, damp=4, mul=.1)
+        self.stereo = Stereofy(self.src)
+        self.src1 = self.stereo.outL
+        self.src2 = self.stereo.outR
+        self.filt1 = Biquad(self.src1, freq=self.p3, mul=self.leftamp).mix()
+        self.filt2 = Biquad(self.src2, freq=self.p3, mul=self.rightamp).mix()
+        self.mix = Mix([self.filt1, self.filt2], voices=2)
         self.out = DCBlock(self.mix)
+
+    def changeMode(self):
+        if int(self.p1.get()):
+            self.stereo.split()
+            #self.fac.value = 1.0025
+        else:
+            self.stereo.unsplit()
+            #self.fac.value = 1.
 
 class VoltageControlledOsc(BaseSynth):
     """

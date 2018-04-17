@@ -8,6 +8,7 @@ import wx.richtext as rt
 
 HEADTITLE_BACK_COLOUR = "#9999A0"
 
+# Param values are: init, min, max, is_int, is_log
 MODULES =   {
             "FM": { "title": "Frequency Modulation", "synth": FmSynth, 
                     "p1": ["FM Ratio", 2, 1, 12, False, False],
@@ -80,7 +81,7 @@ MODULES =   {
                     "p3": ["Lowpass Cutoff", 10000, 100, 15000, False, True]
                     },
             "PulseWidthMod": { "title": "Pulse Width Modulation", "synth": PulseWidthModulation, 
-                    "p1": ["Detune", 0, 0, 1.0, False, False],
+                    "p1": ["Detune", 0, 0, 1, True, False],
                     "p2": ["Duty Cycle", 0.5, 0.01, 0.99, False, False],
                     "p3": ["Lowpass Cutoff", 10000, 100, 15000, False, True]
                    },
@@ -93,12 +94,12 @@ MODULES =   {
 
 LFO_CONFIG =    {
                 "p1": ["Speed", 4, .01, 1000, False, True],
-                "p2": ["Waveform", 3, 0, 7, True, False],
+                "p2": ["Waveform", 0, 0, 7, True, False],
                 "p3": ["Jitter", 0, 0, 1, False, False],
                 "p4": ["Sharpness", 0.5, 0, 1, False, False],
                 }
 
-LFO_INIT = {"state": False, "params": [.001, .1, .7, 1, .1, 4, 3, 0, .5], 
+LFO_INIT = {"state": False, "params": [.001, .1, .7, 1, .1, 4, 0, 0, .5], 
             "ctl_params": [None, None, None, None, None, None, None, None, None], "shown": False}
 def get_lfo_init():
     return copy.deepcopy(LFO_INIT)
@@ -1372,7 +1373,8 @@ class LFOPanel(BasePanel):
             self.synth._params[self.which].setType(x)
         else:
             self.synth._params[self.which].lfo.setType(x)
-        wave = {0: "Ramp", 1: "Sawtooth", 2: "Square", 3: "Triangle", 4: "Pulse", 5: "Bipolar Pulse", 6: "Sample and Hold", 7: "Modulated Sine"}[x]
+        wave = {0: "Sine", 1: "Ramp", 2: "Sawtooth", 3: "Square", 4: "Triangle", 
+                5: "Pulse", 6: "Bipolar Pulse", 7: "Sample and Hold"}[x]
         self.labels[2].SetLabel("Waveform  -  %s" % wave)
 
     def changeP3(self, x):
