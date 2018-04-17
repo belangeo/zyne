@@ -640,8 +640,11 @@ class HeadTitle(wx.Panel):
         self.SetSizerAndFit(mainsizer)
 
 class ZyneControlSlider(ControlSlider):
-    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False, outFunction=None, integer=False, powoftwo=False, backColour=None):
-        ControlSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size, log, outFunction, integer, powoftwo, backColour)
+    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0),
+                 size=(200,16), log=False, outFunction=None, integer=False,
+                 powoftwo=False, backColour=None):
+        ControlSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size,
+                               log, outFunction, integer, powoftwo, backColour)
 
     def setValue(self, x):
         wx.CallAfter(self.SetValue, x)
@@ -660,8 +663,11 @@ class ZyneControlSlider(ControlSlider):
             ControlSlider.MouseDown(self, evt)
 
 class ControlKnob(wx.Panel):
-    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(44,70), log=False, outFunction=None, integer=False, backColour=None, label=''):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS)
+    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0),
+                 size=(44,70), log=False, outFunction=None, integer=False,
+                 backColour=None, label=''):
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size,
+                          style=wx.NO_BORDER | wx.WANTS_CHARS)
         self.parent = parent
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.SetBackgroundColour(BACKGROUND_COLOUR)
@@ -686,6 +692,12 @@ class ControlKnob(wx.Panel):
         else: 
             self.SetValue(minvalue)
             self.init = minvalue
+
+        if vars.constants["PLATFORM"] == "darwin":
+            self.font = wx.Font(10, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        else:
+            self.font = wx.Font(7, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
         self.Bind(wx.EVT_LEFT_DCLICK, self.DoubleClick)
@@ -848,11 +860,8 @@ class ControlKnob(wx.Panel):
         # Draw background
         dc.SetPen(wx.Pen(self.backColour, width=self.borderWidth, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
-    
-        if vars.constants["PLATFORM"] == "darwin":
-            dc.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
-        else:
-            dc.SetFont(wx.Font(7, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+
+        dc.SetFont(self.font)
         dc.SetTextForeground("#000000")
     
         # Draw text label

@@ -135,7 +135,7 @@ class HelpFrame(wx.Frame):
         self.rtc.SetBackgroundColour(BACKGROUND_COLOUR)
         caret = self.rtc.GetCaret()
         caret.Hide()
-    
+
         font = self.rtc.GetFont()
         newfont = wx.Font(font.GetPointSize(), wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         if newfont.IsOk():
@@ -262,15 +262,19 @@ class LFOButtons(GenStaticText):
         self.state = False
         self.callback = callback
         self.SetBackgroundColour(BACKGROUND_COLOUR)
+
         self.font, psize = self.GetFont(), self.GetFont().GetPointSize()
+
+        self.font.SetFamily(wx.FONTFAMILY_TELETYPE)
         if vars.constants["PLATFORM"] != "win32":
-            self.font.SetWeight(wx.BOLD)
+            self.font.SetWeight(wx.FONTWEIGHT_BOLD)
             
         if vars.constants["PLATFORM"] != "darwin":
             self.font.SetPointSize(psize-2)
         else:
             self.font.SetPointSize(psize-5)
         self.SetFont(self.font)
+
         self.Bind(wx.EVT_ENTER_WINDOW, self.hover)
         self.Bind(wx.EVT_LEAVE_WINDOW, self.leave)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
@@ -480,13 +484,13 @@ class ServerPanel(wx.Panel):
         self.mainBox.Add(self.ppEqTitle, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 4)
 
         eqFreqBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.knobEqF1 = ControlKnob(self, 40, 250, 100, label='  Freq 1', backColour=colour, outFunction=self.changeEqF1)
+        self.knobEqF1 = ControlKnob(self, 40, 250, 100, label=' Freq 1', backColour=colour, outFunction=self.changeEqF1)
         eqFreqBox.Add(self.knobEqF1, 0, wx.LEFT | wx.RIGHT, 20)
         self.knobEqF1.setFloatPrecision(2)
-        self.knobEqF2 = ControlKnob(self, 300, 1000, 500, label='  Freq 2', backColour=colour, outFunction=self.changeEqF2)
+        self.knobEqF2 = ControlKnob(self, 300, 1000, 500, label=' Freq 2', backColour=colour, outFunction=self.changeEqF2)
         eqFreqBox.Add(self.knobEqF2, 0, wx.LEFT | wx.RIGHT, 20)
         self.knobEqF2.setFloatPrecision(2)
-        self.knobEqF3 = ControlKnob(self, 1200, 5000, 2000, label='  Freq 3', backColour=colour, outFunction=self.changeEqF3)
+        self.knobEqF3 = ControlKnob(self, 1200, 5000, 2000, label=' Freq 3', backColour=colour, outFunction=self.changeEqF3)
         eqFreqBox.Add(self.knobEqF3, 0, wx.LEFT | wx.RIGHT, 20)
         self.knobEqF3.setFloatPrecision(2)
 
@@ -891,8 +895,8 @@ class BasePanel(wx.Panel):
             lfo_frame = LFOFrame(self.GetTopLevelParent(), self.synth, label, i)
             self.buttons[i] = button
             self.lfo_frames[i] = lfo_frame
-            hsizer.Add(slider, 0)
-            hsizer.Add(button, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 2)
+            hsizer.Add(slider, 0, wx.RIGHT, 1)
+            hsizer.Add(button, 0, wx.LEFT|wx.TOP, 1)
             self.sizer.Add(hsizer, 0, wx.LEFT|wx.RIGHT, 5)
         self.sizer.AddSpacer(2)
         self.sliders.append(slider)
