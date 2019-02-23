@@ -402,7 +402,8 @@ class ZyneFrame(wx.Frame):
     def showKeyboard(self, state=True):
         if state:
             self.splitWindow.SplitHorizontally(self.panel, self.keyboard, -80)
-            self.SetMinSize((460, 602))
+            self.SetMinSize((460, 660))
+            self.SetSize((-1, 755))
         else:
             self.splitWindow.Unsplit()
             if vars.constants["PLATFORM"] == "win32":
@@ -523,7 +524,7 @@ class ZyneFrame(wx.Frame):
                 title = "Export chords as separated tracks..."
                 title2 = "Exporting chords as separated tracks..."
                 num_modules = len(self.modules)
-            notes = self.keyboard.getNotes()
+            notes = self.keyboard.getCurrentNotes()
             if len(notes) == 0:
                 wx.LogMessage("Play some notes on the virtual keyboard before calling the export chords function!.")
                 return

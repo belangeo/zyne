@@ -2,7 +2,7 @@ import wx, os, math, copy, random, time
 from wx.lib.stattext import GenStaticText
 import Resources.variables as vars
 from Resources.widgets import *
-from pyolib._wxwidgets import VuMeter, BACKGROUND_COLOUR
+from pyo.lib._wxwidgets import VuMeter, BACKGROUND_COLOUR
 from Resources.audio import *
 import wx.richtext as rt
 
@@ -581,20 +581,21 @@ class ServerPanel(wx.Panel):
         self.changeInterface(evt)
     
     def resetVirtualKeyboard(self, resetDisplay=True):
-        modules = self.GetTopLevelParent().modules
-        for pit in list(self.virtualNotePressed.keys()):
-            voice = self.virtualNotePressed[pit]
-            del self.virtualNotePressed[pit]
-            for module in modules:
-                synth = module.synth
-                synth._virtualpit[voice].setValue(pit)
-                synth._trigamp[voice].setValue(0)
-        self.virtualvoice = 0
         if resetDisplay:
             self.keyboard.reset()
+        else:
+            modules = self.GetTopLevelParent().modules
+            for pit in list(self.virtualNotePressed.keys()):
+                voice = self.virtualNotePressed[pit]
+                del self.virtualNotePressed[pit]
+                for module in modules:
+                    synth = module.synth
+                    synth._virtualpit[voice].setValue(pit)
+                    synth._trigamp[voice].setValue(0)
+        self.virtualvoice = 0
     
     def retrigVirtualNotes(self):
-        notes = self.keyboard.getNotes()
+        notes = self.keyboard.getCurrentNotes()
         self.resetVirtualKeyboard(resetDisplay=False)
         modules = self.GetTopLevelParent().modules
         for note in notes:
