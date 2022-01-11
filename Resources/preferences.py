@@ -50,7 +50,7 @@ class PreferencesDialog(wx.Dialog):
         host = self.prefs["AUDIO_HOST"]
         lbl = wx.StaticText(self, label=vars.constants["VAR_PREF_LABELS"]["AUDIO_HOST"])
         lbl.SetFont(font)
-        driverSizer.Add(lbl, 0, wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT, 10)
+        driverSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         cbo = wx.ComboBox(self, value=host ,size=(100,-1), choices=host_choices,
                                   style=wx.CB_DROPDOWN|wx.CB_READONLY, name="AUDIO_HOST")
         driverSizer.AddSpacer(5)

@@ -87,7 +87,7 @@ class SamplingDialog(wx.Dialog):
         box.Add(wx.StaticText(self, -1, "Common file name:"), 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.filename = wx.TextCtrl(self, -1, "zyne", size=(80,-1))
         box.Add(self.filename, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
-        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        sizer.Add(box, 0, wx.GROW|wx.ALL, 5)
     
         box = wx.BoxSizer(wx.HORIZONTAL)
         box.Add(wx.StaticText(self, -1, "First:"), 0, wx.ALIGN_CENTRE|wx.ALL, 5)
@@ -99,7 +99,7 @@ class SamplingDialog(wx.Dialog):
         box.Add(wx.StaticText(self, -1, "Step:"), 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.step = wx.TextCtrl(self, -1, "1", size=(40,-1))
         box.Add(self.step, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
-        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        sizer.Add(box, 0, wx.GROW|wx.ALL, 5)
     
         box = wx.BoxSizer(wx.HORIZONTAL)
         box.Add(wx.StaticText(self, -1, "Noteon dur:"), 0, wx.ALIGN_CENTRE|wx.ALL, 5)
@@ -108,10 +108,10 @@ class SamplingDialog(wx.Dialog):
         box.Add(wx.StaticText(self, -1, "Release dur:"), 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.release = wx.TextCtrl(self, -1, "1", size=(50,-1))
         box.Add(self.release, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
-        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        sizer.Add(box, 0, wx.GROW|wx.ALL, 5)
     
         line = wx.StaticLine(self, -1, size=(20,-1), style=wx.LI_HORIZONTAL)
-        sizer.Add(line, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.TOP, 5)
+        sizer.Add(line, 0, wx.GROW|wx.RIGHT|wx.TOP, 5)
     
         btnsizer = wx.StdDialogButtonSizer()
         btn = wx.Button(self, wx.ID_OK)
@@ -219,7 +219,6 @@ class ZyneFrame(wx.Frame):
         self.selected = None
 
         self.splitWindow = wx.SplitterWindow(self, -1, style = wx.SP_LIVE_UPDATE|wx.SP_PERMIT_UNSPLIT)
-        self.splitWindow.SetSashSize(0)
 
         mainSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer = wx.WrapSizer()

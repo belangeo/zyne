@@ -346,7 +346,7 @@ class ServerPanel(wx.Panel):
         self.SetDropTarget(dropTarget)
 
         self.title = HeadTitle(self, "Server Controls")
-        self.mainBox.Add(self.title, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.BOTTOM | wx.EXPAND, 4)
+        self.mainBox.Add(self.title, 0, wx.BOTTOM | wx.EXPAND, 4)
 
         self.driverText = wx.StaticText(self, id=-1, label="Output Driver")
         self.mainBox.Add(self.driverText, 0, wx.LEFT, 4)
