@@ -10,7 +10,7 @@ def GetRoundBitmap(w, h, r=10):
     dc.DrawRectangle(0,0,w,h)
     dc.SetBrush(wx.Brush(shownColour))
     dc.SetPen(wx.Pen(shownColour))
-    dc.DrawCircle(w/2,h/2,w/2)
+    dc.DrawCircle(w//2,h//2,w//2)
     dc.SelectObject(wx.NullBitmap)
     b.SetMaskColour(maskColour)
     return b
@@ -25,7 +25,7 @@ class ZyneSplashScreen(wx.Frame):
     def __init__(self, parent, img, mainframe):
         display = wx.Display(0)
         size = display.GetGeometry()[2:]
-        wx.Frame.__init__(self, parent, -1, "", pos=(-1, size[1]/6),
+        wx.Frame.__init__(self, parent, -1, "", pos=(-1, size[1]//6),
                          style = wx.FRAME_SHAPED | wx.SIMPLE_BORDER | wx.FRAME_NO_TASKBAR | wx.STAY_ON_TOP)
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
@@ -78,8 +78,7 @@ class ZyneSplashScreen(wx.Frame):
             font.SetPointSize(ptsize+1)
         dc.SetFont(font)
         dc.DrawLabel("Olivier Bélanger", wx.Rect(0, 305, 400, 15), wx.ALIGN_CENTER)
-        dc.DrawLabel("ajaxsoundstudio, %s" % vars.constants["YEAR"], wx.Rect(0, 340, 400, 15), wx.ALIGN_CENTER)
-        dc.DrawLabel("v. %s" % vars.constants["VERSION"], wx.Rect(0, 360, 400, 15), wx.ALIGN_CENTER)
+        dc.DrawLabel("v. %s" % vars.constants["VERSION"], wx.Rect(0, 325, 400, 15), wx.ALIGN_CENTER)
      
     def OnClose(self):
         self.mainframe.Show()

@@ -649,6 +649,16 @@ class ZyneControlSlider(ControlSlider):
     def setValue(self, x):
         wx.CallAfter(self.SetValue, x)
 
+    def SetValue(self, value, *args, **kwargs):
+        # Audio updates may still be queued when a module is destroyed.
+        if self and not self.IsBeingDeleted():
+            return ControlSlider.SetValue(self, value, *args, **kwargs)
+
+    def Refresh(self, *args, **kwargs):
+        # ControlSlider also queues Refresh calls during initialization.
+        if self and not self.IsBeingDeleted():
+            return ControlSlider.Refresh(self, *args, **kwargs)
+
     def MouseDown(self, evt):
         if vars.vars["MIDILEARN"]:
             if vars.vars["LEARNINGSLIDER"] == None:

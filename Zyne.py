@@ -221,7 +221,7 @@ class ZyneFrame(wx.Frame):
         self.splitWindow = wx.SplitterWindow(self, -1, style = wx.SP_LIVE_UPDATE|wx.SP_PERMIT_UNSPLIT)
 
         mainSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer = wx.WrapSizer()
+        self.sizer = wx.WrapSizer(wx.HORIZONTAL, wx.REMOVE_LEADING_SPACES)
         self.panel = wx.Panel(self.splitWindow)
         self.serverPanel = ServerPanel(self.panel)
         mainSizer.Add(self.serverPanel)

@@ -961,14 +961,16 @@ class GenericPanel(BasePanel):
         self.info.Bind(wx.EVT_LEAVE_WINDOW, self.leaveInfo)
         self.info.Bind(wx.EVT_LEFT_DOWN, self.MouseDownInfo)
         self.info.SetToolTip(wx.ToolTip("Show module's infos"))
-        self.title = wx.StaticText(self.headPanel, id=-1, label=title)
+        self.title = wx.StaticText(self.headPanel, id=-1, label=title,
+                                   style=wx.ALIGN_CENTER_HORIZONTAL | wx.ST_NO_AUTORESIZE | wx.ST_ELLIPSIZE_END)
+        self.title.SetMinSize((1, -1))
         self.corner = GenStaticText(self.headPanel, -1, label="m/s")
         self.corner.SetToolTip(wx.ToolTip("Mute / Solo. Click to mute, Shift+Click to solo"))
         self.corner.Bind(wx.EVT_LEFT_DOWN, self.MouseDownCorner)
         self.corner.Bind(wx.EVT_ENTER_WINDOW, self.hoverCorner)
         self.corner.Bind(wx.EVT_LEAVE_WINDOW, self.leaveCorner)
         self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 3), (self.info, 0, wx.LEFT|wx.TOP, 3), 
-                                (self.title, 1, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 3), (self.corner, 0, wx.RIGHT|wx.TOP, 3)])
+                                (self.title, 1, wx.EXPAND|wx.TOP, 3), (self.corner, 0, wx.RIGHT|wx.TOP, 3)])
         self.headPanel.SetSizerAndFit(self.titleSizer)
         self.sizer.Add(self.headPanel, 0, wx.BOTTOM|wx.EXPAND, 3)
 
@@ -977,6 +979,7 @@ class GenericPanel(BasePanel):
             ptsize = self.font.GetPointSize()
             self.font.SetPointSize(ptsize - 2)
         for obj in [self.close, self.info, self.title, self.corner]:
+            obj.SetBackgroundColour(self.headPanel.GetBackgroundColour())
             obj.SetFont(self.font)
             obj.SetForegroundColour("white")
 
@@ -1342,17 +1345,20 @@ class LFOPanel(BasePanel):
         self.close.Bind(wx.EVT_LEAVE_WINDOW, self.leaveX)
         self.close.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.close.SetToolTip(wx.ToolTip("Close window"))
-        self.title = GenStaticText(self.headPanel, -1, label=title)
+        self.title = wx.StaticText(self.headPanel, -1, label=title,
+                                   style=wx.ALIGN_CENTER_HORIZONTAL | wx.ST_NO_AUTORESIZE | wx.ST_ELLIPSIZE_END)
+        self.title.SetMinSize((1, -1))
         self.title.SetToolTip(wx.ToolTip("Move window"))
-        self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 3), (self.title, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.TOP, 3)])
+        self.titleSizer.AddMany([(self.close, 0, wx.LEFT|wx.TOP, 3), (self.title, 0, wx.EXPAND|wx.TOP, 3)])
         self.headPanel.SetSizerAndFit(self.titleSizer)
-        self.sizer.Add(self.headPanel, 0, wx.BOTTOM, 3)
+        self.sizer.Add(self.headPanel, 0, wx.BOTTOM|wx.EXPAND, 3)
 
         self.font = self.close.GetFont()
         if vars.constants["PLATFORM"] != "win32":
             ptsize = self.font.GetPointSize()
             self.font.SetPointSize(ptsize - 2)
         for obj in [self.close, self.title]:
+            obj.SetBackgroundColour(self.headPanel.GetBackgroundColour())
             obj.SetFont(self.font)
             obj.SetForegroundColour("white")
 
