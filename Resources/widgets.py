@@ -1,7 +1,7 @@
 # encoding: utf-8
 import wx, math, copy
 from wx.lib.embeddedimage import PyEmbeddedImage
-from pyo.lib._wxwidgets import ControlSlider, BACKGROUND_COLOUR
+from pyo.lib._wxwidgets import ControlSlider
 import Resources.variables as vars
 
 KNOB = PyEmbeddedImage(
@@ -619,12 +619,10 @@ def toLog(t, v1, v2):
 def toExp(t, v1, v2):
     return math.pow(10, t * (math.log10(v2) - math.log10(v1)) + math.log10(v1))
 
-HEADTITLE_BACK_COLOUR = "#9999A0"
 
 class HeadTitle(wx.Panel):
     def __init__(self, parent, title, font=None, togcall=None):
         wx.Panel.__init__(self, parent, -1)
-        self.SetBackgroundColour(HEADTITLE_BACK_COLOUR)
         mainsizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer = wx.BoxSizer(wx.VERTICAL)
         if togcall is not None:
@@ -634,7 +632,7 @@ class HeadTitle(wx.Panel):
         label = wx.StaticText(self, -1, title)
         if font is not None:
             label.SetFont(font)
-        label.SetForegroundColour("white")
+        self.label = label
         sizer.Add(label, 0, wx.CENTER|wx.ALL, 2)
         mainsizer.Add(sizer, 1)
         self.SetSizerAndFit(mainsizer)
@@ -645,6 +643,11 @@ class ZyneControlSlider(ControlSlider):
                  powoftwo=False, backColour=None):
         ControlSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size,
                                log, outFunction, integer, powoftwo, backColour)
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
+
+    def OnColourChanged(self, evt):
+        self.Refresh()
+        evt.Skip()
 
     def setValue(self, x):
         wx.CallAfter(self.SetValue, x)
@@ -680,7 +683,6 @@ class ControlKnob(wx.Panel):
                           style=wx.NO_BORDER | wx.WANTS_CHARS)
         self.parent = parent
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
-        self.SetBackgroundColour(BACKGROUND_COLOUR)
         self.SetMinSize(self.GetSize())
         self.knobBitmap = KNOB.GetBitmap()
         self.outFunction = outFunction
@@ -695,7 +697,7 @@ class ControlKnob(wx.Panel):
         self.new = ''
         self.floatPrecision = '%.3f'
         if backColour: self.backColour = backColour
-        else: self.backColour = BACKGROUND_COLOUR
+        else: self.backColour = None
         if init != None: 
             self.SetValue(init)
             self.init = init
@@ -713,6 +715,7 @@ class ControlKnob(wx.Panel):
         self.Bind(wx.EVT_LEFT_DCLICK, self.DoubleClick)
         self.Bind(wx.EVT_MOTION, self.MouseMotion)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
         self.Bind(wx.EVT_KEY_DOWN, self.keyDown)
         self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
    
@@ -856,6 +859,10 @@ class ControlKnob(wx.Panel):
                 self.selected = False
                 self.Refresh()
     
+    def OnColourChanged(self, evt):
+        self.Refresh()
+        evt.Skip()
+
     def setbackColour(self, colour):
         self.backColour = colour
         self.Refresh()
@@ -864,15 +871,18 @@ class ControlKnob(wx.Panel):
         w,h = self.GetSize()
         dc = wx.AutoBufferedPaintDC(self)
     
-        dc.SetBrush(wx.Brush(self.backColour, wx.SOLID))
+        background = self.backColour or self.GetParent().GetBackgroundColour()
+        foreground = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+        dc.SetBackground(wx.Brush(background))
         dc.Clear()
+        dc.SetBrush(wx.Brush(background, wx.SOLID))
     
         # Draw background
-        dc.SetPen(wx.Pen(self.backColour, width=self.borderWidth, style=wx.SOLID))
+        dc.SetPen(wx.Pen(background, width=self.borderWidth, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
 
         dc.SetFont(self.font)
-        dc.SetTextForeground("#000000")
+        dc.SetTextForeground(foreground)
     
         # Draw text label
         reclab = wx.Rect(0, 1, w, 9)
@@ -881,8 +891,8 @@ class ControlKnob(wx.Panel):
         recval = wx.Rect(5, 55, w-10, 13)
     
         if self.selected:
-            dc.SetBrush(wx.Brush('#FFFFFF', wx.SOLID))
-            dc.SetPen(wx.Pen('#FFFFFF', width=self.borderWidth, style=wx.SOLID))  
+            dc.SetBrush(wx.Brush(wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHT), wx.SOLID))
+            dc.SetPen(wx.Pen(wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHT), width=self.borderWidth, style=wx.SOLID))
             dc.DrawRoundedRectangle(recval, 3)
     
         dc.DrawBitmap(self.knobBitmap, 2, 13, True)
@@ -908,7 +918,7 @@ class ControlKnob(wx.Panel):
             width = len(val) * (dc.GetCharWidth() - 3)
         else:
             width = len(val) * dc.GetCharWidth()
-        dc.SetTextForeground('#000000')
+        dc.SetTextForeground(wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT) if self.selected else foreground)
         dc.DrawLabel(val, recval, wx.ALIGN_CENTER)
     
         # Send value

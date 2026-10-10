@@ -257,14 +257,14 @@ class ZyneFrame(wx.Frame):
         else:
             self.selected = (self.selected + 1) % num
         if old != None:
-            self.modules[old].setBackgroundColour(BACKGROUND_COLOUR)
-        self.modules[self.selected].setBackgroundColour("#DDDDE7")
+            self.modules[old].setSelected(False)
+        self.modules[self.selected].setSelected(True)
         item = self.genMenu.FindItemById(vars.constants["ID"]["Duplicate"])
         item.Enable(True)
 
     def clearSelection(self, evt):
         if self.selected != None:
-            self.modules[self.selected].setBackgroundColour(BACKGROUND_COLOUR)
+            self.modules[self.selected].setSelected(False)
         self.selected = None
         item = self.genMenu.FindItemById(vars.constants["ID"]["Duplicate"])
         item.Enable(False)
@@ -289,8 +289,8 @@ class ZyneFrame(wx.Frame):
             
             old = self.selected
             self.selected = len(self.modules) - 1
-            self.modules[old].setBackgroundColour(BACKGROUND_COLOUR)
-            self.modules[self.selected].setBackgroundColour("#DDDDE7")
+            self.modules[old].setSelected(False)
+            self.modules[self.selected].setSelected(True)
             
             wx.CallAfter(self.SetFocus)
 
@@ -370,7 +370,7 @@ class ZyneFrame(wx.Frame):
             size = (750, 500)
         lines = []
         lines.append("To assign midi controllers to module's sliders, user can use the midi learn mode.\n")
-        lines.append("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel will change its background colour.\n")
+        lines.append("First, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) to start midi learn mode, the server panel title will indicate MIDI learn mode.\n")
         lines.append("When in midi learn mode, click on a slider and play with the midi controller you want to assign, the controller number will appear at both end of the slider.\n")
         lines.append("To remove a midi assignation, click a second time on the selected slider without playing with a midi controller.\n")
         lines.append("Finally, hit Shift+Ctrl+M (Shift+Cmd+M on Mac) again to leave midi learn mode. Next time you start the server, you will be able to control the sliders with your midi controller.\n\n")
